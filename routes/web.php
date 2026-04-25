@@ -16,9 +16,9 @@ Route::post('/auth', [AuthController::class, 'handleAuth']);
 
 Route::post('/logout', [AuthController::class, 'logout']);
 
-Route::get('/appointment', function () {
-    return view('appointment');
-})->middleware('auth');
+Route::get('/appointment',[AppointmentController::class,'create']
+
+)->middleware('auth');
 
 Route::post('/appointment', [AppointmentController::class, 'store'])
     ->middleware('auth');

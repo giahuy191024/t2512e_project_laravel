@@ -31,7 +31,7 @@
     <input
         type="text"
         name="full_name"
-        value="{{ Auth::user()->name }}"
+        value="{{$user->name}}"
         readonly
     >
 
@@ -40,7 +40,7 @@
     <input
         type="email"
         name="email"
-        value="{{ Auth::user()->email }}"
+        value="{{ $user->email }}"
         readonly
     >
 
