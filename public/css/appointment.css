@@ -1,0 +1,109 @@
+/* ===== FORM APPOINTMENT ===== */
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #f5f7fa;
+    margin: 0;
+    padding: 0;
+}
+
+.appointment-container {
+    width: 700px;
+    margin: 50px auto;
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.appointment-container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #162938;
+    font-size: 28px;
+}
+
+form input,
+form select,
+form textarea {
+    width: 100%;
+    padding: 14px 16px;
+    margin-top: 8px;
+    margin-bottom: 18px;
+    border: 1px solid #dcdfe6;
+    border-radius: 10px;
+    font-size: 15px;
+    outline: none;
+    transition: 0.3s;
+    box-sizing: border-box;
+}
+
+form input:focus,
+form select:focus,
+form textarea:focus {
+    border-color: #162938;
+    box-shadow: 0 0 0 3px rgba(22, 41, 56, 0.08);
+}
+
+label {
+    font-weight: 600;
+    color: #162938;
+    display: block;
+    margin-bottom: 6px;
+}
+
+textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    background: #162938;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #0f1d29;
+}
+
+.success-message {
+    background: #e8fff0;
+    color: #1d7a3d;
+    padding: 14px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #b8ebc8;
+}
+
+.error-message {
+    background: #fff0f0;
+    color: #c0392b;
+    padding: 14px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #f1b0b0;
+}
+
+.logout-btn {
+    width: auto;
+    padding: 10px 20px;
+    background: #ffffff;
+    color: #162938;
+    border: 1px solid #162938;
+    border-radius: 8px;
+    float: right;
+    margin-bottom: 20px;
+}
+
+.logout-btn:hover {
+    background: #162938;
+    color: white;
+}

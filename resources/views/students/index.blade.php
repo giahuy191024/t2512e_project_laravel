@@ -14,14 +14,14 @@
         </tr>
         </thead>
         <tbody>
-        @foreach($products as $product)
+        @foreach($list as $item)
             <tr class="border-b">
-                <td class="py-2">{{ $product->name }}</td>
-                <td class="py-2">{{ number_format($product->price) }}đ</td>
-                <td class="py-2">{{ $product->stock }}</td>
+                <td class="py-2">{{ $item->fullName }}</td>
+                <td class="py-2">{{$item->email}}đ</td>
+                <td class="py-2">{{ $item->phone }}</td>
                 <td class="py-2 flex gap-2">
-                    <a href="{{ route('products.edit', $product->id) }}" class="text-yellow-600">Sửa</a>
-                    <form action="{{ route('products.destroy', $product->id) }}" method="POST"
+                    <a href="{{ route('students.edit', $item->id) }}" class="text-yellow-600">Sửa</a>
+                    <form action="{{ route('students.destroy', $item->id) }}" method="POST"
                           onsubmit="return confirm('Xóa?')">
                         @csrf @method('DELETE')
                         <button class="text-red-600">Xóa</button>
