@@ -35,7 +35,7 @@ class AuthController extends Controller
 
             if (Auth::attempt($credentials)) {
                 $request->session()->regenerate();
-                return redirect('/appointment');
+                return redirect('/dashboard');
             }
 
             return back()->with('error', 'Sai tài khoản hoặc mật khẩu');

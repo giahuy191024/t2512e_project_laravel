@@ -46,4 +46,14 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+    public function isDoctor(){
+        return $this->role === 'doctor';
+    }
+    public function isPatient(){
+        return $this->role === 'patient';
+    }
 }
