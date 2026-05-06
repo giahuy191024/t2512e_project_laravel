@@ -1,35 +1,41 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-</head>
-<body>
-    <div class="container">
-        <h1>Welcome {{auth()->user()->name}}</h1>
-        @if(auth()->user()->role === 'admin')
-            <div class="admin-section">
-                <h3>Bang dieu khien Admin</h3>
-            </div>
-        @elseif(auth()->user()->role === 'doctor')
-            <!-- Nội dung dành cho Bác sĩ -->
-            <div class="doctor-section">
-                <h3>Khu vực Bác sĩ</h3>
-                <p>Xem danh sách lịch khám hôm nay.</p>
-                <a href="/doctor/schedule">Xem lịch hẹn</a>
-            </div>
+@extends('layouts.admin')
 
-        @else
-            <!-- Mặc định là Patient -->
-            <div class="patient-section">
-                <h3>Khu vực Bệnh nhân</h3>
-                <p>Ông muốn đặt lịch khám hôm nay không?</p>
-                <a href="/appointment">Đặt lịch hẹn ngay</a>
-            </div>
-        @endif
-    </div>
-</body>
-</html>
+@section('content')
+
+    @if(auth()->user()->role === 'admin')
+        <!-- ========================================== -->
+        <!-- GIAO DIỆN DÀNH CHO ADMIN (Mẫu Adminator)   -->
+        <!-- ========================================== -->
+        <div class="text-muted mb-2" style="font-size: 0.8rem; letter-spacing: 1px; text-transform: uppercase;">
+            {{ now()->format('l &bull; M j &bull; Y') }}
+        </div>
+
+        <h1 class="fw-bold mb-3" style="font-size: 2.5rem;">
+            Welcome back, <span style="color: #3b82f6;">{{ explode(' ', auth()->user()->name)[0] }}</span>
+        </h1>
+
+        <p class="text-muted w-50 mb-5" style="font-size: 0.95rem; line-height: 1.6;">
+            Total visits are <span class="text-success">+10%</span> week over week, unique visitors steady, and bounce rate holding at 33%. Two new regions came online overnight.
+        </p>
+
+        <div class="row">
+            <!-- Tạm thời để trống -->
+        </div>
+
+    @elseif(auth()->user()->role === 'doctor')
+        <!-- ========================================== -->
+        <!-- GIAO DIỆN DÀNH CHO BÁC SĨ                  -->
+        <!-- ========================================== -->
+        <h1 class="fw-bold mb-3">Khu vực làm việc của Bác sĩ</h1>
+        <p class="text-muted">Ông có 5 lịch khám đang chờ hôm nay.</p>
+
+    @else
+        <!-- ========================================== -->
+        <!-- GIAO DIỆN DÀNH CHO BỆNH NHÂN               -->
+        <!-- ========================================== -->
+        <h1 class="fw-bold mb-3">Xin chào, {{ auth()->user()->name }}</h1>
+        <p class="text-muted">Ông muốn đặt lịch khám bệnh hôm nay chứ?</p>
+        <a href="/appointment" class="btn btn-primary mt-3">Đặt lịch ngay</a>
+    @endif
+
+@endsection

@@ -34,6 +34,10 @@ Route::middleware(['auth','role:doctor'])->group(function () {
 
 });
 //admin dashboard
-Route::middleware(['auth','role:admin'])->group(function () {
-
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+    Route::get('/accounts', [AdminController::class, 'manageAccounts'])->name('admin.accounts');
+    Route::get('/doctors', [AdminController::class, 'manageDoctors'])->name('admin.doctors');
+    Route::get('/patients', [AdminController::class, 'managePatients'])->name('admin.patients');
+    Route::get('/cities', [AdminController::class, 'manageCities'])->name('admin.cities');
+    Route::get('/contents', [AdminController::class, 'manageContents'])->name('admin.contents');
 });
