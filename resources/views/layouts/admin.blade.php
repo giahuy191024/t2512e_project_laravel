@@ -27,18 +27,18 @@
     <!-- Menu -->
     <div class="sidebar-menu">
         <div class="menu-category">Workspace</div>
-        <a href="/dashboard" class="menu-item active"><i class="fa-solid fa-house"></i> Dashboard</a>
+        <a href="/dashboard" class="menu-item"><i class="fa-solid fa-house"></i> Dashboard</a>
 
         @if(auth()->user()->role === 'admin')
             <!-- MENU CHỈ HIỆN CHO ADMIN -->
             <div class="menu-category">Management</div>
-            <a href="{{ route('admin.accounts') }}" class="menu-item"><i class="fa-solid fa-users"></i> Tài khoản</a>
-            <a href="{{ route('admin.doctors') }}" class="menu-item"><i class="fa-solid fa-user-doctor"></i> Bác sĩ</a>
-            <a href="{{ route('admin.patients') }}" class="menu-item"><i class="fa-solid fa-hospital-user"></i> Bệnh nhân</a>
+            <a href="{{ route('admin.accounts') }}" class="menu-item {{Route::is('admin.accounts') ? 'active' : ''}}"><i class="fa-solid fa-users"></i> Tài khoản</a>
+            <a href="{{ route('admin.doctors') }}" class="menu-item {{Route::is('admin.doctors') ? 'active' : ''}}"><i class="fa-solid fa-user-doctor"></i> Bác sĩ</a>
+            <a href="{{ route('admin.patients') }}" class="menu-item {{Route::is('admin.patients') ? 'active' : ''}}"><i class="fa-solid fa-hospital-user"></i> Bệnh nhân</a>
 
             <div class="menu-category">Settings</div>
-            <a href="{{ route('admin.cities') }}" class="menu-item"><i class="fa-solid fa-city"></i> Thành phố</a>
-            <a href="{{ route('admin.contents') }}" class="menu-item"><i class="fa-solid fa-file-lines"></i> Nội dung</a>
+            <a href="{{ route('admin.cities') }}" class="menu-item {{Route::is('admin.cities') ? 'active' : ''}}"><i class="fa-solid fa-city"></i> Thành phố</a>
+            <a href="{{ route('admin.contents') }}" class="menu-item {{Route::is('admin.contents') ? 'active' : ''}}"><i class="fa-solid fa-file-lines"></i> Nội dung</a>
 
         @elseif(auth()->user()->role === 'doctor')
             <!-- MENU CHỈ HIỆN CHO BÁC SĨ -->
@@ -115,6 +115,6 @@
         <div>Designed for Laravel</div>
     </footer>
 </main>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
