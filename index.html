@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEDICON — Phòng khám nha khoa</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <div id="app" class="is-loading is-home">
+<!-- Portal for Transitions -->
+<div class="portal">
+<div class="portal__service"></div> 
+<div class="portal__hero"></div>
+</div>
+<!-- Fixed shortcut → Servizi (.back matches production <a><button>; scroll reveal via #global-back.is-visible) -->
+<a href="#/servizi" id="global-back-wrap" data-route="servizi" aria-label="Dịch vụ">
+<button type="button" id="global-back" class="button fs-small back is-alt" data-cursor>
+<div class="button__inner">
+<div class="button__label fs-xsmall uppercase" data-label="dich vu">dich vu</div>
+</div>
+</button>
+</a>
+<!-- Custom Cursor -->
+<div class="cursor" id="cursor">
+<div class="cursor__inner">
+<div class="cursor__text"></div>
+</div>
+</div>
+        <!-- Loader -->
+        <div class="loader">
+            <div class="logo loader__logo">
+                <div class="logo-wheel">
+                    <div class="logo-wheel-inner">
+                        <svg width="69" height="69" viewBox="0 0 69 69" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21.1229 65.8919C25.2709 67.6189 29.7198 68.5074 34.2129 68.506C40.9922 68.5199 47.6222 66.5161 53.2589 62.7497C58.8955 58.9833 63.2838 53.6246 65.8649 47.3559C67.5977 43.205 68.4899 38.7516 68.4899 34.2534C68.4899 29.7553 67.5977 25.3019 65.8649 21.1509C64.1549 16.9904 61.6365 13.2104 58.4556 10.0297C55.2748 6.84898 51.4946 4.33081 47.3339 2.62095C43.1853 0.893509 38.7358 0.00441832 34.2419 0.00494651C27.4637 -0.00814113 20.8348 1.99584 15.199 5.76182C9.56322 9.52781 5.17537 14.8855 2.59395 21.1529C-0.869887 29.5439 -0.864442 38.9662 2.60909 47.3531C6.08262 55.7401 12.7407 62.4071 21.1229 65.8919M1.05094 35.0239L11.4349 43.1239L3.37794 46.4569C1.93062 42.8133 1.1427 38.9414 1.05094 35.0219M11.8389 44.1019L10.2229 57.1749C7.51538 54.3357 5.33351 51.0381 3.77894 47.4359L11.8389 44.1019ZM1.05494 33.4919C1.14429 29.5718 1.9316 25.6989 3.37994 22.0549L11.4349 25.3899L1.05494 33.4919ZM3.78895 21.0789C5.33803 17.4732 7.51669 14.172 10.2229 11.3299L11.8369 24.4089L3.78895 21.0789ZM11.3309 10.2609C14.1648 7.55759 17.4554 5.37788 21.0499 3.82295L24.3809 11.8639L11.3309 10.2609ZM44.0749 11.8679L47.4119 3.81395C51.0131 5.36596 54.3085 7.54817 57.1429 10.2579L44.0749 11.8679ZM67.4029 35.0279C67.3123 38.9473 66.525 42.8193 65.0779 46.4629L57.0229 43.1259L67.4029 35.0279ZM24.3809 56.6469L21.0439 64.7029C17.4443 63.1487 14.15 60.9664 11.3149 58.2579L24.3809 56.6469ZM57.1229 58.2559C54.2897 60.9578 50.9993 63.1353 47.4049 64.687L44.0729 56.6469L57.1229 58.2559ZM34.2229 52.8509L42.3889 56.2339L34.2289 66.7L26.0619 56.2339L34.2229 52.8509ZM47.3769 21.1069L43.9919 12.9399L57.1709 11.3169L55.5429 24.4919L47.3769 21.1069ZM21.0769 47.4069L24.4589 55.5739L11.2889 57.1919L12.9139 44.0219L21.0769 47.4069ZM13.1629 42.9839L16.2039 35.6409L20.5039 46.0249L13.1629 42.9839ZM16.2039 32.8769L13.1629 25.5339L20.5079 22.4919L16.2039 32.8769ZM47.9489 46.0229L52.2489 35.6379L55.2899 42.9809L47.9489 46.0229ZM46.5669 46.5949L34.2289 51.7079L21.8889 46.5919L16.7789 34.2529L21.8889 21.9169L34.2289 16.8059L46.5669 21.9169L51.6779 34.2559L46.5669 46.5949ZM45.9959 47.9759L42.9549 55.3199L35.6099 52.2789L45.9959 47.9759ZM55.5429 44.0219L57.1709 57.1919L43.9919 55.5729L47.3769 47.4049L55.5429 44.0219ZM47.9489 22.4919L55.2909 25.5349L52.2499 32.8799L47.9489 22.4919ZM32.8489 52.2829L25.5029 55.3199L22.4609 47.9749L32.8489 52.2829ZM43.0989 57.0529L46.4319 65.0979C42.7906 66.5422 38.9221 67.3293 35.0059 67.423L43.0989 57.0529ZM52.8239 34.2529L56.2069 26.0919L66.6699 34.2599L56.2069 42.4229L52.8239 34.2529ZM35.6099 16.2319L42.9549 13.1919L45.9959 20.5349L35.6099 16.2319ZM22.4609 20.5319L25.5029 13.1919L32.8459 16.2329L22.4609 20.5319ZM12.9139 24.4919L11.2889 11.3169L24.4619 12.9399L21.0799 21.1069L12.9139 24.4919ZM15.6339 34.2579L12.2519 42.4249L1.78795 34.2599L12.2519 26.0919L15.6339 34.2579ZM33.4569 67.4319C29.5378 67.3417 25.6661 66.5544 22.0229 65.1069L25.3579 57.0529L33.4569 67.4319ZM64.6689 47.4369C63.12 51.0412 60.9405 54.3402 58.2329 57.1789L56.6229 44.1019L64.6689 47.4369ZM34.9969 1.08095C38.9178 1.17006 42.7914 1.95737 46.4359 3.40595L43.0989 11.4589L34.9969 1.08095ZM34.2289 15.6599L26.0619 12.2779L34.2289 1.81494L42.3949 12.2779L34.2289 15.6599ZM25.3579 11.4599L22.0229 3.41495C25.6659 1.96945 29.5367 1.18288 33.4549 1.09194L25.3579 11.4599ZM57.0229 25.3849L65.0789 22.0499C66.5275 25.6957 67.3158 29.5701 67.4069 33.4919L57.0229 25.3849ZM56.6229 24.4069L58.2359 11.3369C60.9417 14.1763 63.1231 17.4726 64.6789 21.0729L56.6229 24.4069Z" fill="#62C7AA"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="logo-text wc-t">
+                    <div class="logo-line" data-brand="MEDICON"><svg width="93" height="17" viewBox="0 0 93 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.6 12.3477C2.70796 13.3715 4.13782 13.9775 5.644 14.0617C6.878 14.0617 8 13.4197 8 12.0967C8 9.19675 0.347 9.69675 0.347 4.71675C0.347 2.01675 2.677 0.00474838 5.784 0.00474838C7.56282 -0.0612749 9.29823 0.563301 10.627 1.74775L9.345 4.14175C8.34042 3.28461 7.07829 2.78764 5.759 2.72975C4.388 2.72975 3.314 3.52975 3.314 4.67175C3.314 7.54775 10.948 6.83775 10.948 12.0297C10.948 14.6087 8.98 16.7807 5.6 16.7807C4.56659 16.798 3.53994 16.6111 2.57895 16.2306C1.61796 15.8502 0.741552 15.2837 0 14.5637L1.6 12.3477Z" fill="#62C7AA"></path> <path d="M13.649 0.283752V2.81775H18.972V16.5068H21.922V2.81775H27.249V0.283752H13.649Z" fill="#62C7AA"></path> <path d="M30.89 0.283752H33.837V10.6838C33.837 12.8548 35.255 14.0838 37.427 14.0838C39.599 14.0838 41.036 12.8498 41.036 10.6558V0.283752H43.984V10.6838C43.984 14.3178 41.357 16.7838 37.449 16.7838C33.519 16.7838 30.89 14.3128 30.89 10.6838V0.283752Z" fill="#62C7AA"></path> <path d="M49.594 0.283752H55.123C60.128 0.283752 63.394 3.25375 63.394 8.37275C63.394 13.4918 60.126 16.5068 55.121 16.5068H49.594V0.283752ZM54.964 13.9718C58.255 13.9718 60.357 12.0288 60.357 8.37175C60.357 4.75975 58.211 2.81775 54.964 2.81775H52.542V13.9718H54.964Z" fill="#62C7AA"></path> <path d="M68.208 16.5058H71.156V0.283752H68.208V16.5058Z" fill="#62C7AA"></path> <path d="M84.255 0.00475026C85.3535 -0.0200849 86.4457 0.176097 87.4669 0.581643C88.4881 0.98719 89.4173 1.59383 90.1995 2.36553C90.9816 3.13723 91.6007 4.05824 92.02 5.07388C92.4392 6.08951 92.6501 7.17904 92.64 8.27775C92.6672 9.39179 92.4697 10.4999 92.0595 11.536C91.6492 12.5721 91.0345 13.5150 90.252 14.3084C89.4695 15.1018 88.5352 15.7295 87.5049 16.1541C86.4746 16.5787 85.3693 16.7915 84.255 16.7798C83.1406 16.7919 82.0352 16.5795 81.0046 16.1552C79.9741 15.7309 79.0396 15.1034 78.2568 14.3102C77.474 13.5169 76.859 12.5742 76.4484 11.5381C76.0378 10.5020 75.8401 9.39388 75.867 8.27975C75.8566 7.18061 76.0674 6.09061 76.4867 5.07454C76.906 4.05847 77.5253 3.13708 78.3078 2.36512C79.0903 1.59317 80.02 0.986416 81.0417 0.58093C82.0633 0.175443 83.1561 -0.0204993 84.255 0.00475026ZM84.255 14.0838C84.9906 14.0642 85.7148 13.8972 86.3847 13.5926C87.0546 13.2881 87.6566 12.8522 88.155 12.3108C88.6534 11.7694 89.0381 11.1335 89.2863 10.4408C89.5345 9.748 89.6412 9.01248 89.6 8.27775C89.6267 7.55789 89.5084 6.84002 89.2521 6.1668C88.9958 5.49358 88.6068 4.87875 88.1082 4.35886C87.6096 3.83898 87.0115 3.42464 86.3496 3.14048C85.6876 2.85632 84.9753 2.70814 84.255 2.70475C83.5344 2.70788 82.8219 2.85586 82.1596 3.13989C81.4974 3.42391 80.8991 3.83819 80.4002 4.35809C79.9013 4.878 79.512 5.4929 79.2555 6.16626C78.9989 6.83962 78.8804 7.55768 78.907 8.27775C78.8658 9.01272 78.9725 9.74849 79.2209 10.4414C79.4693 11.1344 79.8543 11.7704 80.353 12.3119C80.8517 12.8533 81.4541 13.2891 82.1243 13.5935C82.7946 13.8978 83.5191 14.0646 84.255 14.0838Z" fill="#62C7AA"></path></svg></div>
+<div class="logo-line" data-brand="NHA KHOA"><svg width="150" height="17" viewBox="0 0 150 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 0.284305H5.529C10.534 0.284305 13.8 3.25431 13.8 8.37331C13.8 13.4923 10.532 16.5073 5.527 16.5073H0V0.284305ZM5.37 13.9723C8.661 13.9723 10.763 12.0293 10.763 8.37231C10.763 4.76031 8.616 2.81831 5.37 2.81831H2.947V13.9723H5.37Z" fill="#62C7AA"></path> <path d="M18.612 0.284305H28.325V2.81931H21.559V7.06731H27.022V9.60731H21.559V13.9723H28.691V16.5073H18.612V0.284305Z" fill="#62C7AA"></path> <path d="M33.475 0.284305H36.422L42.569 9.65131C43.0676 10.4618 43.5187 11.3005 43.92 12.1633H43.964C43.964 12.1633 43.805 10.6123 43.805 9.65131V0.284305H46.73V16.5073H43.805L37.656 7.1623C37.1582 6.34983 36.7081 5.50907 36.308 4.64431H36.263C36.263 4.64431 36.422 6.2013 36.422 7.1623V16.5073H33.475V0.284305Z" fill="#62C7AA"></path> <path d="M55.924 2.81931H50.601V0.284305H64.201V2.81931H58.874V16.5073H55.924V2.81931Z" fill="#62C7AA"></path> <path d="M68.069 0.284305H71.017V16.5073H68.069V0.284305Z" fill="#62C7AA"></path> <path d="M77.216 12.3483C78.3239 13.3721 79.7538 13.9781 81.26 14.0623C82.494 14.0623 83.616 13.4203 83.616 12.0973C83.616 9.19731 75.963 9.69731 75.963 4.71731C75.963 2.01731 78.294 0.00530615 81.4 0.00530615C83.1788 -0.0607171 84.9142 0.563859 86.243 1.74831L84.962 4.14231C83.9571 3.28503 82.6946 2.78806 81.375 2.73031C80.004 2.73031 78.93 3.53031 78.93 4.67231C78.93 7.54831 86.564 6.83831 86.564 12.0303C86.564 14.6093 84.596 16.7813 81.216 16.7813C80.1826 16.7986 79.1559 16.6116 78.1949 16.2312C77.2339 15.8507 76.3575 15.2843 75.616 14.5643L77.216 12.3483Z" fill="#62C7AA"></path> <path d="M94.588 2.81931H89.265V0.284305H102.865V2.81931H97.538V16.5073H94.588V2.81931Z" fill="#62C7AA"></path> <path d="M106.735 0.284305H109.683V16.5073H106.735V0.284305Z" fill="#62C7AA"></path> <path d="M122.735 0.00530805C124.946 -0.0733776 127.098 0.725368 128.722 2.22731L127.307 4.42131C126.067 3.36068 124.503 2.75526 122.872 2.70531C122.14 2.683 121.412 2.81296 120.733 3.08694C120.054 3.36093 119.44 3.77297 118.929 4.29694C118.418 4.8209 118.021 5.44536 117.764 6.13073C117.507 6.81609 117.395 7.54741 117.435 8.27831C117.435 11.3653 119.514 14.0843 122.894 14.0843C124.668 14.0221 126.351 13.2874 127.603 12.0293L129.158 14.1513C128.329 14.9992 127.337 15.6696 126.24 16.1216C125.144 16.5735 123.968 16.7977 122.782 16.7803C121.666 16.8125 120.556 16.6154 119.519 16.2012C118.483 15.787 117.543 15.1645 116.756 14.3723C115.97 13.58 115.355 12.6348 114.949 11.5952C114.543 10.5556 114.354 9.4437 114.395 8.32831C114.372 7.22761 114.572 6.13369 114.984 5.11246C115.395 4.09123 116.009 3.16383 116.788 2.38615C117.567 1.60847 118.496 0.996603 119.518 0.587427C120.54 0.178251 121.634 -0.0197657 122.735 0.00530805Z" fill="#62C7AA"></path> <path d="M140.774 0.00530805C141.872 -0.0195271 142.965 0.176655 143.986 0.582201C145.007 0.987747 145.936 1.59438 146.719 2.36608C147.501 3.13778 148.12 4.0588 148.539 5.07443C148.958 6.09006 149.169 7.1796 149.159 8.27831C149.186 9.39235 148.989 10.5005 148.578 11.5366C148.168 12.5727 147.553 13.5155 146.771 14.309C145.988 15.1024 145.054 15.7301 144.024 16.1547C142.994 16.5793 141.888 16.7921 140.774 16.7803C139.66 16.7924 138.554 16.58 137.524 16.1558C136.493 15.7315 135.559 15.104 134.776 14.3107C133.993 13.5175 133.378 12.5747 132.967 11.5387C132.557 10.5026 132.359 9.39444 132.386 8.28031C132.376 7.18117 132.586 6.09117 133.006 5.0751C133.425 4.05903 134.044 3.13763 134.827 2.36568C135.609 1.59373 136.539 0.986972 137.561 0.581486C138.582 0.175999 139.675 -0.0199415 140.774 0.00530805ZM140.774 14.0843C141.51 14.0647 142.234 13.8977 142.904 13.5932C143.574 13.2886 144.176 12.8528 144.674 12.3114C145.172 11.77 145.557 11.1341 145.805 10.4413C146.054 9.74856 146.16 9.01303 146.119 8.27831C146.146 7.55845 146.027 6.84058 145.771 6.16736C145.515 5.49414 145.126 4.87931 144.627 4.35942C144.129 3.83953 143.531 3.4252 142.869 3.14104C142.207 2.85688 141.494 2.7087 140.774 2.70531C140.053 2.70844 139.341 2.85642 138.679 3.14044C138.016 3.42447 137.418 3.83875 136.919 4.35865C136.42 4.87855 136.031 5.49346 135.774 6.16682C135.518 6.84018 135.399 7.55824 135.426 8.27831C135.385 9.01328 135.492 9.74904 135.74 10.442C135.988 11.135 136.373 11.771 136.872 12.3124C137.371 12.8539 137.973 13.2897 138.643 13.594C139.314 13.8984 140.038 14.0651 140.774 14.0843Z" fill="#62C7AA"></path></svg></div>
+<div class="logo-line" data-brand="DENTAL CLINIC"><svg width="184" height="17" viewBox="0 0 184 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 0.278318H5.529C10.534 0.278318 13.8 3.24832 13.8 8.36732C13.8 13.4863 10.532 16.5013 5.527 16.5013H0V0.278318ZM5.37 13.9663C8.661 13.9663 10.763 12.0243 10.763 8.36632C10.763 4.75432 8.616 2.81231 5.37 2.81231H2.947V13.9663H5.37Z" fill="#62C7AA"></path> <path d="M25.88 0.00531575C26.9785 -0.0195194 28.0707 0.176662 29.0919 0.582209C30.1131 0.987755 31.0424 1.5944 31.8245 2.36609C32.6067 3.13779 33.2257 4.05881 33.645 5.07444C34.0642 6.09007 34.2751 7.17961 34.265 8.27832C34.2915 9.39218 34.0936 10.5 33.683 11.5358C33.2725 12.5715 32.6578 13.5141 31.8754 14.3074C31.093 15.1007 30.1591 15.7284 29.1291 16.1533C28.0991 16.5781 26.9941 16.7914 25.88 16.7803C24.7658 16.7916 23.6608 16.5786 22.6306 16.1541C21.6005 15.7295 20.6663 15.102 19.8837 14.3089C19.101 13.5158 18.486 12.5734 18.0751 11.5377C17.6642 10.502 17.4659 9.39423 17.492 8.28032C17.4817 7.18118 17.6924 6.09118 18.1117 5.07511C18.531 4.05904 19.1503 3.13764 19.9328 2.36569C20.7153 1.59374 21.645 0.986982 22.6667 0.581495C23.6883 0.176009 24.7811 -0.0199338 25.88 0.00531575ZM25.88 14.0783C26.6151 14.0587 27.3388 13.8919 28.0083 13.5877C28.6778 13.2836 29.2795 12.8482 29.7778 12.3075C30.2761 11.7667 30.6609 11.1316 30.9095 10.4395C31.1581 9.74743 31.2654 9.01256 31.225 8.27832C31.2508 7.55867 31.132 6.84116 30.8754 6.16831C30.6188 5.49546 30.2298 4.88096 29.7313 4.36125C29.2328 3.84153 28.6351 3.42717 27.9736 3.14272C27.312 2.85828 26.6001 2.70954 25.88 2.70532C25.1596 2.70914 24.4474 2.85758 23.7855 3.14185C23.1236 3.42612 22.5255 3.84042 22.0267 4.36017C21.528 4.87993 21.1387 5.49456 20.8819 6.16761C20.6251 6.84066 20.5061 7.55842 20.532 8.27832C20.4916 9.0128 20.599 9.74792 20.8478 10.4402C21.0965 11.1324 21.4816 11.7677 21.9803 12.3085C22.4789 12.8493 23.081 13.2846 23.7508 13.5886C24.4206 13.8926 25.1447 14.0591 25.88 14.0783Z" fill="#62C7AA"></path> <path d="M36.885 0.279318V2.81332H42.208V16.5013H45.159V2.81332H50.485V0.279318H36.885Z" fill="#62C7AA"></path> <path d="M52.935 0.279318V2.81332H58.258V16.5013H61.208V2.81332H66.535V0.279318H52.935Z" fill="#62C7AA"></path> <path d="M68.621 16.5013H71.521V13.6013H68.621V16.5013Z" fill="#62C7AA"></path> <path d="M84.054 0.278318H89.861C92.786 0.278318 94.861 1.78532 94.861 4.45932C94.8839 5.16258 94.7129 5.85859 94.3666 6.47116C94.0204 7.08372 93.5123 7.58922 92.898 7.93232V7.97832C93.6957 8.23645 94.3858 8.75073 94.8611 9.4413C95.3365 10.1319 95.5706 10.9601 95.527 11.7973C95.527 15.0403 92.92 16.5033 89.927 16.5033H84.054V0.278318ZM89.861 6.90432C90.1341 6.91524 90.4064 6.86829 90.66 6.76653C90.9137 6.66478 91.1429 6.51054 91.3327 6.31392C91.5226 6.1173 91.6686 5.88276 91.7614 5.62569C91.8542 5.36862 91.8915 5.09484 91.871 4.82232C91.8919 4.54874 91.8524 4.27393 91.7556 4.01724C91.6587 3.76055 91.5066 3.52824 91.3102 3.33668C91.1138 3.14512 90.8778 2.99897 90.6187 2.90854C90.3597 2.81812 90.084 2.78561 89.811 2.81332H87.001V6.90432H89.861ZM90.161 13.9663C90.4762 13.9899 90.7927 13.9451 91.0889 13.8349C91.3851 13.7248 91.654 13.5519 91.8772 13.3281C92.1004 13.1044 92.2726 12.835 92.382 12.5385C92.4914 12.242 92.5354 11.9254 92.511 11.6103C92.53 11.2972 92.4817 10.9837 92.3696 10.6907C92.2574 10.3978 92.0839 10.1322 91.8607 9.91185C91.6374 9.69147 91.3697 9.52137 91.0753 9.41297C90.781 9.30456 90.4668 9.26036 90.154 9.28332H87.001V13.9663H90.161Z" fill="#62C7AA"></path> <path d="M100.451 0.278315H105.682C106.792 0.186317 107.909 0.342773 108.951 0.736315C109.787 1.12327 110.486 1.75315 110.959 2.54376C111.431 3.33437 111.654 4.249 111.599 5.16832C111.634 6.09598 111.393 7.01317 110.904 7.80277C110.416 8.59236 109.704 9.21853 108.858 9.60132V9.64532C109.073 9.8882 109.257 10.1569 109.405 10.4453L112.744 16.4973H109.451L106.229 10.4493H103.398V16.5013H100.451V0.278315ZM106.051 7.88732C106.395 7.91832 106.741 7.87346 107.065 7.75591C107.389 7.63836 107.684 7.45099 107.927 7.20705C108.171 6.96312 108.359 6.66858 108.476 6.34427C108.593 6.01997 108.638 5.67382 108.607 5.33032C108.607 3.77332 107.943 2.81332 105.637 2.81332H103.398V7.88732H106.051Z" fill="#62C7AA"></path> <path d="M116.841 0.278318H119.788V10.6783C119.788 12.8493 121.206 14.0783 123.378 14.0783C125.55 14.0783 126.99 12.8443 126.99 10.6503V0.278318H129.941V10.6783C129.941 14.3123 127.312 16.7853 123.404 16.7853C119.47 16.7783 116.841 14.3073 116.841 10.6783V0.278318Z" fill="#62C7AA"></path> <path d="M135.916 12.3423C137.023 13.3658 138.452 13.9718 139.958 14.0563C141.191 14.0563 142.316 13.4203 142.316 12.0913C142.316 9.19132 134.662 9.69132 134.662 4.71132C134.662 2.01132 136.99 0.00531957 140.099 0.00531957C141.877 -0.0613535 143.612 0.56089 144.943 1.74232L143.659 4.14232C142.656 3.28249 141.395 2.78327 140.075 2.72432C138.702 2.72432 137.63 3.52432 137.63 4.66632C137.63 7.54232 145.261 6.84232 145.261 12.0243C145.261 14.6093 143.296 16.7803 139.916 16.7803C138.882 16.7974 137.855 16.6098 136.894 16.2285C135.933 15.8471 135.057 15.2795 134.316 14.5583L135.916 12.3423Z" fill="#62C7AA"></path></svg></div>
+</div>
+</div>
+</div>
+<!-- Navigation -->
+<nav class="nav">
+<div class="nav__container uppercase ff-bold fs-xsmall">
+<div class="nav__item" data-cursor id="menu-toggle">
+<button class="nav__item__inner" data-link>
+<span data-label="menu">menu</span>
+</button>
+</div>
+<a href="#/contatti" class="nav__item" data-cursor data-route="contatti">
+<span data-link>
+<span data-label="liên hệ">liên hệ</span>
+</span>
+</a>
+</div>
+</nav>
+<!-- Menu -->
+<div class="menu-wrap">
+<div class="menu">
+<div class="menu__inner">
+<p class="menu__paragraph lh-base fs-xsmall uppercase">
+Chúng tôi luôn đặt sức khỏe răng miệng của bệnh nhân lên hàng đầu, vì vậy mỗi ngày đều nỗ lực mang đến dịch vụ tốt nhất.
+</p> 
+<ul class="menu__list">
+<li class="menu__item is-active" style="--delay: 0;">
+<a href="#/" class="menu__link display-flex ff-light position-relative uppercase" data-cursor data-route="index">
+<div class="menu__item__pre">
+<span class="menu__item__index fs-small ff-base">01</span>
+<img class="menu__item__media" alt="home" loading="lazy" decoding="async" />
+</div> 
+<div data-label="trang chủ" class="menu__item__label"><span>trang chủ</span></div>
+</a>
+</li>
+<li class="menu__item" style="--delay: 1;">
+<a href="#/team" class="menu__link display-flex ff-light position-relative uppercase" data-cursor data-route="team">
+<div class="menu__item__pre">
+<span class="menu__item__index fs-small ff-base">02</span>
+<img class="menu__item__media" alt="team" loading="lazy" decoding="async" />
+</div> 
+<div data-label="team" class="menu__item__label"><span>team</span></div>
+</a>
+</li>
+<li class="menu__item" style="--delay: 2;">
+<a href="#/servizi" class="menu__link display-flex ff-light position-relative uppercase" data-cursor data-route="servizi">
+<div class="menu__item__pre">
+<span class="menu__item__index fs-small ff-base">03</span>
+<img class="menu__item__media" alt="Dịch vụ" loading="lazy" decoding="async" />
+</div> 
+<div data-label="dịch vụ" class="menu__item__label"><span>dịch vụ</span></div>
+</a>
+</li>
+<li class="menu__item" style="--delay: 3;">
+<a href="#/contatti" class="menu__link display-flex ff-light position-relative uppercase" data-cursor data-route="contatti">
+<div class="menu__item__pre">
+<span class="menu__item__index fs-small ff-base">04</span>
+<img class="menu__item__media" alt="Liên hệ" loading="lazy" decoding="async" />
+</div> 
+<div data-label="liên hệ" class="menu__item__label"><span>liên hệ</span></div>
+</a>
+</li>
+</ul> 
+<div class="menu__cta">
+<button data-cursor class="button fs-small">
+<div class="button__inner"><span data-label="biểu mẫu" class="button__label">biểu mẫu</span></div>
+</button>
+</div> 
+<div class="menu__footer uppercase fs-xsmall">
+<span class="menu__footer__name" data-link><span data-label="nha khoa MEDICON">nha khoa MEDICON</span></span> 
+<a href="#/modulistica" class="lh-base" data-link data-cursor data-route="modulistica"><span data-label="biểu mẫu">biểu mẫu</span></a>
+<span data-link><span data-label="p.iva 03277910232">p.iva 03277910232</span></span> 
+<a href="#/privacy" class="lh-base" data-link data-cursor data-route="privacy"><span data-label="quyền riêng tư & chính sách">quyền riêng tư & chính sách</span></a> 
+<a href="https://e-t.studio/" target="_blank" data-link data-cursor><span data-label="đội ngũ phát triển">đội ngũ phát triển</span></a>
+</div>
+</div>
+</div>
+</div>
+<!-- Page Container (SPA mount point) -->
+<div id="page-container">
+<main class="page home">
+<div class="page__inner position-relative">
+<section class="home__slider">
+<!-- Item 01: MEDICON -->
+<a href="#/" data-uid="home" class="home__slider__item home__slider__item--first c-alt is-active" data-cursor-text="Giới thiệu" data-route="index">
+<div class="home__slider__inner wc-t c-alt home__slider__intro">
+<div class="home__slider__intro__top">
+<p class="home__slider__paragraph fs-xsmall uppercase slide-in lh-base">
+Chúng tôi luôn đặt sức khỏe răng miệng của bệnh nhân lên hàng đầu, vì vậy mỗi ngày đều nỗ lực mang đến dịch vụ tốt nhất.
+</p> 
+<span class="home__slider__title wc-t fs-xlarge uppercase ff-light">MEDICON</span>
+</div> 
+<div class="home__slider__intro__bottom">
+<div class="home__slider__content position-relative">
+<div class="home__slider__counter">
+<span class="ff-serif slide-in">01</span> 
+<span class="ff-serif slide-in">04</span>
+</div> 
+<p class="home__slider__paragraph wc-to slide-in fs-xsmall uppercase lh-base">
+MEDICON vận hành theo y học chứng cứ, đưa ra lộ trình chẩn đoán và điều trị được kiểm chứng khoa học.
+</p>
+</div> 
+<span class="home__slider__title wc-t fs-xlarge uppercase ff-light">DENTAL</span>
+</div>
+</div> 
+<div class="home__slider__item__media">
+<div class="media position-relative wc-t has-video">
+<div class="media__inner wc-t has-video">
+<video autoplay preload="auto" playsinline loop muted class="media__video">
+<source src="https://player.vimeo.com/progressive_redirect/playback/780648700/rendition/1080p/file.mp4?loc=external&signature=14dfe85852994647f5b45b83007d634639340f84cac430d6dae91acc7b154828" type="video/mp4">
+</video> 
+<div class="picture__wrapper media__picture">
+<img src="https://www.studiobrusco.com/cms/uploads/test_1_19fc4e494c.png" alt="Phòng khám MEDICON" class="picture__image wc-t">
+</div>
+</div>
+</div>
+</div>
+</a>
+<!-- Item 02: Team -->
+<a href="#/team" data-uid="team" class="home__slider__item c-alt" data-cursor-text="Đội ngũ" data-route="team">
+<div class="home__slider__inner c-alt wc-t">
+<div class="home__slider__content position-relative">
+<div class="home__slider__counter">
+<span class="ff-serif slide-in">02</span> 
+<span class="ff-serif slide-in">04</span>
+</div> 
+<p class="home__slider__paragraph slide-in fs-xsmall uppercase lh-base wc-to">
+Đội ngũ chuyên môn được đào tạo bài bản, luôn lắng nghe nhu cầu của bạn và tư vấn minh bạch, trung thực.
+</p>
+</div> 
+<h3 class="home__slider__title fs-xlarge uppercase ff-light wc-t">Đội ngũ</h3>
+</div> 
+<div class="home__slider__item__media">
+<div class="media position-relative wc-t has-video">
+<div class="media__inner wc-t has-video">
+<video autoplay preload="auto" playsinline loop muted class="media__video">
+<source src="https://player.vimeo.com/progressive_redirect/playback/792157286/rendition/1080p/file.mp4?loc=external&signature=ddd6648f93f2500b916d99267b35beea67693f903094ee1a7672b142b49a0c60" type="video/mp4">
+</video> 
+<div class="picture__wrapper media__picture">
+<img src="https://www.studiobrusco.com/cms/uploads/test_2_1017e2639e.png" alt="Đội ngũ" class="picture__image wc-t">
+</div>
+</div>
+</div>
+</div>
+</a>
+<!-- Item 03: Servizi -->
+<a href="#/servizi" data-uid="servizi" class="home__slider__item c-alt" data-cursor-text="Dịch vụ" data-route="servizi">
+<div class="home__slider__inner c-alt wc-t">
+<div class="home__slider__content position-relative">
+<div class="home__slider__counter">
+<span class="ff-serif slide-in">03</span> 
+<span class="ff-serif slide-in">04</span>
+</div> 
+<p class="home__slider__paragraph slide-in fs-xsmall uppercase lh-base wc-to">
+Đội ngũ chuyên gia đầy tâm huyết và kinh nghiệm, không ngừng nâng cao chất lượng điều trị trong một môi trường thân thiện.
+</p>
+</div> 
+<h3 class="home__slider__title fs-xlarge uppercase ff-light wc-t">Dịch vụ</h3>
+</div> 
+<div class="home__slider__item__media">
+<div class="media position-relative wc-t has-video">
+<div class="media__inner wc-t has-video">
+<video autoplay preload="auto" playsinline loop muted class="media__video">
+<source src="https://player.vimeo.com/progressive_redirect/playback/780754816/rendition/1080p/file.mp4?loc=external&signature=e38494f0809691cf4ff17d54e9263c8004a3825bbabdb70bfdcdcdd171b8a5fa" type="video/mp4">
+</video> 
+<div class="picture__wrapper media__picture">
+<img src="https://www.studiobrusco.com/cms/uploads/test_3_ddf43c6596.png" alt="Dịch vụ" class="picture__image wc-t">
+</div>
+</div>
+</div>
+</div>
+</a>
+<!-- Item 04: Contatti -->
+<a href="#/contatti" data-uid="contatti" class="home__slider__item c-alt" data-cursor-text="Liên hệ" data-route="contatti">
+<div class="home__slider__inner c-alt wc-t">
+<div class="home__slider__content position-relative">
+<div class="home__slider__counter">
+<span class="ff-serif slide-in">04</span> 
+<span class="ff-serif slide-in">04</span>
+</div> 
+<p class="home__slider__paragraph slide-in fs-xsmall uppercase lh-base wc-to">
+Chúng tôi là nhóm chuyên gia trẻ, nhiệt huyết; vận hành trong môi trường hiện đại, thân thiện và hiệu quả.
+</p>
+</div> 
+<h3 class="home__slider__title fs-xlarge uppercase ff-light wc-t">Liên hệ</h3>
+</div> 
+<div class="home__slider__item__media">
+<div class="media position-relative wc-t has-video">
+<div class="media__inner wc-t has-video">
+<video autoplay preload="auto" playsinline loop muted class="media__video">
+<source src="https://player.vimeo.com/progressive_redirect/playback/780648725/rendition/1080p/file.mp4?loc=external&signature=74147d83076aac0f3f36688ae53bc22d878d5184c72cad8ffbc34fc2cad6caf4" type="video/mp4">
+</video> 
+<div class="picture__wrapper media__picture">
+<img src="https://www.studiobrusco.com/cms/uploads/CONTATTI_1_d70882d991.jpg" alt="Liên hệ" class="picture__image wc-t">
+</div>
+</div>
+</div>
+</div>
+</a>
+</section>
+</div>
+</main>
+</div><!-- /#page-container -->
+</div>
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/Observer.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/Draggable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/Flip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/InertiaPlugin.min.js"></script>
+<!-- SplitText is Club-only; not on public CDN — text-utils.js manual split handles [data-split] -->
+<script src="https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+<script type="module" src="core/app.js"></script>
+</body>
+</html>
