@@ -6,6 +6,7 @@ use App\Models\Specialization;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Doctor;
+use Illuminate\Support\Facades\Hash;
 class AdminController extends Controller{
     public function manageAccount(){
         $users = User::all();

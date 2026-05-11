@@ -57,4 +57,14 @@ class User extends Authenticatable
     public function isPatient(){
         return $this->role === 'patient';
     }
+    // Trong file User.php
+    public function patient()
+    {
+        return $this->hasOne(Patient::class, 'user_id');
+    }
+
+    public function doctor()
+    {
+        return $this->hasOne(Doctor::class, 'user_id');
+    }
 }
