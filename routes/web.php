@@ -1,11 +1,13 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\PatientController;
 Route::get('/', function () {
     if (auth()->check()) {
         return redirect('/dashboard');
@@ -26,9 +28,27 @@ Route::post('/appointment', [AppointmentController::class, 'store'])
     ->middleware('auth');
 Route::get('/dashboard', [DashboardController::class,'index'])->middleware('auth')->name('dashboard');
 //phan quyen cho patient
-Route::middleware(['auth','role:patient'])->group(function () {
-    Route::get('appointment', [AppointmentController::class, 'create']);
-    Route::post('appointment', [AppointmentController::class, 'store']);
+Route::middleware(['auth','role:patient'])->name('patient.')->group(function () {
+    Route::get('/dashboard', [PatientController::class, 'dashboard'])->name('dashboard');
+
+    // 2. Tài khoản & Hồ sơ cá nhân
+    Route::get('/profile', [PatientController::class, 'profile'])->name('profile');
+    Route::put('/profile/update', [PatientController::class, 'updateProfile'])->name('profile.update');
+
+    // 3. Tìm kiếm và xem bác sĩ
+    Route::get('/doctors', [PatientController::class, 'doctors'])->name('doctors');
+    Route::get('/doctors/{id}', [PatientController::class, 'doctorDetail'])->name('doctors.detail');
+
+    // 4. Đặt lịch khám
+    Route::get('/booking/{doctor_id?}', [PatientController::class, 'booking'])->name('booking');
+    Route::post('/booking/store', [PatientController::class, 'storeBooking'])->name('booking.store');
+
+    // 5. Quản lý lịch hẹn
+    Route::get('/appointments', [PatientController::class, 'appointments'])->name('appointments');
+
+    // 6. Thông báo & Nội dung y tế (Làm sau)
+    Route::get('/notifications', [PatientController::class, 'notifications'])->name('notifications');
+    Route::get('/medical-news', [PatientController::class, 'news'])->name('news');
 });
 //doctor
 Route::middleware(['auth','role:doctor'])->group(function () {
@@ -47,13 +67,13 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::post('accounts/create',[AdminController::class,'storeAccount'])->name('admin.accounts.store');
     Route::get('accounts/{id}/edit',[AdminController::class,'editAccount'])->name('admin.accounts.edit');
     Route::post('accounts/{id}',[AdminController::class,'updateAccount'])->name('admin.accounts.update');
-    Route::get('accounts/{id}/delete',[AdminController::class,'deleteAccount'])->name('admin.accounts.delete');
+    Route::delete('accounts/{id}/delete',[AdminController::class,'deleteAccount'])->name('admin.accounts.delete');
 
     //Route cho quan ly bac si admin
     Route::post('/doctors/store',[AdminController::class,'storeDoctor'])->name('admin.doctors.store');
-    Route::get('/doctors/{id}/edit',[AdminController::class,'editDoctor'])->name('admin.doctos.edit');
-    Route::put('/doctors/{id}',[AdminController::class,'updateDoctor'])->name('admin.doctos.update');
-    Route::delete('/doctors/{id}',[AdminController::class,'deleteDoctor'])->name('admin.doctos.delete');
+    Route::get('/doctors/{id}/edit',[AdminController::class,'editDoctor'])->name('admin.doctors.edit');
+    Route::put('/doctors/{id}',[AdminController::class,'updateDoctor'])->name('admin.doctors.update');
+    Route::delete('/doctors/{id}',[AdminController::class,'deleteDoctor'])->name('admin.doctors.destroy');
 });
     //Test
     Route::get('/test',function(){
@@ -74,3 +94,13 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
        session(['name'=> $newName]);
        return 'Ten hien tai la :' . session('name');
     })->name('update-name');
+    Route::controller(HomeController::class)->group(function () {
+        Route::get('/trangchu','index');
+        Route::get('/trangchu1','index2');
+        Route::get('/trangchu2','index3');
+    });
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/trangchu3', function () {
+           return 'hello man';
+        });
+    });

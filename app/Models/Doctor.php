@@ -23,9 +23,6 @@ class Doctor extends Model
         'description'
     ];
 
-    /* Hoặc Cách 2: Cho phép lưu tất cả các cột (Nhanh, tiện)
-       protected $guarded = [];
-    */
 
     // Quan hệ với bảng User (Để sau này lấy email, avatar...)
     public function user()

@@ -29,7 +29,6 @@
                     <label class="form-label text-muted">Phân quyền (Role)</label>
                     <select name="role" class="form-select" style="background: transparent; color: white; border-color: var(--border-color);">
                         <option value="patient" {{ $userEdit->role == 'patient' ? 'selected' : '' }} style="color: black;">Bệnh nhân</option>
-                        <option value="doctor" {{ $userEdit->role == 'doctor' ? 'selected' : '' }} style="color: black;">Bác sĩ</option>
                         <option value="admin" {{ $userEdit->role == 'admin' ? 'selected' : '' }} style="color: black;">Quản trị viên</option>
                     </select>
                 </div>

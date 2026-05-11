@@ -1,120 +1,243 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <!-- Bootstrap 5 & FontAwesome -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ asset('css/admin-style.css') }}">
+
+    <title>@yield('title')</title>
+
+    <!-- AdminLTE -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-<body>
 
-<!-- 1. SIDEBAR (Bên trái) -->
-<aside class="admin-sidebar">
-    <!-- Logo -->
-    <div class="sidebar-brand">
-        <div class="logo-icon">A</div>
-        <div>
-            Adminator<br>
-            <small class="text-muted" style="font-size: 0.65rem; font-weight: normal;">v4.1.2 preview</small>
-        </div>
-    </div>
+<body class="hold-transition sidebar-mini">
 
-    <!-- Menu -->
-    <!-- Menu -->
-    <div class="sidebar-menu">
-        <div class="menu-category">Workspace</div>
-        <a href="/dashboard" class="menu-item"><i class="fa-solid fa-house"></i> Dashboard</a>
+<div class="wrapper">
 
-        @if(auth()->user()->role === 'admin')
-            <!-- MENU CHỈ HIỆN CHO ADMIN -->
-            <div class="menu-category">Management</div>
-            <a href="{{ route('admin.accounts') }}" class="menu-item {{Route::is('admin.accounts') ? 'active' : ''}}"><i class="fa-solid fa-users"></i> Tài khoản</a>
-            <a href="{{ route('admin.doctors') }}" class="menu-item {{Route::is('admin.doctors') ? 'active' : ''}}"><i class="fa-solid fa-user-doctor"></i> Bác sĩ</a>
-            <a href="{{ route('admin.patients') }}" class="menu-item {{Route::is('admin.patients') ? 'active' : ''}}"><i class="fa-solid fa-hospital-user"></i> Bệnh nhân</a>
+    <!-- NAVBAR -->
+    <nav class="main-header navbar navbar-expand navbar-white navbar-light">
 
-            <div class="menu-category">Settings</div>
-            <a href="{{ route('admin.cities') }}" class="menu-item {{Route::is('admin.cities') ? 'active' : ''}}"><i class="fa-solid fa-city"></i> Thành phố</a>
-            <a href="{{ route('admin.contents') }}" class="menu-item {{Route::is('admin.contents') ? 'active' : ''}}"><i class="fa-solid fa-file-lines"></i> Nội dung</a>
+        <!-- Left navbar -->
+        <ul class="navbar-nav">
 
-        @elseif(auth()->user()->role === 'doctor')
-            <!-- MENU CHỈ HIỆN CHO BÁC SĨ -->
-            <div class="menu-category">Medical</div>
-            <a href="#" class="menu-item"><i class="fa-solid fa-calendar-check"></i> Lịch khám của tôi</a>
-            <a href="#" class="menu-item"><i class="fa-solid fa-pills"></i> Đơn thuốc</a>
+            <li class="nav-item">
+                <a class="nav-link"
+                   data-widget="pushmenu"
+                   href="#">
+                    <i class="fas fa-bars"></i>
+                </a>
+            </li>
 
-        @else
-            <!-- MENU CHỈ HIỆN CHO BỆNH NHÂN -->
-            <div class="menu-category">Dịch vụ</div>
-            <a href="/appointment" class="menu-item"><i class="fa-solid fa-notes-medical"></i> Đặt lịch khám</a>
-            <a href="#" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> Lịch sử khám</a>
-        @endif
-    </div>
+        </ul>
 
-    <!-- User Profile Bottom -->
-    <div class="sidebar-user">
-        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px; font-weight: bold;">
-            <div>
-                {{ substr(auth()->user()->name, 0, 2) }}
+        <!-- Right navbar -->
+        <ul class="navbar-nav ml-auto">
+
+            <li class="nav-item dropdown">
+                <a class="nav-link" data-toggle="dropdown" href="#">
+                    <i class="far fa-bell"></i>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <form action="/logout" method="POST">
+                    @csrf
+
+                    <button class="btn btn-danger btn-sm">
+                        Logout
+                    </button>
+                </form>
+            </li>
+
+        </ul>
+
+    </nav>
+
+    <!-- SIDEBAR -->
+    <aside class="main-sidebar sidebar-dark-primary elevation-4">
+
+        <!-- Logo -->
+        <a href="#" class="brand-link">
+
+            <span class="brand-text font-weight-light">
+                AdminLTE
+            </span>
+
+        </a>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+
+            <!-- User -->
+            <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+
+                <div class="image">
+
+                    <img src="https://i.pravatar.cc/150"
+                         class="img-circle elevation-2">
+
+                </div>
+
+                <div class="info">
+
+                    <a href="#" class="d-block">
+                        {{ auth()->user()->name }}
+                    </a>
+
+                </div>
+
             </div>
+
+            <!-- Menu -->
+            <nav class="mt-2">
+
+                <ul class="nav nav-pills nav-sidebar flex-column"
+                    data-widget="treeview">
+
+                    <li class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+
+                        <a href="#"
+                           class="nav-link ">
+
+                            <i class="nav-icon fas fa-home"></i>
+
+                            <p>
+                                Dashboard
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+
+                        </a>
+
+                        <ul class="nav nav-treeview">
+
+                            <li class="nav-item">
+                                <a href="{{ route('dashboard') }}"
+                                   class="nav-link ">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Tổng quan</p>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href=""
+                                   class="nav-link ">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Doanh thu</p>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href=""
+                                   class="nav-link ">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Lịch khám</p>
+                                </a>
+                            </li>
+
+                        </ul>
+
+                    </li>
+                    @if(auth()->user()->role === 'admin')
+
+                        <li class="nav-item">
+
+                            <a href="{{ route('admin.accounts') }}"
+                               class="nav-link {{ request()->routeIs('admin.accounts*') ? 'active' : '' }}">
+
+                                <i class="nav-icon fas fa-users"></i>
+
+                                <p>Tài khoản</p>
+
+                            </a>
+
+                        </li>
+
+                        <li class="nav-item">
+
+                            <a href="{{ route('admin.doctors') }}"
+                               class="nav-link {{ request()->routeIs('admin.doctors*') ? 'active' : '' }}">
+
+                                <i class="nav-icon fas fa-user-doctor"></i>
+
+                                <p>Bác sĩ</p>
+
+                            </a>
+
+                        </li>
+
+                        <li class="nav-item">
+
+                            <a href="{{ route('admin.patients') }}"
+                               class="nav-link {{ request()->routeIs('admin.patients*') ? 'active' : '' }}">
+
+                                <i class="nav-icon fas fa-hospital-user"></i>
+
+                                <p>Bệnh nhân</p>
+
+                            </a>
+
+                        </li>
+
+                    @endif
+
+                </ul>
+
+            </nav>
+
         </div>
-        <div style="line-height: 1.2;">
-            <div class="text-light" style="font-size: 0.9rem; font-weight: 600;"><div>
-                    {{ substr(auth()->user()->name, 0, 2) }}
-                </div></div>
-            <small class="text-muted" style="font-size: 0.75rem;">admin</small>
-        </div>
-    </div>
-</aside>
 
-<!-- 2. HEADER (Bên trên) -->
-<header class="admin-header">
-    <div class="header-left">
-        <p class="breadcrumb mb-0">Workspace <i class="fa-solid fa-chevron-right mx-2" style="font-size: 0.6rem;"></i> <span class="text-white">Dashboard</span></p>
-    </div>
+    </aside>
 
-    <div class="header-right d-flex align-items-center">
-        <!-- Ô Search -->
-        <div class="search-box me-3">
-            <i class="fa-solid fa-magnifying-glass text-muted me-2"></i>
-            <input type="text" placeholder="Search..." style="background: transparent; border: none; color: white; outline: none; width: 180px;">
-        </div>
+    <!-- CONTENT -->
+    <div class="content-wrapper">
 
-        <!-- Các Icon Thông Báo -->
-        <div class="header-icon me-3"><i class="fa-regular fa-bell"></i><span class="badge bg-danger">3</span></div>
-        <div class="header-icon me-3"><i class="fa-regular fa-envelope"></i><span class="badge bg-info">3</span></div>
-        <div class="header-icon me-3"><i class="fa-solid fa-sun"></i></div>
+        <!-- Header -->
+        <section class="content-header">
 
-        <!-- Avatar User -->
-        <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px; font-size: 0.8rem; font-weight: bold;">
-            {{ substr(auth()->user()->name, 0, 2) }}
-        </div>
+            <div class="container-fluid">
 
-        <!-- Nút Đăng Xuất -->
-        <form action="/logout" method="POST" class="mb-0">
-            @csrf
-            <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 20px; padding: 4px 15px;">
-                <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
-            </button>
-        </form>
-    </div>
-</header>
+                <h1>@yield('title')</h1>
 
-<!-- 3. MAIN CONTENT (Giữa) -->
-<main class="admin-main">
-    <div class="admin-content">
-        @yield('content')
+            </div>
+
+        </section>
+
+        <!-- Main -->
+        <section class="content">
+
+            <div class="container-fluid">
+
+                @yield('content')
+
+            </div>
+
+        </section>
+
     </div>
 
-    <!-- 4. FOOTER (Dưới cùng) -->
-    <footer class="admin-footer">
-        <div>&copy; {{ date('Y') }} Adminator. All rights reserved.</div>
-        <div>Designed for Laravel</div>
+    <!-- FOOTER -->
+    <footer class="main-footer">
+
+        <strong>
+            Copyright &copy; {{ date('Y') }}
+        </strong>
+
     </footer>
-</main>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</div>
+
+<!-- Scripts -->
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+
 </body>
 </html>

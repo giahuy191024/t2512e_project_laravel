@@ -1,79 +1,62 @@
 @extends('layouts.admin')
+@section('title', 'Quản lý Bác Sĩ')
 
 @section('content')
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">Quản lý Bác Sĩ</h2>
-        <button type="button" class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#addDoctorModal">
-            <i class="fa-solid fa-plus me-2"></i> Thêm Bác Sĩ
-        </button>
-    </div>
-
     @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+        <div class="alert alert-success alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>{{ session('success') }}</div>
     @endif
     @if ($errors->any())
-        <div class="alert alert-danger" style="border-radius: 12px;">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
+        <div class="alert alert-danger alert-dismissible"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>Có lỗi xảy ra, vui lòng kiểm tra lại.</div>
     @endif
 
-    <div class="card" style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden;">
-        <div class="table-responsive">
-            <table class="table table-borderless mb-0" style="color: var(--text-light);">
-                <thead style="background-color: rgba(0,0,0,0.2); border-bottom: 1px solid var(--border-color);">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title mt-1"><i class="fas fa-user-doctor"></i> Danh sách Bác Sĩ</h3>
+            <div class="card-tools">
+                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addDoctorModal">
+                    <i class="fas fa-plus"></i> Thêm Bác Sĩ
+                </button>
+            </div>
+        </div>
+
+        <div class="card-body table-responsive p-0">
+            <table class="table table-hover table-striped text-nowrap">
+                <thead>
                 <tr>
-                    <th class="py-3 px-4 text-muted" style="font-weight: 600; font-size: 0.85rem; letter-spacing: 1px;">ID</th>
-                    <th class="py-3 px-4 text-muted" style="font-weight: 600; font-size: 0.85rem; letter-spacing: 1px;">BÁC SĨ</th>
-                    <th class="py-3 px-4 text-muted" style="font-weight: 600; font-size: 0.85rem; letter-spacing: 1px;">SĐT / EMAIL</th>
-                    <th class="py-3 px-4 text-muted" style="font-weight: 600; font-size: 0.85rem; letter-spacing: 1px;">CHUYÊN KHOA</th>
-                    <th class="py-3 px-4 text-muted" style="font-weight: 600; font-size: 0.85rem; letter-spacing: 1px;">NƠI LÀM VIỆC</th>
-                    <th class="py-3 px-4 text-muted text-center" style="font-weight: 600; font-size: 0.85rem; letter-spacing: 1px;">TRẠNG THÁI</th>
-                    <th class="py-3 px-4 text-muted text-end" style="font-weight: 600; font-size: 0.85rem; letter-spacing: 1px;">HÀNH ĐỘNG</th>
+                    <th>ID</th>
+                    <th>BÁC SĨ</th>
+                    <th>SĐT / EMAIL</th>
+                    <th>CHUYÊN KHOA</th>
+                    <th>NƠI LÀM VIỆC</th>
+                    <th class="text-right">HÀNH ĐỘNG</th>
                 </tr>
                 </thead>
-
                 <tbody>
                 @foreach($doctors as $d)
-                    <tr style="border-bottom: 1px solid var(--border-color); transition: background 0.3s;" onmouseover="this.style.backgroundColor='var(--active-bg)'" onmouseout="this.style.backgroundColor='transparent'">
-                        <td class="py-3 px-4 align-middle text-muted">#{{ $d->id }}</td>
-
-                        <td class="py-3 px-4 align-middle">
-                            <div class="d-flex align-items-center">
-                                <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px; font-weight: bold; font-size: 0.85rem;">
-                                    {{ substr($d->full_name, 0, 2) }}
-                                </div>
-                                <div>
-                                    <span class="fw-bold d-block">{{ $d->full_name }}</span>
-                                    <small class="text-muted">{{ $d->qualifications ?? 'Chưa cập nhật bằng cấp' }}</small>
-                                </div>
-                            </div>
+                    <tr>
+                        <td class="align-middle">#{{ $d->id }}</td>
+                        <td class="align-middle">
+                            <span class="font-weight-bold d-block">{{ $d->full_name }}</span>
+                            <small class="text-muted">{{ $d->qualifications ?? 'Chưa cập nhật bằng cấp' }}</small>
                         </td>
-
-                        <td class="py-3 px-4 align-middle" style="color: var(--text-muted);">
-                            <div class="d-block">{{ $d->phone_number ?? 'N/A' }}</div>
+                        <td class="align-middle">
+                            <span class="d-block">{{ $d->phone_number ?? 'N/A' }}</span>
                             <small class="text-info">{{ $d->user->email ?? 'N/A' }}</small>
                         </td>
-
-                        <td class="py-3 px-4 align-middle text-lighted">
-                            <span class="badge bg-primary px-2 py-1 rounded-pill">{{ $d->specialization->name ?? 'Chưa rõ' }}</span>
+                        <td class="align-middle">
+                            <span class="badge badge-primary">{{ $d->specialization->name ?? 'Chưa rõ' }}</span>
                         </td>
+                        <td class="align-middle">{{ $d->city->name ?? 'Chưa phân công' }}</td>
 
-                        <td class="py-3 px-4 align-middle text-lighted">
-                            {{ $d->city->name ?? 'Chưa phân công' }}
-                        </td>
-                        <td class="py-3 px-4 align-middle text-end d-flex justify-content-end">
-                            <a href="{{ route('admin.doctos.edit', $d->id) }}" class="btn btn-sm btn-outline-info me-2 rounded-circle" style="width: 32px; height: 32px;" title="Chỉnh sửa">
-                                <i class="fa-solid fa-pen"></i>
+                        <td class="text-right align-middle">
+                            <a href="{{ route('admin.doctors.edit', $d->id) }}" class="btn btn-sm btn-info" title="Chỉnh sửa">
+                                <i class="fas fa-pen"></i>
                             </a>
-                            <form action="{{route('admin.doctos.delete',$d->id)}}" method="POST" onsubmit="return confirm('Xóa hồ sơ bác sĩ này?');">
+                            <form action="{{ route('admin.doctors.destroy', $d->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Xóa hồ sơ bác sĩ này?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle" style="width: 32px; height: 32px;" title="Xóa">
-                                    <i class="fa-solid fa-trash"></i>
+                                <button type="submit" class="btn btn-sm btn-danger" title="Xóa">
+                                    <i class="fas fa-trash"></i>
                                 </button>
                             </form>
                         </td>
@@ -84,68 +67,66 @@
         </div>
     </div>
 
-    <div class="modal fade" id="addDoctorModal" tabindex="-1" aria-labelledby="addDoctorModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg"> <div class="modal-content" style="background-color: var(--sidebar-bg); border: 1px solid var(--border-color); color: var(--text-light);">
-                <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
-                    <h5 class="modal-title fw-bold" id="addDoctorModalLabel">Thêm Hồ Sơ Bác Sĩ</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal fade" id="addDoctorModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <h4 class="modal-title">Thêm Hồ Sơ Bác Sĩ</h4>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-
                 <form action="{{ route('admin.doctors.store') }}" method="POST">
                     @csrf
-                    <div class="modal-body row g-3">
-                        <h6 class="text-primary border-bottom pb-2 mb-3 mt-0">1. Thông tin tài khoản đăng nhập</h6>
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label text-lighted">Email</label>
-                            <input type="email" name="email" class="form-control" required style="background: transparent; color: white; border-color: var(--border-color);">
+                    <div class="modal-body row">
+                        <div class="col-md-12"><h5 class="text-primary border-bottom pb-2 mb-3">1. Thông tin tài khoản</h5></div>
+                        <div class="form-group col-md-6">
+                            <label>Email</label>
+                            <input type="email" name="email" class="form-control" required>
                         </div>
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label text-lighted">Mật khẩu</label>
-                            <input type="password" name="password" class="form-control" required style="background: transparent; color: white; border-color: var(--border-color);">
-                        </div>
-
-                        <h6 class="text-primary border-bottom pb-2 mb-3 mt-4">2. Thông tin chuyên môn</h6>
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label text-lighted">Họ và Tên Bác sĩ</label>
-                            <input type="text" name="full_name" class="form-control" required style="background: transparent; color: white; border-color: var(--border-color);">
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label text-lighted">Số điện thoại</label>
-                            <input type="text" name="phone_number" class="form-control custom-input text-white" placeholder="SDT">
+                        <div class="form-group col-md-6">
+                            <label>Mật khẩu</label>
+                            <input type="password" name="password" class="form-control" required>
                         </div>
 
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label text-lighted">Chuyên khoa</label>
-                            <select name="specialization_id" class="form-select" required style="background: transparent; color: white; border-color: var(--border-color);">
-                                <option value="" style="color: black;">-- Chọn chuyên khoa --</option>
+                        <div class="col-md-12"><h5 class="text-primary border-bottom pb-2 mb-3 mt-3">2. Thông tin chuyên môn</h5></div>
+                        <div class="form-group col-md-6">
+                            <label>Họ và Tên</label>
+                            <input type="text" name="full_name" class="form-control" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Số điện thoại</label>
+                            <input type="text" name="phone_number" class="form-control">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Chuyên khoa</label>
+                            <select name="specialization_id" class="form-control" required>
+                                <option value="">-- Chọn --</option>
                                 @foreach($specializations as $spec)
-                                    <option value="{{ $spec->id }}" style="color: black;">{{ $spec->name }}</option>
+                                    <option value="{{ $spec->id }}">{{ $spec->name }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label text-lighted">Khu vực / Chi nhánh</label>
-                            <select name="city_id" class="form-select" required style="background: transparent; color: white; border-color: var(--border-color);">
-                                <option value="" style="color: black;">-- Chọn thành phố --</option>
+                        <div class="form-group col-md-6">
+                            <label>Chi nhánh</label>
+                            <select name="city_id" class="form-control" required>
+                                <option value="">-- Chọn --</option>
                                 @foreach($cities as $city)
-                                    <option value="{{ $city->id }}" style="color: black;">{{ $city->name }}</option>
+                                    <option value="{{ $city->id }}">{{ $city->name }}</option>
                                 @endforeach
                             </select>
                         </div>
-
-                        <div class="col-12 mb-2">
-                            <label class="form-label text-lighted">Bằng cấp / Trình độ</label>
-                            <input type="text" name="qualifications" class="form-control custom-input text-white" placeholder="VD: Thạc sĩ, Bác sĩ CKI...">
+                        <div class="form-group col-md-12">
+                            <label>Bằng cấp</label>
+                            <input type="text" name="qualifications" class="form-control">
                         </div>
-
-                        <div class="col-12 mb-2">
-                            <label class="form-label text-lighted">Mô tả / Kinh nghiệm</label>
-                            <textarea name="description" class="form-control custom-input text-white" rows="3"></textarea>
+                        <div class="form-group col-md-12">
+                            <label>Mô tả / Kinh nghiệm</label>
+                            <textarea name="description" class="form-control" rows="3"></textarea>
                         </div>
                     </div>
-
-                    <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
                         <button type="submit" class="btn btn-primary">Lưu Hồ Sơ</button>
                     </div>
                 </form>
