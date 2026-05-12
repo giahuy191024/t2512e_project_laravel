@@ -9,33 +9,72 @@ header {
     top: 0;
     left: 0;
     width: 100%;
-    padding: 20px 100px;
+    padding: 16px 36px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     z-index: 99;
+    background: rgba(7, 24, 42, 0.40);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+html, body {
+    height: 100%;
 }
 body{
-    display: flex;
-    justify-content: center;
-    align-items: center;
     min-height: 100vh;
-    background: url("/img/background_register1.png") no-repeat;
+    margin: 0;
+    background: url("/img/auth-login-image.png") no-repeat center center fixed;
     background-size: cover;
-    background-position: center;
+    overflow-x: hidden;
+}
+.login-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    width: 100vw;
+    padding: 0 24px 24px;
+    box-sizing: border-box;
+    gap: 0;
+}
+.login-image {
+    display: none;
+}
+.wrapper{
+    position: relative;
+    width: min(520px, 100%);
+    max-width: 520px;
+    min-height: auto;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.42);
+    border-radius: 30px;
+    backdrop-filter: blur(24px);
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.18);
+    transform: scale(1);
+    transition: none;
+    overflow: hidden;
+}
+.wrapper .form-box{
+    width: 100%;
+    padding: 50px;
+    background: transparent;
+    border-radius: 0;
+    min-height: auto;
 }
 .logo {
     font-size: 2em;
     color: #fff;
     user-select: none;
+    letter-spacing: 0.4px;
 }
 .navigation a{
     position: relative;
-    font-size: 1.1em;
+    font-size: 1em;
     color: #fff;
     text-decoration: none;
-    font-weight: 500;
-    margin: 40px;
+    font-weight: 600;
+    margin: 0 18px;
 }
 .navigation a:after{
     content: '';
@@ -226,4 +265,18 @@ body{
 .wrapper .form-box.registration{
     position: absolute;
     transform: translateX(400px);
+}
+
+@media (max-width: 1100px) {
+    .login-page {
+        flex-direction: column;
+        padding-top: 90px;
+        gap: 24px;
+        min-height: 100vh;
+    }
+
+    .wrapper {
+        width: min(100%, 460px);
+        max-width: 100%;
+    }
 }

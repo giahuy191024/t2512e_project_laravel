@@ -8,16 +8,20 @@
 </head>
 <body>
 <header>
-    <h2 class = "logo">Mediaconnect</h2>
+    <h2 class="logo">SmileDental</h2>
     <nav class="navigation">
-        <a href="#">Home</a>
-        <a href="#">About</a>
-        <a href="#">Services</a>
-        <a href="#">Contact</a>
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/#doctors">Services</a>
+        <a href="/contact">Contact</a>
         <button class="btn-login_popup">Login</button>
     </nav>
 </header>
-<div class="wrapper">
+<div class="login-page">
+    <div class="login-image">
+        <img src="/img/auth-login-image.png" alt="Dental login image">
+    </div>
+    <div class="wrapper">
     <span class="icon-close"><ion-icon name="close"></ion-icon></span>
     <div class="form-box login">
         <h2>Login</h2>
@@ -79,8 +83,7 @@
         </form>
     </div>
 </div>
-
-
+</div>
 <script src="{{asset('js/auth.js')}}" defer></script>
 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
