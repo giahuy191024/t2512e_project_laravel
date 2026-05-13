@@ -9,18 +9,18 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Lấy thông tin user đang đăng nhập
         $user = Auth::user();
 
-        // Ông có thể truyền thêm dữ liệu riêng biệt cho từng role nếu cần
-        $data = [];
-
-        if ($user->role === 'admin') {
-            // Ví dụ: Admin thì lấy thêm tổng số bác sĩ, bệnh nhân
-            // $data['totalDoctors'] = User::where('role', 'doctor')->count();
+        // Phân luồng view theo Role
+        switch ($user->role) {
+            case 'admin':
+                return view('layouts.admin', compact('user'));
+            case 'doctor':
+                return view('layouts.doctordashboard',compact('user'));
+            case 'patient':
+                return view('layouts.patient', compact('user'));
+            default:
+                return view('welcome');
         }
-
-        // Trả về đúng 1 view chung duy nhất
-        return view('dashboard', compact('user', 'data'));
     }
 }

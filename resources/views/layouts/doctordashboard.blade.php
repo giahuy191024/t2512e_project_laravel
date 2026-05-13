@@ -95,96 +95,23 @@
 
             <!-- Menu -->
             <nav class="mt-2">
-                    @if(auth()->user()->role === 'admin')
-                    <ul class="nav nav-pills nav-sidebar flex-column"
-                        data-widget="treeview">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                    @if(auth()->user()->role === 'doctor')
+                    <li class="nav-item">
+                        <a href="{{route('doctor.bookings.index')}}" class="nav-link {{ request()->routeIs('doctor.bookings*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-calendar-check"></i>
+                            <p>Lịch khám bệnh nhân</p>
+                        </a>
+                    </li>
 
-                        <li class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-
-                            <a href="#"
-                               class="nav-link ">
-
-                                <i class="nav-icon fas fa-home"></i>
-
-                                <p>
-                                    Dashboard
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-
-                            </a>
-
-                            <ul class="nav nav-treeview">
-
-                                <li class="nav-item">
-                                    <a href=""
-                                       class="nav-link ">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Tổng quan</p>
-                                    </a>
-                                </li>
-
-                                <li class="nav-item">
-                                    <a href=""
-                                       class="nav-link ">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Doanh thu</p>
-                                    </a>
-                                </li>
-
-                                <li class="nav-item">
-                                    <a href=""
-                                       class="nav-link ">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Lịch khám</p>
-                                    </a>
-                                </li>
-
-                            </ul>
-
-                        </li>
-                        <li class="nav-item">
-
-                            <a href="{{ route('admin.accounts') }}"
-                               class="nav-link {{ request()->routeIs('admin.accounts*') ? 'active' : '' }}">
-
-                                <i class="nav-icon fas fa-users"></i>
-
-                                <p>Tài khoản</p>
-
-                            </a>
-
-                        </li>
-
-                        <li class="nav-item">
-
-                            <a href="{{ route('admin.doctors') }}"
-                               class="nav-link {{ request()->routeIs('admin.doctors*') ? 'active' : '' }}">
-
-                                <i class="nav-icon fas fa-user-doctor"></i>
-
-                                <p>Bác sĩ</p>
-
-                            </a>
-
-                        </li>
-
-                        <li class="nav-item">
-
-                            <a href="{{ route('admin.patients') }}"
-                               class="nav-link {{ request()->routeIs('admin.patients*') ? 'active' : '' }}">
-
-                                <i class="nav-icon fas fa-hospital-user"></i>
-
-                                <p>Bệnh nhân</p>
-
-                            </a>
-
-                        </li>
-
+                    <li class="nav-item">
+                        <a href="{{ route('doctor.schedules.index') }}" class="nav-link {{ request()->routeIs('doctor.schedules*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-clock"></i>
+                            <p>Đăng ký giờ làm</p>
+                        </a>
+                    </li>
                     @endif
-
                 </ul>
-
             </nav>
 
         </div>
@@ -236,6 +163,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
-@yield('scripts')
+
 </body>
 </html>
