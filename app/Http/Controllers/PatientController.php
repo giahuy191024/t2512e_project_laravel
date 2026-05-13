@@ -16,7 +16,7 @@ class PatientController extends Controller
 
     public function profile()
     {
-        return view('patient.profile');
+        return view('');
     }
 
     public function doctors(Request $request)

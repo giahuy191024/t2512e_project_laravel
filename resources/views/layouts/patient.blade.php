@@ -18,7 +18,7 @@
 
     <nav class="main-header navbar navbar-expand-md navbar-light navbar-white">
         <div class="container">
-            <a href="{{ route('patient.dashboard') }}" class="navbar-brand">
+            <a href="{{ route('patient.dashboard_patient') }}" class="navbar-brand">
                 <i class="fas fa-hospital-user text-primary mr-2"></i>
                 <span class="brand-text font-weight-bold text-primary">Phòng Khám 247</span>
             </a>
@@ -30,7 +30,7 @@
             <div class="collapse navbar-collapse order-3" id="navbarCollapse">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
-                        <a href="{{ route('patient.dashboard') }}" class="nav-link {{ request()->routeIs('patient.dashboard') ? 'active' : '' }}">Trang chủ</a>
+                        <a href="{{ route('patient.dashboard_patient') }}" class="nav-link {{ request()->routeIs('patient.dashboard_patient') ? 'active' : '' }}">Trang chủ</a>
                     </li>
                     <li class="nav-item">
                         <a href="{{ route('patient.doctors') }}" class="nav-link {{ request()->routeIs('patient.doctors*') ? 'active' : '' }}">Tìm Bác sĩ</a>
@@ -43,11 +43,11 @@
                     </li>
 
                     <li class="nav-item dropdown">
-                        <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle">
+                        <a id="dropdownSubMenu1" href="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle">
                             <i class="fas fa-user-circle"></i> {{ auth()->user()->name ?? 'Bệnh nhân' }}
                         </a>
                         <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
-                            <li><a href="{{ route('patient.profile') }}" class="dropdown-item">Hồ sơ cá nhân</a></li>
+                            <li><a href="{{route('patient.profile')}}" class="dropdown-item">Hồ sơ cá nhân</a></li>
                             <li><a href="#" class="dropdown-item">Thông báo</a></li>
                             <li class="dropdown-divider"></li>
                             <li>

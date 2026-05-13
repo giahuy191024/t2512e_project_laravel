@@ -15,7 +15,7 @@ class TimeSlot extends Model
     ];
 
     // Một ca khám thuộc về một lịch làm việc
-    public function schedule()
+    public function doctorSchedule()
     {
         return $this->belongsTo(DoctorSchedule::class, 'schedule_id');
     }
