@@ -20,7 +20,12 @@ class Doctor extends Model
         'city_id',
         'qualifications',
         'phone_number',
-        'description'
+        'description',
+        'certificates',
+    ];
+
+    protected $casts = [
+        'certificates' => 'array',
     ];
 
 

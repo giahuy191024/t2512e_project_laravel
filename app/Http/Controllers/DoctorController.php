@@ -9,6 +9,7 @@ use App\Models\DoctorSchedule;
 use App\Models\TimeSlot;
 use App\Models\Booking;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
 class DoctorController extends Controller
@@ -35,22 +36,39 @@ class DoctorController extends Controller
     {
         $doctorId = Auth::user()->doctor->id;
 
-        // Lấy danh sách đặt lịch của bệnh nhân liên quan đến bác sĩ này
         $bookings = Booking::with(['patient.user', 'timeSlot.doctorSchedule'])
             ->whereHas('timeSlot.doctorSchedule', function($q) use ($doctorId) {
                 $q->where('doctor_id', $doctorId);
             })
-            ->orderBy('created_at', 'desc')
+            ->orderByDesc('created_at')
             ->get();
 
-        return view('doctor.bookings', compact('bookings'));
+        // Stats
+        $stats = [
+            'total'     => $bookings->count(),
+            'pending'   => $bookings->where('status', 0)->count(),
+            'confirmed' => $bookings->where('status', 1)->count(),
+            'done'      => $bookings->where('status', 2)->count(),
+            'cancelled' => $bookings->where('status', 3)->count(),
+        ];
+
+        return view('doctor.bookings', compact('bookings', 'stats'));
     }
 
     public function updateBookingStatus(Request $request, $id)
     {
+        $request->validate(['status' => 'required|in:1,2,3']);
         $booking = Booking::findOrFail($id);
-        $booking->update(['status' => $request->status]); // 1: Duyệt, 2: Hủy...
 
+        $data = ['status' => $request->status];
+
+        // Nếu bác sĩ huỷ → đặt patient_read = 0 để bệnh nhân nhận thông báo
+        if ($request->status == 3) {
+            $data['patient_read'] = 0;
+            $data['cancel_reason'] = $request->cancel_reason ?? 'Bác sĩ đã huỷ lịch hẹn.';
+        }
+
+        $booking->update($data);
         return back()->with('success', 'Cập nhật trạng thái lịch hẹn thành công!');
     }
 
@@ -153,12 +171,43 @@ class DoctorController extends Controller
         $doctor = Auth::user()->doctor;
 
         $request->validate([
-            'full_name' => 'required|string|max:255',
-            'phone_number' => 'required',
-            'description' => 'nullable',
+            'full_name'      => 'required|string|max:255',
+            'phone_number'   => 'required|string|max:20',
+            'description'    => 'nullable|string',
+            'qualifications' => 'nullable|string|max:255',
+            'password'       => 'nullable|string|min:8|confirmed',
+            'certificates.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'delete_cert'    => 'nullable|array',
         ]);
 
         $doctor->update($request->only(['full_name', 'phone_number', 'description', 'qualifications']));
+
+        // Xử lý xoá chứng chỉ cũ
+        $existing = $doctor->certificates ?? [];
+        if ($request->has('delete_cert')) {
+            foreach ($request->delete_cert as $path) {
+                \Storage::disk('public')->delete($path);
+                $existing = array_filter($existing, fn($p) => $p !== $path);
+            }
+        }
+
+        // Upload chứng chỉ mới
+        if ($request->hasFile('certificates')) {
+            foreach ($request->file('certificates') as $file) {
+                $path = $file->store('certificates', 'public');
+                $existing[] = $path;
+            }
+        }
+
+        $doctor->certificates = array_values($existing);
+        $doctor->save();
+
+        // Đổi mật khẩu nếu người dùng nhập
+        if ($request->filled('password')) {
+            Auth::user()->update([
+                'password' => bcrypt($request->password),
+            ]);
+        }
 
         return back()->with('success', 'Cập nhật thông tin thành công!');
     }

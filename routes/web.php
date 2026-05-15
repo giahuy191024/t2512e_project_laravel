@@ -46,7 +46,11 @@ Route::middleware(['auth','role:patient'])->prefix('patient')->name('patient.')-
     // 5. Quản lý lịch hẹn
     Route::get('/appointments', [PatientController::class, 'appointments'])->name('appointments');
 
-    // 6. Thông báo & Nội dung y tế (Làm sau)
+    // 6. Thông báo huỷ lịch
+    Route::post('/notifications/{id}/read', [PatientController::class, 'markNotificationRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [PatientController::class, 'markAllNotificationsRead'])->name('notifications.readAll');
+
+    // 7. Nội dung y tế (Làm sau)
     Route::get('/notifications', [PatientController::class, 'notifications'])->name('notifications');
     Route::get('/medical-news', [PatientController::class, 'news'])->name('news');
 });

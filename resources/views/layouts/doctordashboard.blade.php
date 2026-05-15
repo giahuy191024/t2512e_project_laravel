@@ -13,6 +13,8 @@
     <!-- Font Awesome -->
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    @stack('styles')
 </head>
 
 <body class="hold-transition sidebar-mini">
@@ -110,6 +112,12 @@
                             <p>Đăng ký giờ làm</p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="{{ route('doctor.profile') }}" class="nav-link {{ request()->routeIs('doctor.profile') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-user-circle"></i>
+                            <p>Thông tin cá nhân</p>
+                        </a>
+                    </li>
                     @endif
                 </ul>
             </nav>
@@ -163,6 +171,8 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+
+@stack('scripts')
 
 </body>
 </html>

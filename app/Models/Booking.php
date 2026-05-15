@@ -11,7 +11,7 @@ class Booking extends Model
 
     protected $fillable = [
         'slot_id', 'patient_id', 'status',
-        'cancel_reason', 'created_by'
+        'cancel_reason', 'created_by', 'patient_read'
     ];
 
     // Lấy thông tin ca khám của lượt đặt này
