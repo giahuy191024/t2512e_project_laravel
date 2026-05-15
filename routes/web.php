@@ -8,13 +8,17 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PatientController;
-Route::get('/', function () {
-    if (auth()->check()) {
-        return redirect('/dashboard');
-    }
+//Route::get('/', function () {
+//    return view('home');
+//});
+Route::get('/', [HomeController::class, 'index']);
 
+Route::get('/login', function () {
     return view('auth');
-});
+})->name('login');
+//Route::get('/login', function () {
+//    return view('auth');
+//})->name('login');
 
 Route::post('/auth', [AuthController::class, 'handleAuth']);
 
@@ -26,7 +30,8 @@ Route::get('/appointment',[AppointmentController::class,'create']
 
 Route::post('/appointment', [AppointmentController::class, 'store'])
     ->middleware('auth');
-Route::get('/dashboard', [DashboardController::class,'index'])->middleware('auth')->name('dashboard');
+Route::get('/dashboard', [DashboardController::class,'index'])
+    ->middleware('auth')->name('dashboard');
 //phan quyen cho patient
 Route::middleware(['auth','role:patient'])->name('patient.')->group(function () {
     Route::get('/dashboard', [PatientController::class, 'dashboard'])->name('dashboard');
