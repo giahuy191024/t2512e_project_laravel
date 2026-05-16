@@ -4,10 +4,33 @@ use Illuminate\Support\Facades\DB;
 use App\Models\City;
 use App\Models\Specialization;
 use App\Models\User;
+use App\Models\Booking;
+use App\Models\Patient;
 use Illuminate\Http\Request;
 use App\Models\Doctor;
 use Illuminate\Support\Facades\Hash;
 class AdminController extends Controller{
+    public function adminDashboard(){
+        $totalUsers    = User::count();
+        $totalDoctors  = Doctor::count();
+        $totalPatients = User::where('role','patient')->count();
+        $totalBookings = Booking::count();
+        $pendingBookings   = Booking::where('status', 0)->count();
+        $confirmedBookings = Booking::where('status', 1)->count();
+        $doneBookings      = Booking::where('status', 2)->count();
+        $cancelledBookings = Booking::where('status', 3)->count();
+
+        $recentBookings = Booking::with(['patient.user','timeSlot.doctorSchedule.doctor'])
+            ->orderByDesc('created_at')
+            ->limit(10)
+            ->get();
+
+        return view('dashboard', compact(
+            'totalUsers','totalDoctors','totalPatients','totalBookings',
+            'pendingBookings','confirmedBookings','doneBookings','cancelledBookings',
+            'recentBookings'
+        ));
+    }
     public function manageAccount(){
         $users = User::all();
         return view('admin.accounts', compact('users'));
@@ -19,8 +42,12 @@ class AdminController extends Controller{
         return view('admin.doctors', compact('doctors', 'specializations', 'cities'));
     }
     public function managePatients(){
-        $patients = User::where('role','patient')->get();
-        return view('admin.patients', compact('patients'));
+        $patients = User::where('role','patient')
+            ->with(['patient.bookings.timeSlot.doctorSchedule.doctor'])
+            ->orderByDesc('created_at')
+            ->get();
+        $totalBookings = Booking::count();
+        return view('admin.patients', compact('patients', 'totalBookings'));
     }
     public function manageCities(){
         return view('admin.cities');

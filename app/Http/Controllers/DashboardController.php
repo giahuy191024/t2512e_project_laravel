@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\AdminController;
 
 class DashboardController extends Controller
 {
@@ -11,14 +12,13 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // Phân luồng view theo Role
         switch ($user->role) {
             case 'admin':
-                return view('layouts.admin', compact('user'));
+                return (new AdminController())->adminDashboard();
             case 'doctor':
-                return view('layouts.doctordashboard',compact('user'));
+                return redirect()->route('doctor.dashboard');
             case 'patient':
-                return view('layouts.patient', compact('user'));
+                return redirect()->route('patient.dashboard_patient');
             default:
                 return view('welcome');
         }
