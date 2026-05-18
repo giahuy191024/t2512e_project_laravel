@@ -117,32 +117,4 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::put('/doctors/{id}',[AdminController::class,'updateDoctor'])->name('admin.doctors.update');
     Route::delete('/doctors/{id}',[AdminController::class,'deleteDoctor'])->name('admin.doctors.destroy');
 });
-    //Test
-    Route::get('/test',function(){
-       return view('testview');
-    });
-    Route::post('/test1',function (){
-        return view('viewforresult');
-    })->name('viewforresult');
 
-    Route::get('/user1',function(Request $request){
-        $newName = $request->input('fullname');
-        session(['name' => $newName]);
-        return 'Ten hien tai la :' . session('name');
-    });
-    //Cap nhat lai ten nguoi dung
-    Route::put('test',function(Request $request){
-       $newName = $request->input('fullname');
-       session(['name'=> $newName]);
-       return 'Ten hien tai la :' . session('name');
-    })->name('update-name');
-    Route::controller(HomeController::class)->group(function () {
-        Route::get('/trangchu','index');
-        Route::get('/trangchu1','index2');
-        Route::get('/trangchu2','index3');
-    });
-    Route::prefix('admin')->name('admin.')->group(function () {
-        Route::get('/trangchu3', function () {
-           return 'hello man';
-        });
-    });

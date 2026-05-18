@@ -83,7 +83,7 @@
         <div class="container">
             <a href="{{ route('patient.dashboard_patient') }}" class="navbar-brand">
                 <i class="fas fa-hospital-user text-primary mr-2"></i>
-                <span class="brand-text font-weight-bold text-primary">Phòng Khám 247</span>
+                <span class="brand-text font-weight-bold text-primary">Mediaconnect</span>
             </a>
 
             <button class="navbar-toggler order-1" type="button" data-toggle="collapse" data-target="#navbarCollapse">
@@ -158,7 +158,7 @@
     </div>
 
     <footer class="main-footer text-center">
-        <strong>Copyright &copy; {{ date('Y') }} Phòng Khám 247.</strong> All rights reserved.
+        <strong>Copyright &copy; {{ date('Y') }} Mediaconnect.</strong> All rights reserved.
     </footer>
 </div>
 

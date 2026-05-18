@@ -6,11 +6,9 @@ const iconCloser = document.querySelector('.icon-close');
 register.addEventListener('click', (e) => {
     wrapper.classList.add('active');
 });
+wrapper.classList.add('active-popup');
 login.addEventListener('click', (e) => {
     wrapper.classList.remove('active');
-});
-btnPoPUp.addEventListener('click', (e) => {
-    wrapper.classList.add('active-popup');
 });
 iconCloser.addEventListener('click', (e) => {
     wrapper.classList.remove('active-popup');

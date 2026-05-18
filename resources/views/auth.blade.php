@@ -9,13 +9,6 @@
 <body>
 <header>
     <h2 class = "logo">Mediaconnect</h2>
-    <nav class="navigation">
-        <a href="#">Home</a>
-        <a href="#">About</a>
-        <a href="#">Services</a>
-        <a href="#">Contact</a>
-        <button class="btn-login_popup">Login</button>
-    </nav>
 </header>
 <div class="wrapper">
     <span class="icon-close"><ion-icon name="close"></ion-icon></span>
