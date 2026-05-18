@@ -9,13 +9,17 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PatientController;
-Route::get('/', function () {
-    if (auth()->check()) {
-        return redirect('/dashboard');
-    }
+//Route::get('/', function () {
+//    return view('home');
+//});
+Route::get('/', [HomeController::class, 'index']);
 
+Route::get('/login', function () {
     return view('auth');
-});
+})->name('login');
+//Route::get('/login', function () {
+//    return view('auth');
+//})->name('login');
 
 Route::post('/auth', [AuthController::class, 'handleAuth']);
 

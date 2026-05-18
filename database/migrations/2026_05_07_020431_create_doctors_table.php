@@ -13,19 +13,18 @@ return new class extends Migration
     {
         Schema::create('doctors', function (Blueprint $table) {
             $table->id();
-
-            // Khóa ngoại trỏ đến các bảng khác (Bắt buộc các bảng này phải có trước)
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('specialization_id')->constrained('specializations')->onDelete('cascade');
-            $table->foreignId('city_id')->constrained('cities')->onDelete('cascade');
-
-            // Các cột thông tin
-            $table->string('full_name');
-            $table->text('qualifications')->nullable();
-            $table->string('phone_number', 20)->nullable();
-            $table->text('description')->nullable();
-
-            // Laravel mặc định cần 2 cột này, nếu bảng của ông không cần thì xóa đi
+            $table->unsignedBigInteger('user_id') -> unique();
+            $table->string('speciality') -> nullable();
+            $table->string('certificate_url') -> nullable();
+            $table->integer('experience_years') -> nullable();
+            $table->text('bio') -> nullable();
+            //home page fiels
+            $table->string('image') -> nullable();
+            $table->string('region') -> nullable();
+            $table->boolean('featured') -> default(false);
+            $table->tinyInteger('status') -> default(1);
+            $table->unsignedBigInteger('created_by') -> nullable();
+            $table->unsignedBigInteger('updated_by') -> nullable();
             $table->timestamps();
         });
     }
