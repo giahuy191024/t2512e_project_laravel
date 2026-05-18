@@ -8,7 +8,7 @@
 </head>
 <body>
 <header>
-        <button class="btn-login_popup">Login</button>
+    <h2 class = "logo">Mediaconnect</h2>
 </header>
 <div class="wrapper">
     <span class="icon-close"><ion-icon name="close"></ion-icon></span>

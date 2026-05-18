@@ -20,8 +20,10 @@ iconClose.addEventListener('click', () => {
 registerLink.addEventListener('click', () => {
     wrapper.classList.add('active');
 });
-
-// chuyển về login
-loginLink.addEventListener('click', () => {
+wrapper.classList.add('active-popup');
+login.addEventListener('click', (e) => {
     wrapper.classList.remove('active');
 });
+iconCloser.addEventListener('click', (e) => {
+    wrapper.classList.remove('active-popup');
+})
