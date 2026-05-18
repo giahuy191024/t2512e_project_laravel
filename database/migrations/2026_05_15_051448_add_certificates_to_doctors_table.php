@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('time_slots', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('doctors', function (Blueprint $table) {
+            $table->json('certificates')->nullable()->after('description');
         });
     }
 
@@ -22,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('time_slots');
+        Schema::table('doctors', function (Blueprint $table) {
+            $table->dropColumn('certificates');
+        });
     }
 };

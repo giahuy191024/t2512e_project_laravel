@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -28,17 +29,15 @@ Route::get('/appointment',[AppointmentController::class,'create']
 
 )->middleware('auth');
 
-Route::post('/appointment', [AppointmentController::class, 'store'])
-    ->middleware('auth');
-Route::get('/dashboard', [DashboardController::class,'index'])
-    ->middleware('auth')->name('dashboard');
+Route::post('/appointment', [AppointmentController::class, 'store'])->middleware('auth');
+Route::get('/dashboard', [DashboardController::class,'index'])->middleware('auth')->name('dashboard');
 //phan quyen cho patient
-Route::middleware(['auth','role:patient'])->name('patient.')->group(function () {
-    Route::get('/dashboard', [PatientController::class, 'dashboard'])->name('dashboard');
+Route::middleware(['auth','role:patient'])->prefix('patient')->name('patient.')->group(function () {
+    Route::get('/dashboard', [PatientController::class, 'dashboard'])->name('dashboard_patient');
 
     // 2. Tài khoản & Hồ sơ cá nhân
     Route::get('/profile', [PatientController::class, 'profile'])->name('profile');
-    Route::put('/profile/update', [PatientController::class, 'updateProfile'])->name('profile.update');
+    Route::put('profile/update', [PatientController::class, 'updateProfile'])->name('profile.update');
 
     // 3. Tìm kiếm và xem bác sĩ
     Route::get('/doctors', [PatientController::class, 'doctors'])->name('doctors');
@@ -51,13 +50,55 @@ Route::middleware(['auth','role:patient'])->name('patient.')->group(function () 
     // 5. Quản lý lịch hẹn
     Route::get('/appointments', [PatientController::class, 'appointments'])->name('appointments');
 
-    // 6. Thông báo & Nội dung y tế (Làm sau)
+    // 6. Thông báo huỷ lịch
+    Route::post('/notifications/{id}/read', [PatientController::class, 'markNotificationRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [PatientController::class, 'markAllNotificationsRead'])->name('notifications.readAll');
+
+    // 7. Nội dung y tế (Làm sau)
     Route::get('/notifications', [PatientController::class, 'notifications'])->name('notifications');
     Route::get('/medical-news', [PatientController::class, 'news'])->name('news');
 });
 //doctor
-Route::middleware(['auth','role:doctor'])->group(function () {
+Route::middleware(['auth','role:doctor'])->name('doctor.')->group(function () {
+    // 1. DASHBOARD
+    Route::get('/doctordashboard', [DoctorController::class, 'dashboard'])->name('dashboard');
 
+    // 2. QUẢN LÝ LỊCH KHÁM (Bệnh nhân đặt)
+    Route::prefix('bookings')->prefix('doctor')->name('bookings.')->group(function () {
+        Route::get('/', [DoctorController::class, 'indexBookings'])->name('index');
+        Route::get('/{id}', [DoctorController::class, 'showBooking'])->name('show');
+        // Route POST để bác sĩ xác nhận hoặc hủy lịch của bệnh nhân
+        Route::post('/{id}/status', [DoctorController::class, 'updateBookingStatus'])->name('updateStatus');
+    });
+
+    // 3. ĐĂNG KÝ GIỜ LÀM (Lịch làm việc cá nhân)
+    Route::prefix('schedules')->name('schedules.')->group(function () {
+        Route::get('/', [DoctorController::class, 'indexSchedules'])->name('index');
+        Route::get('/create', [DoctorController::class, 'createSchedule'])->name('create');
+
+        // Route POST để lưu lịch làm việc mới vào database
+        Route::post('/store', [DoctorController::class, 'storeSchedule'])->name('store');
+
+        Route::get('/edit/{id}', [DoctorController::class, 'editSchedule'])->name('edit');
+
+        // Route POST (hoặc PUT) để cập nhật lịch đã có
+        Route::post('/update/{id}', [DoctorController::class, 'updateSchedule'])->name('update');
+
+        // Route DELETE (hoặc GET tạm thời) để xóa lịch
+        Route::delete('/delete/{id}', [DoctorController::class, 'destroySchedule'])->name('destroy');
+
+        //Route get cho tung cai
+        Route::post('slot/update',[DoctorController::class,'updateSlot'])->name('updateSlot');
+        Route::delete('slot/delete/{id}',[DoctorController::class,'destroySlot'])->name('destroySlot');
+        //Route xoa dot lich
+        Route::delete('schedule/delete',[DoctorController::class,'destroyGroup'])->name('destroy-Schedule_Group');
+    });
+
+    // 4. THÔNG TIN CÁ NHÂN
+    Route::get('/profiledoctor', [DoctorController::class, 'profile'])->name('profile');
+
+    // Route POST để lưu thông tin profile sau khi sửa
+    Route::post('/profiledoctor/update', [DoctorController::class, 'updateProfile'])->name('profile.update');
 });
 //admin dashboard
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {

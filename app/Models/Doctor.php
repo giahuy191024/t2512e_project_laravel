@@ -16,17 +16,16 @@ class Doctor extends Model
     protected $fillable = [
         'user_id',
         'full_name',
-        'specialty',
-        'certificate_url',
-        'experience_years',
-        'bio',
-        'highlights',
-        'image',
-        'region',
-        'featured',
-        'status',
-        'created_by',
-        'updated_by'
+        'specialization_id',
+        'city_id',
+        'qualifications',
+        'phone_number',
+        'description',
+        'certificates',
+    ];
+
+    protected $casts = [
+        'certificates' => 'array',
     ];
 
 

@@ -13,6 +13,7 @@
     <!-- Font Awesome -->
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     @stack('styles')
 </head>
 
@@ -96,45 +97,29 @@
 
             <!-- Menu -->
             <nav class="mt-2">
-                    @if(auth()->user()->role === 'admin')
-                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                    @if(auth()->user()->role === 'doctor')
+                    <li class="nav-item">
+                        <a href="{{route('doctor.bookings.index')}}" class="nav-link {{ request()->routeIs('doctor.bookings*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-calendar-check"></i>
+                            <p>Lịch khám bệnh nhân</p>
+                        </a>
+                    </li>
 
-                        <li class="nav-item">
-                            <a href="{{ route('dashboard') }}"
-                               class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-home"></i>
-                                <p>Dashboard</p>
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="{{ route('admin.accounts') }}"
-                               class="nav-link {{ request()->routeIs('admin.accounts*') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-users"></i>
-                                <p>Tài khoản</p>
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="{{ route('admin.doctors') }}"
-                               class="nav-link {{ request()->routeIs('admin.doctors*') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-user-md"></i>
-                                <p>Bác sĩ</p>
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a href="{{ route('admin.patients') }}"
-                               class="nav-link {{ request()->routeIs('admin.patients*') ? 'active' : '' }}">
-                                <i class="nav-icon fas fa-hospital-user"></i>
-                                <p>Bệnh nhân</p>
-                            </a>
-                        </li>
-
+                    <li class="nav-item">
+                        <a href="{{ route('doctor.schedules.index') }}" class="nav-link {{ request()->routeIs('doctor.schedules*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-clock"></i>
+                            <p>Đăng ký giờ làm</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('doctor.profile') }}" class="nav-link {{ request()->routeIs('doctor.profile') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-user-circle"></i>
+                            <p>Thông tin cá nhân</p>
+                        </a>
+                    </li>
                     @endif
-
                 </ul>
-
             </nav>
 
         </div>
@@ -186,7 +171,8 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+
 @stack('scripts')
-@yield('scripts')
+
 </body>
 </html>

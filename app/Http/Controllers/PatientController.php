@@ -5,30 +5,122 @@ namespace App\Http\Controllers;
 use App\Models\DoctorSchedule;
 use Illuminate\Http\Request;
 use App\Models\Doctor;
-// use App\Models\Appointment;
+use App\Models\Specialization;
+use App\Models\City;
+use App\Models\Booking;
+use App\Models\Patient;
+use App\Models\TimeSlot;
 
 class PatientController extends Controller
 {
     public function dashboard()
     {
-        return view('patient.dashboardpatient');
+        $patient = auth()->user()->patient;
+
+        $upcomingCount  = 0;
+        $pastCount      = 0;
+        $cancelledUnread = collect();
+
+        if ($patient) {
+            $upcomingCount = Booking::where('patient_id', $patient->id)
+                ->whereIn('status', [0, 1])
+                ->whereHas('timeSlot.doctorSchedule', function ($q) {
+                    $q->where('work_date', '>=', now()->toDateString());
+                })->count();
+
+            $pastCount = Booking::where('patient_id', $patient->id)
+                ->whereHas('timeSlot.doctorSchedule', function ($q) {
+                    $q->where('work_date', '<', now()->toDateString());
+                })->count();
+
+            // Lịch bị huỷ mà bệnh nhân chưa đọc
+            $cancelledUnread = Booking::with(['timeSlot.doctorSchedule.doctor'])
+                ->where('patient_id', $patient->id)
+                ->where('status', 3)
+                ->where('patient_read', 0)
+                ->orderByDesc('updated_at')
+                ->get();
+        }
+
+        return view('patient.dashboardpatient', compact('upcomingCount', 'pastCount', 'cancelledUnread'));
+    }
+
+    // Đánh dấu đã đọc 1 thông báo
+    public function markNotificationRead($bookingId)
+    {
+        $patient = auth()->user()->patient;
+        if ($patient) {
+            Booking::where('id', $bookingId)
+                ->where('patient_id', $patient->id)
+                ->update(['patient_read' => 1]);
+        }
+        return back();
+    }
+
+    // Đánh dấu đã đọc tất cả
+    public function markAllNotificationsRead()
+    {
+        $patient = auth()->user()->patient;
+        if ($patient) {
+            Booking::where('patient_id', $patient->id)
+                ->where('status', 3)
+                ->where('patient_read', 0)
+                ->update(['patient_read' => 1]);
+        }
+        return back();
     }
 
     public function profile()
     {
-        return view('patient.profile');
+        return view('');
     }
 
     public function doctors(Request $request)
     {
-        // Sau này sẽ code logic tìm kiếm theo tên, chuyên khoa ở đây
-        $doctors = Doctor::with('specialization', 'city')->get();
-        return view('patient.doctors', compact('doctors'));
+        // Lấy danh sách chuyên khoa & thành phố cho dropdown filter
+        $specializations = Specialization::orderBy('name')->get();
+        $cities          = City::orderBy('name')->get();
+
+        // Build query với eager loading
+        $query = Doctor::with('specialization', 'city', 'user');
+
+        // Lọc theo chuyên khoa
+        if ($request->filled('specialization_id')) {
+            $query->where('specialization_id', $request->specialization_id);
+        }
+
+        // Lọc theo thành phố
+        if ($request->filled('city_id')) {
+            $query->where('city_id', $request->city_id);
+        }
+
+        // Lọc theo tên (bonus tìm kiếm nhanh)
+        if ($request->filled('keyword')) {
+            $query->where('full_name', 'like', '%' . $request->keyword . '%');
+        }
+
+        $doctors = $query->get();
+
+        return view('patient.doctors', compact('doctors', 'specializations', 'cities'));
     }
 
     public function appointments()
     {
-        return view('patient.booking');
+        $patient = auth()->user()->patient;
+
+        $bookings = collect();
+
+        if ($patient) {
+            $bookings = Booking::with([
+                'timeSlot.doctorSchedule.doctor.specialization',
+                'timeSlot.doctorSchedule.doctor.city',
+            ])
+            ->where('patient_id', $patient->id)
+            ->orderByDesc('created_at')
+            ->get();
+        }
+
+        return view('patient.appointments', compact('bookings'));
     }
 
     public function booking($doctor_id)
@@ -56,12 +148,9 @@ class PatientController extends Controller
             'slot_id' => 'required|exists:time_slots,id',
         ]);
 
-        // Lấy ID của Bệnh nhân từ User đang đăng nhập (Lưu ý: patient_id trong bảng bookings)
-        $patient = auth()->user()->patient;
-
-        if (!$patient) {
-            return back()->with('error', 'Ông chưa có hồ sơ bệnh nhân. Vui lòng cập nhật hồ sơ trước!');
-        }
+        // Tự động tạo hồ sơ patient nếu user chưa có
+        $patient = auth()->user()->patient
+            ?? Patient::create(['user_id' => auth()->id()]);
 
         // Tạo bản ghi Booking
         $booking = Booking::create([
@@ -80,7 +169,7 @@ class PatientController extends Controller
             $slot->update(['status' => 0]);
         }
 
-        return redirect()->route('patient.dashboard')->with('success', 'Đặt lịch thành công! Vui lòng chờ bác sĩ xác nhận.');
+        return redirect()->route('patient.dashboard_patient')->with('success', 'Đặt lịch thành công! Vui lòng chờ bác sĩ xác nhận.');
         // ... các hàm khác tương tự
     }
 }

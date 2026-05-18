@@ -4,23 +4,23 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\AdminController;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // Lấy thông tin user đang đăng nhập
         $user = Auth::user();
 
-        // Ông có thể truyền thêm dữ liệu riêng biệt cho từng role nếu cần
-        $data = [];
-
-        if ($user->role === 'admin') {
-            // Ví dụ: Admin thì lấy thêm tổng số bác sĩ, bệnh nhân
-            // $data['totalDoctors'] = User::where('role', 'doctor')->count();
+        switch ($user->role) {
+            case 'admin':
+                return (new AdminController())->adminDashboard();
+            case 'doctor':
+                return redirect()->route('doctor.dashboard');
+            case 'patient':
+                return redirect()->route('patient.dashboard_patient');
+            default:
+                return view('welcome');
         }
-
-        // Trả về đúng 1 view chung duy nhất
-        return view('dashboard', compact('user', 'data'));
     }
 }
