@@ -9,6 +9,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\BookingRequestController;
+
 Route::get('/', function () {
     if (auth()->check()) {
         return redirect('/dashboard');
@@ -27,8 +29,14 @@ Route::get('/appointment',[AppointmentController::class,'create']
 
 Route::post('/appointment', [AppointmentController::class, 'store'])->middleware('auth');
 Route::get('/dashboard', [DashboardController::class,'index'])->middleware('auth')->name('dashboard');
+//menu
+Route::view('/about', 'about-page');
+Route::view('/services', 'services-page');
+Route::view('/news', 'news-page');
+Route::view('/contact', 'contact-page');
+
 //phan quyen cho patient
-Route::middleware(['auth','role:patient'])->prefix('patient')->name('patient.')->group(function () {
+    Route::middleware(['auth','role:patient'])->prefix('patient')->name('patient.')->group(function () {
     Route::get('/dashboard', [PatientController::class, 'dashboard'])->name('dashboard_patient');
 
     // 2. Tài khoản & Hồ sơ cá nhân
@@ -145,4 +153,13 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
         Route::get('/trangchu3', function () {
            return 'hello man';
         });
+    });
+// === ĐẶT LỊCH NHANH CHO KHÁCH VÃNG LAI (không cần đăng nhập) ===
+Route::controller(BookingRequestController::class)
+    ->prefix('dat-lich-nhanh')
+    ->name('booking-requests.')
+    ->group(function () {
+        Route::get('/',               'create')->name('create');
+        Route::post('/',              'store')->name('store');
+        Route::get('/thanks/{code}',  'thanks')->name('thanks');
     });

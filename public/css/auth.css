@@ -1,229 +1,351 @@
+
+/* RESET */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
+    scroll-behavior: smooth;
 }
-header {
+/* BODY */
+body {
+    background: #f5f7fa;
+    padding-top: 90px;
+}
+
+/* ===== POPUP WRAPPER ===== */
+.wrapper {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 20px 100px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 99;
-}
-body{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background: url("/img/background_registration2.png") no-repeat;
-    background-size: cover;
-    background-position: center;
-}
-.logo {
-    font-size: 2em;
-    color: #fff;
-    user-select: none;
-}
-.navigation a{
-    position: relative;
-    font-size: 1.1em;
-    color: #fff;
-    text-decoration: none;
-    font-weight: 500;
-    margin: 40px;
-}
-.navigation a:after{
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: -6px;
-    width: 100%;
-    height: 3px;
-    background: #fff;
-    border-radius: 5px;
-    transform-origin: right;
-    transform: scaleX(0);
-    transition: transform .5s;
-}
-.navigation a:hover::after{
-    transform-origin: left;
-    transform: scaleX(1);
-}
-.navigation .btn-login_popup{
-    width: 130px;
-    height: 50px;
-    background: transparent;
-    border: 2px solid #fff;
-    outline: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.1em;
-    color: #fff;
-    font-weight: 500;
-    margin-left: 40px;
-    transition: .5s;
-}
-.navigation .btn-login_popup:hover{
-    background: #fff;
-    color: #162938;
-}
-.wrapper{
-    position: relative;
-    width: 400px;
-    height: 440px;
-    background: transparent;
-    border: 2px solid rgba(255, 255, 255, .5);
+    top: 50%;
+    left: 50%;
+    width: 420px;
+    max-width: 92vw;
+    height: 540px;
+
+    background: #ffffff;
     border-radius: 20px;
-    backdrop-filter: blur(20px);
-    box-shadow: 0 0 30px rgba(0, 0, 0, .5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transform: scale(0);
-    transition: transform .5s ease,height .2s ease ;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+
+    /* ẩn mặc định */
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(0.95);
+
+    transition: transform .4s cubic-bezier(.4, 0, .2, 1),
+    opacity   .3s  ease,
+    height    .4s  cubic-bezier(.4, 0, .2, 1);
+
     overflow: hidden;
+    z-index: 99999;
 }
-.wrapper.active-popup{
-    transform: scale(1);
+.wrapper.active-popup {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
 }
-.wrapper.active{
-    height: 520px;
+.wrapper.active {
+    height: 640px;       /* form Register cao hơn */
 }
-.wrapper .form-box.login{
-    transition: transform .18s ease;
-    transform: translateX(0);
-}
-.wrapper.active .form-box.login{
-    transition: none;
-    transform: translateX(-400px);
-}
-.wrapper .form-box.registration{
+/* ===== FORM BOX SLIDER ===== */
+.wrapper .form-box {
     position: absolute;
-    transform: translateX(400px);
-}
-.wrapper.active .form-box.registration{
-    transition: transform .18s ease;
-    transform: translateX(0);
-}
-.wrapper .form-box{
+    inset: 0;
     width: 100%;
-    padding:40px;
-    overflow: hidden;
+    padding: 44px 36px 32px;
+    overflow-y: auto;
+    transition: transform .45s cubic-bezier(.4, 0, .2, 1),
+    opacity   .35s ease;
 }
+.wrapper .form-box.login        { transform: translateX(0);     opacity: 1; }
+.wrapper.active .form-box.login { transform: translateX(-110%); opacity: 0; }
+.wrapper .form-box.registration        { transform: translateX(110%); opacity: 0; }
+.wrapper.active .form-box.registration { transform: translateX(0);    opacity: 1; }
+.wrapper .form-box::-webkit-scrollbar { width: 4px; }
+.wrapper .form-box::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+/* ===== HEADING ===== */
 .form-box h2 {
-    font-size: 2em;
-    color: #162938;
-    text-align: center;
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 6px;
+    text-align: left;
 }
+.form-box .subtitle {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-bottom: 26px;
+}
+/* ===== INPUT BOX ===== */
 .input-box {
     position: relative;
-    width: 100%;
-    height: 50px;
-    border-bottom:2px solid #162938;
-    margin: 30px 0;
+    margin-bottom: 16px;
 }
-.input-box label{
+.input-box > label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 6px;
+}
+.input-box .input-wrap {
+    position: relative;
+}
+.input-box .icon {
     position: absolute;
+    left: 14px;
     top: 50%;
-    left: 5px;
     transform: translateY(-50%);
-    color: #162938;
-    font-weight: 500;
+    font-size: 1.1rem;
+    color: #94a3b8;
     pointer-events: none;
-    transition: .5s;
+    transition: color .2s;
 }
-.input-box input:focus~label,
-.input-box input:valid~label {
-    top: -5px;
-}
-.input-box input{
+.input-box input {
     width: 100%;
-    height: 100%;
-    background: transparent;
-    border: none;
+    height: 46px;
+    padding: 0 14px 0 42px;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    color: #0f172a;
+    font-size: 0.95rem;
     outline: none;
-    color: #162938;
-    font-size: 1em;
-    font-weight: 500;
-    padding: 0 35px 0 5px;
+    transition: border-color .2s, background .2s, box-shadow .2s;
 }
-.input-box .icon{
-    position: absolute;
-    right: 8px;
-    font-size: 1.2em;
-    color: #162938;
-    line-height: 57px;
+.input-box input::placeholder { color: #cbd5e1; }
+.input-box input:focus {
+    border-color: #3b82f6;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
 }
+/* icon đổi màu khi focus */
+.input-box .input-wrap:focus-within .icon { color: #3b82f6; }
+/* ===== REMEMBER & FORGOT ===== */
 .remember-forgot {
-    font-size: .9em;
-    color: #162938;
-    font-weight: 500;
-    margin: -15px 0 15px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    font-size: 0.825rem;
+    margin: 6px 0 22px;
+}
+.remember-forgot label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #475569;
+    cursor: pointer;
 }
 .remember-forgot label input {
-    accent-color: #162938;
-    margin-right: 3px;
+    width: 16px;
+    height: 16px;
+    accent-color: #3b82f6;
+    cursor: pointer;
 }
-.remember-forgot a{
-    color: #162938;
+.remember-forgot a {
+    color: #3b82f6;
     text-decoration: none;
+    font-weight: 500;
 }
-.remember-forgot a:hover{
-    text-decoration: underline;
-}
-.btn{
+.remember-forgot a:hover { text-decoration: underline; }
+/* ===== SUBMIT BUTTON ===== */
+.btn {
     width: 100%;
-    height: 45px;
-    background: #162938;
+    height: 60px;
     border: none;
     outline: none;
-    border-radius: 6px;
+    border-radius: 10px;
     cursor: pointer;
-    font-size: 1em;
+    font-size: 0.95rem;
+    font-weight: 600;
     color: #fff;
-    font-weight: 500;
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.35);
+    transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
 }
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px 0 rgba(59, 130, 246, 0.45);
+    filter: brightness(1.05);
+}
+.btn:active { transform: translateY(0); }
+/* ===== SWITCH LINK ===== */
 .Login-register {
-    font-size: .9em;
-    color: #162938;
     text-align: center;
-    font-weight: 500;
-    margin :25px 0 15px;
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-top: 22px;
 }
-.Login-register p a{
-    color: #162938;
+.Login-register a {
+    color: #3b82f6;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
 }
-.Login-register a:hover{
-    text-decoration: underline;
-}
-.wrapper .icon-close{
+.Login-register a:hover { text-decoration: underline; }
+/* ===== CLOSE BUTTON ===== */
+.wrapper .icon-close {
     position: absolute;
-    top:0;
-    right:0;
-    width: 45px;
-    height: 45px;
-    background: #162938;
-    font-size: 2em;
-    color: #fff;
+    top: 14px;
+    right: 14px;
+    width: 36px;
+    height: 36px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 1.25rem;
     display: flex;
     justify-content: center;
     align-items: center;
-    border-bottom-left-radius: 11px ;
-    z-index: 9999;
+    border-radius: 50%;
+    z-index: 100;
     cursor: pointer;
+    transition: background .2s ease, color .2s ease, transform .25s ease;
 }
-.wrapper .form-box.login{
+.wrapper .icon-close:hover {
+    background: #ef4444;
+    color: #fff;
+    transform: rotate(90deg);
 }
-.wrapper .form-box.registration{
-    position: absolute;
-    transform: translateX(400px);
+/*section */
+section {
+    padding: 60px 40px;
 }
+/* grid dùng chung */
+.grid {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+ /* ===== SERVICES ===== */
+/* ===== SERVICE TAB - polished ===== */
+.service-tab {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 16px;
+    margin-bottom: 4px;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    color: #475569;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+.service-tab__icon {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+.service-tab__name {
+    flex: 1;
+    line-height: 1.3;
+}
+.service-tab__arrow {
+    font-size: 20px;
+    line-height: 1;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: all 0.2s;
+}
+.service-tab:hover {
+    background: #f0f9ff;
+    color: #0284c7;
+}
+.service-tab:hover .service-tab__arrow {
+    opacity: 0.5;
+    transform: translateX(0);
+}
+.service-tab.active {
+    background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+    color: white;
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+.service-tab.active .service-tab__arrow {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* .service-content giữ nguyên display:none / active-content nếu đã có */
+.service-content { display: none; }
+.service-content.active-content { display: block; }
+
+/* Scrollbar cho danh sách dịch vụ (nếu nhiều quá) */
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+.service-content{
+    display: none;
+}
+.service-content.active-content{
+    display: block;
+}
+/* content body */
+.service-content h3{
+    margin-bottom: 20px;
+}
+.service-content p{
+    max-width: 850px;
+}
+/* responsive */
+@media(max-width:1024px){
+
+    .service-tab{
+        height: 54px;
+        font-size: 14px;
+    }
+}
+@media(max-width:768px){
+
+    .service-tab{
+        justify-content: center;
+        text-align: center;
+    }
+}
+/*Blog*/
+/* Tùy chỉnh thanh cuộn cho khối tin tức phụ */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px; /* Độ rộng vừa phải, không làm thu nhỏ nội dung bài viết */
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1; /* Màu xám nhạt tinh tế (tương đương slate-300) */
+    border-radius: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8; /* Tối hơn một chút khi người dùng di chuột vào */
+}
+/* ===== BRANCH CARD - inactive + active state ===== */
+.branch-card {
+    background: #ffffff;
+    border-color: #f1f5f9;
+}
+.branch-card:hover {
+    border-color: #bae6fd;       /* sky-200 */
+    background: #f0f9ff;          /* sky-50 */
+}
+.branch-card.active {
+    background: #f0f9ff;          /* sky-50 */
+    border-color: #0ea5e9;        /* sky-500 */
+    box-shadow: 0 4px 16px rgba(14, 165, 233, 0.2);
+}
+
+/* Dot + Icon — đổi màu theo state */
+.branch-card .branch-dot   { background: #cbd5e1; }   /* slate-300 */
+.branch-card .branch-icon  { color: #94a3b8; }        /* slate-400 */
+
+.branch-card:hover .branch-icon,
+.branch-card.active .branch-dot,
+.branch-card.active .branch-icon {
+    color: #0ea5e9;               /* sky-500 */
+}
+.branch-card.active .branch-dot { background: #0ea5e9; }
+

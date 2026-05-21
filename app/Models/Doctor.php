@@ -22,6 +22,7 @@ class Doctor extends Model
         'phone_number',
         'description',
         'certificates',
+        'avatar_url',
     ];
 
     protected $casts = [

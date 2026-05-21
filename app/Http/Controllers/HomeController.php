@@ -1,11 +1,14 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\Doctor;
 class HomeController
 {
     public function index()
     {
-        return view('welcome');
+        $doctors = Doctor::all();
+
+        return view('auth', compact('doctors'));
     }
     public function index2(){
         return 'hello work';
