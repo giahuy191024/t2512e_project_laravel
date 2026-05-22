@@ -37,38 +37,9 @@
                           inline-flex items-center gap-1 rounded-full px-5 py-3 text-base font-bold transition
                           hover:bg-slate-100 hover:text-blue-700">
                     DỊCH VỤ
-                    <svg class="w-3 h-3 transition-transform group-hover:rotate-180"
-                         viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd"
-                              d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
-                              clip-rule="evenodd"/>
-                    </svg>
-                </a>
-                <div class="invisible opacity-0 translate-y-2 group-hover:visible
-                            group-hover:opacity-100 group-hover:translate-y-0
-                            absolute left-0 top-full pt-3 min-w-57.5 z-50
-                            transition-all duration-200">
-                    <div class="bg-white rounded-xl shadow-lg border border-gray-100 py-2">
-                        <a href="{{ url('/services/web') }}"
-                           class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-600">
-                            Thiết kế Website
-                        </a>
-                        <a href="{{ url('/services/seo') }}"
-                           class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-600">
-                            Dịch vụ SEO
-                        </a>
-                        <a href="{{ url('/services/ads') }}"
-                           class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-600">
-                            Quảng cáo Google Ads
-                        </a>
-                        <a href="{{ url('/services/design') }}"
-                           class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-600">
-                            Thiết kế đồ họa
-                        </a>
-                    </div>
-                </div>
-            </div>
 
+                </a>
+            </div>
             {{-- TIN TỨC + dropdown --}}
             <div class="relative group">
                 <a href="{{ url('/news') }}"
@@ -76,31 +47,11 @@
                           inline-flex items-center gap-1 rounded-full px-5 py-3 text-base font-bold transition
                           hover:bg-slate-100 hover:text-blue-700">
                     TIN TỨC
-                    <svg class="w-3 h-3 transition-transform group-hover:rotate-180"
-                         viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd"
-                              d="M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
-                              clip-rule="evenodd"/>
-                    </svg>
                 </a>
                 <div class="invisible opacity-0 translate-y-2 group-hover:visible
                             group-hover:opacity-100 group-hover:translate-y-0
                             absolute left-0 top-full pt-3 min-w-55 z-50
                             transition-all duration-200">
-                    <div class="bg-white rounded-xl shadow-lg border border-gray-100 py-2">
-                        <a href="{{ url('/news/company') }}"
-                           class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-600">
-                            Tin công ty
-                        </a>
-                        <a href="{{ url('/news/industry') }}"
-                           class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-600">
-                            Tin ngành
-                        </a>
-                        <a href="{{ url('/news/tutorials') }}"
-                           class="block px-4 py-2 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-600">
-                            Hướng dẫn / Blog
-                        </a>
-                    </div>
                 </div>
             </div>
 

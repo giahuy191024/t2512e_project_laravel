@@ -117,8 +117,8 @@
                         <option value="">— Để admin tư vấn —</option>
                         @php
                             $specialties = [
-                                'Tim mạch','Nội khoa tổng quát','Sản phụ khoa','Nhi khoa',
-                                'Da liễu','Tai mũi họng','Cơ xương khớp','Mắt','Răng hàm mặt',
+                                'Chỉnh nha','Cấy ghép Implant','Phục hình răng','Nội nha / Chữa tủy',
+                                'Nha chu','Phẫu thuật miệng','Nha khoa trẻ em','Nha khoa thẩm mỹ','Nha khoa tổng quát',
                                 'Khác (ghi rõ ở ghi chú)',
                             ];
                         @endphp
@@ -146,33 +146,6 @@
                 </div>
                 @error('preferred_date')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
             </div>
-
-            {{-- === Khung giờ (radio dạng pill, dùng peer-checked) === --}}
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-1.5">
-                    Khung giờ mong muốn <span class="text-slate-400 font-normal text-xs">(không bắt buộc)</span>
-                </label>
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    @php
-                        $slots = [
-                            '08:00 - 10:00','10:00 - 12:00','13:00 - 15:00',
-                            '15:00 - 17:00','17:00 - 19:00','Linh hoạt',
-                        ];
-                    @endphp
-                    @foreach ($slots as $val)
-                        <label class="cursor-pointer">
-                            <input type="radio" name="preferred_time_range" value="{{ $val }}"
-                                   {{ old('preferred_time_range') === $val ? 'checked' : '' }}
-                                   class="peer sr-only">
-                            <span class="block text-center text-sm py-2.5 px-2 rounded-lg border border-slate-300 bg-white peer-checked:bg-gradient-to-r peer-checked:from-sky-500 peer-checked:to-cyan-500 peer-checked:text-white peer-checked:border-transparent peer-checked:shadow-md hover:border-sky-400 transition">
-                                {{ $val }}
-                            </span>
-                        </label>
-                    @endforeach
-                </div>
-                @error('preferred_time_range')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
-            </div>
-
             {{-- === Ghi chú === --}}
             <div>
                 <label class="block text-sm font-semibold text-slate-700 mb-1.5">

@@ -198,12 +198,10 @@
 
     @forelse($list as $booking)
     @php
-        $slot     = $booking->timeSlot;
-        $schedule = $slot?->doctorSchedule;
+        $slot     = $booking->slot;
+        $schedule = $slot?->schedule;
         $doctor   = $schedule?->doctor;
         $st       = $statusMap[$booking->status] ?? $statusMap[0];
-        $photoId  = (($doctor?->id ?? 1) % 70) + 1;
-        $gender   = (($doctor?->id ?? 1) % 2 === 0) ? 'men' : 'women';
     @endphp
     <div class="booking-card">
         <div class="booking-card-inner">
@@ -213,16 +211,18 @@
 
             {{-- Ảnh bác sĩ --}}
             <div class="bk-doctor-photo">
-                <img
-                    src="https://randomuser.me/api/portraits/{{ $gender }}/{{ $photoId }}.jpg"
-                    alt="{{ $doctor?->full_name }}"
-                    onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($doctor?->full_name ?? 'BS') }}&background=1a73e8&color=fff&size=128&bold=true'"
-                >
+                @if($doctor?->user?->avatar_url)
+                    <img src="{{ asset('storage/' . $doctor->user->avatar_url) }}"
+                         alt="{{ $doctor->full_name }}">
+                @else
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode($doctor?->full_name ?? 'BS') }}&background=1a73e8&color=fff&size=128&bold=true"
+                         alt="{{ $doctor?->full_name }}">
+                @endif
             </div>
 
             {{-- Thông tin --}}
             <div class="bk-info">
-                <div class="bk-doctor-name">BS. {{ $doctor?->full_name ?? '—' }}</div>
+                <div class="bk-doctor-name">{{ $doctor?->full_name ?? '—' }}</div>
                 <div class="bk-spec">
                     <i class="fas fa-tooth mr-1"></i>{{ $doctor?->specialization?->name ?? 'Chuyên khoa' }}
                 </div>
@@ -236,8 +236,8 @@
                         <span>{{ $slot ? \Carbon\Carbon::parse($slot->start_time)->format('H:i') : '—' }}</span>
                     </div>
                     <div class="bk-meta-item">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span>{{ $doctor?->city?->name ?? '—' }}</span>
+                        <i class="fas fa-briefcase"></i>
+                        <span>{{ ($doctor?->experience_years ?? '?') . ' năm KN' }}</span>
                     </div>
                     <div class="bk-meta-item">
                         <i class="fas fa-hashtag"></i>

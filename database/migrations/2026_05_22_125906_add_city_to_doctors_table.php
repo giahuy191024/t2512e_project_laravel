@@ -4,25 +4,18 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-    /**
-     * Run the migrations.
-     */
+return new class extends Migration {
     public function up(): void
     {
         Schema::table('doctors', function (Blueprint $table) {
-            $table->json('certificates')->nullable()->after('description');
+            $table->string('city', 100)->nullable()->after('specialty');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('doctors', function (Blueprint $table) {
-            $table->dropColumn('certificates');
+            $table->dropColumn('city');
         });
     }
 };

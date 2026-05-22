@@ -87,12 +87,12 @@ $statusMap=[0=>['label'=>'Chờ xác nhận','class'=>'status-0','icon'=>'fa-clo
         $bookings = $user->patient?->bookings ?? collect();
         $bookingCount = $bookings->count();
     @endphp
-    <div class="patient-card" data-search="{{ strtolower($user->name.' '.$user->email) }}" style="animation-delay:{{ $idx * 0.04 }}s">
+    <div class="patient-card" data-search="{{ strtolower($user->full_name.' '.$user->email) }}" style="animation-delay:{{ $idx * 0.04 }}s">
         <div class="patient-header" onclick="togglePanel({{ $user->id }})">
-            <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=4361ee&color=fff&size=48"
-                 class="patient-avatar" alt="{{ $user->name }}">
+            <img src="https://ui-avatars.com/api/?name={{ urlencode($user->full_name) }}&background=4361ee&color=fff&size=48"
+                 class="patient-avatar" alt="{{ $user->full_name }}">
             <div style="flex:1;min-width:0">
-                <div class="patient-name">{{ $user->name }}</div>
+                <div class="patient-name">{{ $user->full_name }}</div>
                 <div class="patient-email">{{ $user->email }}</div>
                 <div class="patient-meta">
                     <span class="meta-chip chip-date">
@@ -139,8 +139,8 @@ $statusMap=[0=>['label'=>'Chờ xác nhận','class'=>'status-0','icon'=>'fa-clo
                     <tbody>
                         @foreach($bookings->sortByDesc('created_at') as $bi => $bk)
                         @php
-                            $slot = $bk->timeSlot;
-                            $schedule = $slot?->doctorSchedule;
+                            $slot = $bk->slot;
+                            $schedule = $slot?->schedule;
                             $doctor = $schedule?->doctor;
                             $s = $statusMap[$bk->status] ?? $statusMap[0];
                         @endphp

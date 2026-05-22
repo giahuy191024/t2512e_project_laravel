@@ -54,7 +54,7 @@
                 <label>Họ và tên</label>
                 <div class="input-wrap">
                     <span class="icon"><ion-icon name="person-outline"></ion-icon></span>
-                    <input type="text" name="name" placeholder="Nguyễn Văn A"
+                    <input type="text" name="full_name" placeholder="Nguyễn Văn A"
                            autocomplete="off" required>
                 </div>
             </div>

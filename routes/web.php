@@ -16,7 +16,24 @@ Route::get('/', function () {
         return redirect('/dashboard');
     }
 
-    return view('auth');
+    // Featured = doctor có kinh nghiệm cao nhất
+    $featuredDoctor = \App\Models\Doctor::with('user')
+        ->where('status', 1)
+        ->orderByDesc('experience_years')
+        ->first();
+
+    // Helper: query base (loại bỏ featured)
+    $base = fn() => \App\Models\Doctor::with('user')
+        ->where('status', 1)
+        ->when($featuredDoctor, fn($q) => $q->where('id', '!=', $featuredDoctor->id))
+        ->orderByDesc('experience_years');
+
+    // Group theo city
+    $doctorsHaNoi  = (clone $base())->where('city', 'Hà Nội')->get();
+    $doctorsHCM    = (clone $base())->where('city', 'Hồ Chí Minh')->get();
+    $doctorsDaNang = (clone $base())->where('city', 'Đà Nẵng')->get();
+
+    return view('auth', compact('featuredDoctor', 'doctorsHaNoi', 'doctorsHCM', 'doctorsDaNang'));
 });
 
 Route::post('/auth', [AuthController::class, 'handleAuth']);

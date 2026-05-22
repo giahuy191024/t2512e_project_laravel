@@ -92,7 +92,7 @@ body { background: #f0f4ff !important; }
 {{-- Hero --}}
 <div class="admin-hero">
     <div class="date-badge"><i class="fas fa-calendar-day"></i> {{ now()->format('l, d/m/Y') }}</div>
-    <h1>Xin chào, {{ auth()->user()->name }} 👋</h1>
+    <h1>Xin chào, {{ auth()->user()->full_name }} 👋</h1>
     <p>Tổng quan hệ thống phòng khám nha khoa</p>
 </div>
 
@@ -178,16 +178,16 @@ body { background: #f0f4ff !important; }
             <tbody>
                 @foreach($recentBookings as $i => $bk)
                 @php
-                    $slot = $bk->timeSlot; $schedule = $slot?->doctorSchedule; $doctor = $schedule?->doctor;
-                    $patient = $bk->patient?->user;
-                    $s = $statusMap[$bk->status] ?? $statusMap[0];
+                    $slot = $bk->slot; $schedule = $slot?->schedule; $doctor = $schedule?->doctor;
+                   $patient = $bk->patient?->user;
+                   $s = $statusMap[$bk->status] ?? $statusMap[0];
                 @endphp
                 <tr>
                     <td style="font-size:12px;color:#aaa;font-weight:600">{{ $i+1 }}</td>
                     <td>
                         <div style="display:flex;align-items:center">
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode($patient?->name ?? 'N') }}&background=4361ee&color=fff&size=36" class="pt-avatar">
-                            <div><div class="pt-name">{{ $patient?->name ?? '—' }}</div><div class="pt-email">{{ $patient?->email ?? '' }}</div></div>
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode($patient?->full_name ?? 'N') }}&background=4361ee&color=fff&size=36" class="pt-avatar">
+                            <div><div class="pt-name">{{ $patient?->full_name ?? '—' }}</div><div class="pt-email">{{ $patient?->email ?? '' }}</div></div>
                         </div>
                     </td>
                     <td style="font-size:13px;font-weight:600;color:#1a1a2e">{{ $doctor?->full_name ?? '—' }}</td>
