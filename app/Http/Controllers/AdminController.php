@@ -31,22 +31,92 @@ class AdminController extends Controller{
             'recentBookings'
         ));
     }
-    public function manageAccount(){
-        $users = User::all();
-        return view('admin.accounts', compact('users'));
+    public function manageAccount(Request $request){
+        // Calculate stats first (before filtering)
+        $stats = [
+            'total' => User::count(),
+            'admin' => User::where('role', 'admin')->count(),
+            'doctor' => User::where('role', 'doctor')->count(),
+            'patient' => User::where('role', 'patient')->count(),
+        ];
+
+        // Build filtered query
+        $query = User::query();
+
+        // Filter by role
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        // Filter by search (name or email)
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('name', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('email', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        $users = $query->orderBy('created_at', 'desc')->get();
+
+        return view('admin.accounts', compact('users', 'stats'));
     }
-    public function manageDoctors(){
-        $doctors = Doctor::with(['user', 'specialization', 'city'])->get();
+    public function manageDoctors(Request $request){
+        // Get all specializations and cities for dropdowns
         $specializations = Specialization::all();
         $cities = City::all();
-        return view('admin.doctors', compact('doctors', 'specializations', 'cities'));
+
+        // Calculate stats (total before filtering)
+        $stats = [
+            'total' => Doctor::count(),
+        ];
+
+        // Build filtered query
+        $query = Doctor::with(['user', 'specialization', 'city']);
+
+        // Filter by specialization
+        if ($request->filled('specialization_id')) {
+            $query->where('specialization_id', $request->specialization_id);
+        }
+
+        // Filter by city
+        if ($request->filled('city_id')) {
+            $query->where('city_id', $request->city_id);
+        }
+
+        // Filter by search (name, email, or phone)
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('full_name', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('phone_number', 'like', '%' . $searchTerm . '%')
+                  ->orWhereHas('user', function($subQ) use ($searchTerm) {
+                      $subQ->where('email', 'like', '%' . $searchTerm . '%');
+                  });
+            });
+        }
+
+        $doctors = $query->get();
+
+        return view('admin.doctors', compact('doctors', 'specializations', 'cities', 'stats'));
     }
-    public function managePatients(){
-        $patients = User::where('role','patient')
-            ->with(['patient.bookings.timeSlot.doctorSchedule.doctor'])
-            ->orderByDesc('created_at')
-            ->get();
+    public function managePatients(Request $request){
+        // Build filtered query
+        $query = User::where('role','patient')
+            ->with(['patient.bookings.timeSlot.doctorSchedule.doctor']);
+
+        // Filter by search (name or email)
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('name', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('email', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        $patients = $query->orderByDesc('created_at')->get();
         $totalBookings = Booking::count();
+
         return view('admin.patients', compact('patients', 'totalBookings'));
     }
     public function manageCities(){

@@ -6,7 +6,7 @@ class HomeController
 {
     public function index()
     {
-        $featuredDoctor = Doctor::where('featured', 1)->first();
+        /*$featuredDoctor = Doctor::where('featured', 1)->first();
 
         $northDoctors = Doctor::where('region', 'north')->get();
 
@@ -20,6 +20,7 @@ class HomeController
             'centralDoctors',
             'southDoctors'
         ));
+        */
     }
     public function index2(){
         return 'hello work';

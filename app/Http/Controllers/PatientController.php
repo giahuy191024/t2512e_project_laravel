@@ -10,6 +10,8 @@ use App\Models\City;
 use App\Models\Booking;
 use App\Models\Patient;
 use App\Models\TimeSlot;
+use App\Models\Notification;
+use App\Models\User;
 
 class PatientController extends Controller
 {
@@ -161,7 +163,7 @@ class PatientController extends Controller
         ]);
 
         // Cập nhật số người đã đặt vào TimeSlot
-        $slot = TimeSlot::find($request->slot_id);
+        $slot = TimeSlot::with('doctorSchedule.doctor.user')->find($request->slot_id);
         $slot->increment('current_patient');
 
         // Nếu ca đã đầy thì tự động khóa slot đó lại
@@ -169,7 +171,39 @@ class PatientController extends Controller
             $slot->update(['status' => 0]);
         }
 
+        // TẠO THÔNG BÁO CHO BÁC SĨ
+        $doctor = $slot->doctorSchedule->doctor ?? null;
+        if ($doctor && $doctor->user_id) {
+            Notification::create([
+                'user_id' => $doctor->user_id,
+                'type' => 'new_booking',
+                'data' => [
+                    'patient_name' => auth()->user()->name,
+                    'patient_email' => auth()->user()->email,
+                    'work_date' => $slot->doctorSchedule->work_date ?? null,
+                    'time_slot' => substr($slot->start_time, 0, 5) . ' - ' . substr($slot->end_time, 0, 5),
+                ],
+                'booking_id' => $booking->id,
+            ]);
+        }
+
+        // TẠO THÔNG BÁO CHO ADMIN
+        $admins = User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            Notification::create([
+                'user_id' => $admin->id,
+                'type' => 'new_booking',
+                'data' => [
+                    'patient_name' => auth()->user()->name,
+                    'patient_email' => auth()->user()->email,
+                    'doctor_name' => $doctor?->full_name ?? 'N/A',
+                    'work_date' => $slot->doctorSchedule->work_date ?? null,
+                    'time_slot' => substr($slot->start_time, 0, 5) . ' - ' . substr($slot->end_time, 0, 5),
+                ],
+                'booking_id' => $booking->id,
+            ]);
+        }
+
         return redirect()->route('patient.dashboard_patient')->with('success', 'Đặt lịch thành công! Vui lòng chờ bác sĩ xác nhận.');
-        // ... các hàm khác tương tự
     }
 }
