@@ -9,10 +9,10 @@ class Doctor extends Model
 {
     use HasFactory;
 
-    // Tên bảng (nếu ông đặt tên bảng đúng là doctors thì không cần dòng này, nhưng ghi vào cho chắc)
+    // Table name
     protected $table = 'doctors';
 
-    // Cách 1: Khai báo các cột được phép lưu (An toàn)
+    // Fillable columns
     protected $fillable = [
         'user_id',
         'full_name',
@@ -28,22 +28,25 @@ class Doctor extends Model
         'certificates' => 'array',
     ];
 
-
-    // Quan hệ với bảng User (Để sau này lấy email, avatar...)
+    // Relations
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // Quan hệ với bảng Specialization
     public function specialization()
     {
         return $this->belongsTo(Specialization::class, 'specialization_id');
     }
 
-    // Quan hệ với bảng City
     public function city()
     {
         return $this->belongsTo(City::class, 'city_id');
+    }
+
+    // Weekly schedule templates
+    public function weekSchedules()
+    {
+        return $this->hasMany(DoctorWeekSchedule::class);
     }
 }

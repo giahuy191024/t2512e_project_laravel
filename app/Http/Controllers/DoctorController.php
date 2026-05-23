@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Doctor;
 use App\Models\DoctorSchedule;
 use App\Models\TimeSlot;
+use App\Models\DoctorWeekSchedule;
 use App\Models\Booking;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -78,62 +79,90 @@ class DoctorController extends Controller
     public function indexSchedules()
     {
         $doctorId = Auth::user()->doctor->id;
+        // Tự động thêm tuần mới nếu chưa có
+        $latestWeek = DoctorWeekSchedule::where('doctor_id', $doctorId)
+            ->orderBy('week_start', 'desc')
+            ->value('week_start');
 
-        // Gom nhóm theo giờ bắt đầu, giờ kết thúc và ngày tạo (created_at)
-        // để xác định các ngày thuộc cùng một đợt đăng ký.
-        $schedules = DoctorSchedule::with('timeSlots')
-            ->where('doctor_id', $doctorId)
-            ->select('*')
-            ->orderBy('work_date', 'asc')
+        $nextMonday = \Carbon\Carbon::now()->startOfWeek(1)->addWeek();
+        if ($latestWeek === null || $latestWeek < $nextMonday->toDateString()) {
+            // Tạo tuần mới
+            $weekdays = range(1, 6); // Thứ 2 đến Thứ 7
+            $defaultSlots = \App\Models\DoctorWeekSchedule::defaultSlots();
+            foreach ($weekdays as $dow) {
+                foreach (array_keys($defaultSlots) as $slot) {
+                    \App\Models\DoctorWeekSchedule::create([
+                        'doctor_id' => $doctorId,
+                        'week_start' => $nextMonday->toDateString(),
+                        'day_of_week' => $dow,
+                        'slot_code' => $slot,
+                    ]);
+                }
+            }
+            // Xóa tất cả các tuần cũ hơn tuần mới
+            DoctorWeekSchedule::where('doctor_id', $doctorId)
+                ->where('week_start', '<', $nextMonday->toDateString())
+                ->delete();
+        }
+
+        // Sử dụng DoctorWeekSchedule: nhóm theo tuần (week_start = Monday of the week)
+        $schedules = DoctorWeekSchedule::where('doctor_id', $doctorId)
+            ->orderBy('week_start', 'desc')
             ->get()
-            ->groupBy(function($item) {
-                // Gom nhóm những bản ghi được tạo cùng lúc (cùng phút) và cùng khung giờ
-                return $item->created_at->format('Y-m-d H:i') . '-' . $item->start_time . '-' . $item->end_time;
-            });
+            ->groupBy('week_start');
 
         return view('doctor.schedules', compact('schedules'));
     }
 
     public function createSchedule()
     {
-        return view('doctor.schedulescreate');
+        // Prepare default next Monday as week_start
+        $nextMonday = \Carbon\Carbon::now()->startOfWeek()->addWeek();
+        return view('doctor.schedulescreate', ['defaultWeekStart' => $nextMonday->toDateString()]);
     }
 
     public function storeSchedule(Request $request)
     {
         $request->validate([
+            'week_start' => 'required|date',
             'week_days' => 'required|array',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
-            'start_time' => 'required',
-            'end_time' => 'required|after:start_time',
+            'slots' => 'required|array',
         ]);
 
         $doctorId = auth()->user()->doctor->id;
-        $weekDays = $request->week_days; // Mảng chứa [1, 3, 5] chẳng hạn
 
-        // Tạo một chu kỳ ngày từ Start đến End
-        $period = CarbonPeriod::create($request->start_date, $request->end_date);
+        $weekStartInput = \Carbon\Carbon::parse($request->week_start);
+        // Normalize to Monday as week_start
+        $weekStart = $weekStartInput->copy()->startOfWeek();
 
-        foreach ($period as $date) {
-            // Kiểm tra xem thứ của ngày hiện tại có nằm trong mảng bác sĩ chọn không
-            // Carbon: 0 (Chủ nhật) -> 6 (Thứ 7)
-            if (in_array($date->dayOfWeek, $weekDays)) {
+        // Delete existing entries for this doctor and week to force re-registration each week
+        DoctorWeekSchedule::where('doctor_id', $doctorId)
+            ->where('week_start', $weekStart->toDateString())
+            ->delete();
 
-                // 1. Lưu vào bảng doctor_schedules
-                $schedule = DoctorSchedule::create([
+        $weekDays = $request->week_days; // values 1..7 (1=Monday)
+        $slots = $request->slots; // array of slot_codes
+
+        $toInsert = [];
+        foreach ($weekDays as $day) {
+            foreach ($slots as $slot) {
+                $toInsert[] = [
                     'doctor_id' => $doctorId,
-                    'work_date' => $date->toDateString(),
-                    'start_time' => $request->start_time,
-                    'end_time' => $request->end_time,
-                ]);
-
-                // 2. Chia ca khám (TimeSlots) - Gọi hàm phụ để code gọn hơn
-                $this->generateTimeSlots($schedule, $request->slot_duration);
+                    'week_start' => $weekStart->toDateString(),
+                    'day_of_week' => (int)$day,
+                    'slot_code' => $slot,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
             }
         }
 
-        return redirect()->route('doctor.schedules.index')->with('success', 'Đã thiết lập lịch làm việc định kỳ thành công!');
+        // Bulk insert (unique constraint prevents duplicates)
+        if (!empty($toInsert)) {
+            DoctorWeekSchedule::insert($toInsert);
+        }
+
+        return redirect()->route('doctor.schedules.index')->with('success', 'Đã đăng ký lịch tuần thành công!');
     }
     private function generateTimeSlots($schedule, $duration)
     {
@@ -269,5 +298,55 @@ class DoctorController extends Controller
         }
 
         return redirect()->back()->with('error', 'Không tìm thấy dữ liệu để xóa.');
+    }
+
+    // Xóa cả tuần (week_start)
+    public function destroyWeek(Request $request)
+    {
+        $doctorId = Auth::user()->doctor->id;
+        $weekStart = $request->input('week_start');
+
+        if (!$weekStart) {
+            return redirect()->back()->with('error', 'Thiếu thông tin tuần cần xóa');
+        }
+
+        DoctorWeekSchedule::where('doctor_id', $doctorId)
+            ->where('week_start', $weekStart)
+            ->delete();
+
+        return redirect()->back()->with('success', 'Đã xóa lịch tuần thành công');
+    }
+
+    // Toggle a week slot on/off for the doctor (AJAX)
+    public function toggleWeekSlot(Request $request)
+    {
+        $request->validate([
+            'week_start' => 'required|date',
+            'day_of_week' => 'required|integer|min:1|max:7',
+            'slot_code' => 'required|string',
+            'enabled' => 'required|boolean',
+        ]);
+
+        $doctorId = Auth::user()->doctor->id;
+        $weekStart = \Carbon\Carbon::parse($request->week_start)->startOfWeek()->toDateString();
+
+        if ($request->enabled) {
+            // insert if not exists
+            DoctorWeekSchedule::firstOrCreate([
+                'doctor_id' => $doctorId,
+                'week_start' => $weekStart,
+                'day_of_week' => (int)$request->day_of_week,
+                'slot_code' => $request->slot_code,
+            ]);
+            return response()->json(['success' => true, 'message' => 'Enabled']);
+        } else {
+            // delete if exists
+            DoctorWeekSchedule::where('doctor_id', $doctorId)
+                ->where('week_start', $weekStart)
+                ->where('day_of_week', (int)$request->day_of_week)
+                ->where('slot_code', $request->slot_code)
+                ->delete();
+            return response()->json(['success' => true, 'message' => 'Disabled']);
+        }
     }
 }
