@@ -60,21 +60,23 @@
                         </div>
                         <div class="form-group col-md-6">
                             <label>Chuyên khoa <span class="text-danger">*</span></label>
-                            <select name="specialty" class="form-control" required>
+                            <select name="specialty_id" class="form-control" required>
                                 <option value="">-- Chọn chuyên khoa --</option>
-                                @foreach(\App\Models\Doctor::SPECIALTIES as $spec)
-                                    <option value="{{ $spec }}" {{ old('specialty', $doctorEdit->specialty) === $spec ? 'selected' : '' }}>
-                                        {{ $spec }}
+                                @foreach($specialties as $sp)
+                                    <option value="{{ $sp->id }}" {{ old('specialty_id', $doctorEdit->specialty_id) == $sp->id ? 'selected' : '' }}>
+                                        {{ $sp->icon }} {{ $sp->name }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="form-group col-md-4">
                             <label>Thành phố / Cơ sở <span class="text-danger">*</span></label>
-                            <select name="city" class="form-control" required>
+                            <select name="city_id" class="form-control" required>
                                 <option value="">-- Chọn --</option>
-                                @foreach(['Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng'] as $c)
-                                    <option value="{{ $c }}" {{ old('city', $doctorEdit->city) === $c ? 'selected' : '' }}>{{ $c }}</option>
+                                @foreach($cities as $c)
+                                    <option value="{{ $c->id }}" {{ old('city_id', $doctorEdit->city_id) == $c->id ? 'selected' : '' }}>
+                                        {{ $c->name }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>

@@ -172,12 +172,12 @@
 
                 {{-- Chuyên khoa --}}
                 <div class="col-md-3 form-group mb-md-0">
-                    <label for="specialty"><i class="fas fa-stethoscope mr-1"></i> Chuyên khoa</label>
-                    <select name="specialty" id="specialty" class="form-control">
+                    <label for="specialty_id"><i class="fas fa-stethoscope mr-1"></i> Chuyên khoa</label>
+                    <select name="specialty_id" id="specialty_id" class="form-control">
                         <option value="">-- Tất cả --</option>
-                        @foreach(\App\Models\Doctor::SPECIALTIES as $spec)
-                            <option value="{{ $spec }}" {{ request('specialty') == $spec ? 'selected' : '' }}>
-                                {{ $spec }}
+                        @foreach($specialties as $sp)
+                            <option value="{{ $sp->id }}" {{ request('specialty_id') == $sp->id ? 'selected' : '' }}>
+                                {{ $sp->icon }} {{ $sp->name }}
                             </option>
                         @endforeach
                     </select>
@@ -185,11 +185,11 @@
 
                 {{-- Thành phố (mới) --}}
                 <div class="col-md-3 form-group mb-md-0">
-                    <label for="city"><i class="fas fa-map-marker-alt mr-1"></i> Thành phố</label>
-                    <select name="city" id="city" class="form-control">
+                    <label for="city_id"><i class="fas fa-map-marker-alt mr-1"></i> Thành phố</label>
+                    <select name="city_id" id="city_id" class="form-control">
                         <option value="">-- Tất cả --</option>
-                        @foreach(['Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng'] as $c)
-                            <option value="{{ $c }}" {{ request('city') == $c ? 'selected' : '' }}>{{ $c }}</option>
+                        @foreach($cities as $c)
+                            <option value="{{ $c->id }}" {{ request('city_id') == $c->id ? 'selected' : '' }}>{{ $c->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -214,7 +214,7 @@
     {{-- ===== KẾT QUẢ ===== --}}
     <div class="result-count mb-3">
         Tìm thấy <span>{{ $doctors->count() }}</span> bác sĩ
-        @if(request()->hasAny(['keyword','specialty','city']))
+        @if(request()->hasAny(['keyword','specialty_id','city_id']))
             phù hợp với bộ lọc
         @endif
     </div>
@@ -236,9 +236,9 @@
                         <div class="dc-photo-overlay"></div>
 
                         {{-- Badge chuyên khoa --}}
-                        <div class="dc-spec-badge">
-                            <i class="fas fa-stethoscope"></i>{{ $d->specialty ?? 'Chuyên khoa' }}
-                        </div>
+                            <div class="dc-spec-badge">
+                                <i class="fas fa-stethoscope"></i>{{ $d->getRelation('specialty')?->name ?? $d->specialty ?? 'Chuyên khoa' }}
+                            </div>
 
                         {{-- Badge kinh nghiệm --}}
                         @if($d->experience_years)
@@ -275,7 +275,7 @@
                             </div>
                             <div class="dc-chip">
                                 <i class="fas fa-map-marker-alt text-danger"></i>
-                                <span>{{ $d->city ?? '—' }}</span>
+                                <span>{{ $d->getRelation('city')?->name ?? $d->city ?? '—' }}</span>
                             </div>
                         </div>
                         {{-- Nút đặt lịch --}}
@@ -299,23 +299,3 @@
 
 @endsection
 
-{{-- Giữ nguyên phần left-ad và right-ad từ file cũ của bạn --}}
-@push('left-ad')
-    <div class="ad-card"><div class="ad-card-label">Quảng cáo</div>
-        <div class="ad-card-body"><span class="ad-card-icon">🦷</span>
-            <div class="ad-card-title">Tẩy trắng răng</div>
-            <div class="ad-card-desc">Công nghệ Laser Whitening, trắng sáng sau 1 buổi.</div>
-            <a href="#" class="ad-card-btn text-white" style="background:linear-gradient(135deg,#1a73e8,#0d47a1)">Đặt lịch</a>
-        </div>
-    </div>
-@endpush
-
-@push('right-ad')
-    <div class="ad-card"><div class="ad-card-label">Quảng cáo</div>
-        <div class="ad-card-body"><span class="ad-card-icon">💎</span>
-            <div class="ad-card-title">Dán sứ Veneer</div>
-            <div class="ad-card-desc">Nụ cười hoàn hảo chỉ sau 2 buổi.</div>
-            <a href="#" class="ad-card-btn text-white" style="background:linear-gradient(135deg,#f57c00,#e65100)">Xem chi tiết</a>
-        </div>
-    </div>
-@endpush

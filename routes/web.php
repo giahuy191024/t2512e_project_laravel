@@ -10,6 +10,8 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\BookingRequestController;
+use App\Http\Controllers\SpecialtyController;
+use App\Http\Controllers\CityController;
 
 Route::get('/', function () {
     if (auth()->check()) {
@@ -29,16 +31,16 @@ Route::get('/', function () {
         ->orderByDesc('experience_years');
 
     // Group theo city
-    $doctorsHaNoi  = (clone $base())->where('city', 'Hà Nội')->get();
-    $doctorsHCM    = (clone $base())->where('city', 'Hồ Chí Minh')->get();
-    $doctorsDaNang = (clone $base())->where('city', 'Đà Nẵng')->get();
+    $doctorsHaNoi  = (clone $base())->where('city_id', 1)->get();
+    $doctorsHCM    = (clone $base())->where('city_id', 2)->get();
+    $doctorsDaNang = (clone $base())->where('city_id', 3)->get();
 
     return view('auth', compact('featuredDoctor', 'doctorsHaNoi', 'doctorsHCM', 'doctorsDaNang'));
 });
 
 Route::post('/auth', [AuthController::class, 'handleAuth']);
 
-Route::post('/logout', [AuthController::class, 'logout']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/appointment',[AppointmentController::class,'create']
 
@@ -77,7 +79,7 @@ Route::view('/contact', 'contact-page');
 
     // 5. Quản lý lịch hẹn
     Route::get('/appointments', [PatientController::class, 'appointments'])->name('appointments');
-
+    Route::post('/bookings/{id}/cancel', [PatientController::class, 'cancelBooking'])->name('bookings.cancel');
     // 6. Thông báo huỷ lịch
     Route::post('/notifications/{id}/read', [PatientController::class, 'markNotificationRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [PatientController::class, 'markAllNotificationsRead'])->name('notifications.readAll');
@@ -85,7 +87,7 @@ Route::view('/contact', 'contact-page');
     // 7. Nội dung y tế (Làm sau)
     Route::get('/notifications', [PatientController::class, 'notifications'])->name('notifications');
     Route::get('/medical-news', [PatientController::class, 'news'])->name('news');
-});
+    });
 //doctor
 Route::middleware(['auth','role:doctor'])->name('doctor.')->group(function () {
     // 1. DASHBOARD
@@ -106,9 +108,7 @@ Route::middleware(['auth','role:doctor'])->name('doctor.')->group(function () {
 
         // Route POST để lưu lịch làm việc mới vào database
         Route::post('/store', [DoctorController::class, 'storeSchedule'])->name('store');
-
         Route::get('/edit/{id}', [DoctorController::class, 'editSchedule'])->name('edit');
-
         // Route POST (hoặc PUT) để cập nhật lịch đã có
         Route::post('/update/{id}', [DoctorController::class, 'updateSchedule'])->name('update');
 
@@ -133,9 +133,13 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/accounts', [AdminController::class, 'manageAccount'])->name('admin.accounts');
     Route::get('/doctors', [AdminController::class, 'manageDoctors'])->name('admin.doctors');
     Route::get('/patients', [AdminController::class, 'managePatients'])->name('admin.patients');
-    Route::get('/cities', [AdminController::class, 'manageCities'])->name('admin.cities');
+    Route::get('/cities', [CityController::class, 'index'])->name('admin.cities');
+    Route::get('/specialties', [SpecialtyController::class, 'index'])->name('admin.specialties');
     Route::get('/contents', [AdminController::class, 'manageContents'])->name('admin.contents');
 
+    Route::get('/cancellations', function() {
+        return '<h1 style="padding:50px;text-align:center;font-family:sans-serif;">🚧 Quản lý hủy lịch — Đang phát triển</h1>';
+    })->name('admin.cancellations');
     //Route cho quan ly tai khoan admin
     Route::get('accounts/create',[AdminController::class,'createAccount'])->name('admin.accounts.create');
     Route::post('accounts/create',[AdminController::class,'storeAccount'])->name('admin.accounts.store');
@@ -148,7 +152,22 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/doctors/{id}/edit',[AdminController::class,'editDoctor'])->name('admin.doctors.edit');
     Route::put('/doctors/{id}',[AdminController::class,'updateDoctor'])->name('admin.doctors.update');
     Route::delete('/doctors/{id}',[AdminController::class,'deleteDoctor'])->name('admin.doctors.destroy');
+
+    // Specialty CRUD
+    Route::get('specialties/create', [SpecialtyController::class, 'create'])->name('admin.specialties.create');
+    Route::post('specialties/create', [SpecialtyController::class, 'store'])->name('admin.specialties.store');
+    Route::get('specialties/{id}/edit', [SpecialtyController::class, 'edit'])->name('admin.specialties.edit');
+    Route::post('specialties/{id}', [SpecialtyController::class, 'update'])->name('admin.specialties.update');
+    Route::delete('specialties/{id}/delete', [SpecialtyController::class, 'destroy'])->name('admin.specialties.delete');
+
+// City CRUD
+    Route::get('cities/create', [CityController::class, 'create'])->name('admin.cities.create');
+    Route::post('cities/create', [CityController::class, 'store'])->name('admin.cities.store');
+    Route::get('cities/{id}/edit', [CityController::class, 'edit'])->name('admin.cities.edit');
+    Route::post('cities/{id}', [CityController::class, 'update'])->name('admin.cities.update');
+    Route::delete('cities/{id}/delete', [CityController::class, 'destroy'])->name('admin.cities.delete');
 });
+
     //Test
     Route::get('/test',function(){
        return view('testview');
@@ -187,3 +206,4 @@ Route::controller(BookingRequestController::class)
         Route::post('/',              'store')->name('store');
         Route::get('/thanks/{code}',  'thanks')->name('thanks');
     });
+

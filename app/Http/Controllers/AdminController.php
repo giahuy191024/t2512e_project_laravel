@@ -9,6 +9,8 @@ use App\Models\Patient;
 use App\Models\Doctor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Specialty;
+use App\Models\City;
 
 class AdminController extends Controller
 {
@@ -22,15 +24,39 @@ class AdminController extends Controller
 
     // ===== TRANG DANH SÁCH =====
 
-    public function manageAccount(){
-        $users = User::all();
-        return view('admin.accounts', compact('users'));
+    public function manageAccount(Request $request){
+        $query = User::query();
+
+        // Filter search
+        if ($search = $request->input('search')) {
+            $query->where(function($q) use ($search) {
+                $q->where('full_name', 'like', "%$search%")
+                    ->orWhere('email', 'like', "%$search%");
+            });
+        }
+
+        // Filter role
+        if ($role = $request->input('role')) {
+            $query->where('role', $this->roleMap[$role] ?? -1);
+        }
+
+        $users = $query->orderByDesc('created_at')->get();
+
+        $stats = [
+            'total'   => User::count(),
+            'admin'   => User::where('role', User::ROLE_ADMIN)->count(),
+            'doctor'  => User::where('role', User::ROLE_DOCTOR)->count(),
+            'patient' => User::where('role', User::ROLE_PATIENT)->count(),
+        ];
+
+        return view('admin.accounts', compact('users', 'stats'));
     }
 
     public function manageDoctors(){
-        // Bỏ relationship 'specialization' và 'city' (đã xóa khỏi schema)
-        $doctors = Doctor::with('user')->get();
-        return view('admin.doctors', compact('doctors'));
+        $doctors = Doctor::with(['user', 'specialty', 'city'])->get();
+        $specialties = Specialty::active()->orderBy('sort_order')->get();
+        $cities      = City::active()->orderBy('sort_order')->get();
+        return view('admin.doctors', compact('doctors', 'specialties', 'cities'));
     }
 
     public function managePatients(){
@@ -106,8 +132,8 @@ class AdminController extends Controller
             'email'            => 'required|email|unique:users,email',
             'password'         => 'required|min:6',
             'full_name'        => 'required|string|max:255',
-            'specialty'        => 'nullable|string|max:100',
-            'city'             => 'required|in:Hà Nội,Hồ Chí Minh,Đà Nẵng',
+            'specialty_id'     => 'required|exists:specialties,id',
+            'city_id'          => 'required|exists:cities,id',
             'experience_years' => 'nullable|integer|min:0',
             'bio'              => 'nullable|string',
             'status'           => 'nullable|in:0,1',
@@ -133,8 +159,8 @@ class AdminController extends Controller
             // 2. Chuẩn bị data Doctor
             $doctorData = [
                 'user_id'          => $user->id,
-                'specialty'        => $request->specialty,
-                'city'             => $request->city,
+                'specialty_id'     => $request->specialty_id,
+                'city_id'          => $request->city_id,
                 'experience_years' => $request->experience_years,
                 'bio'              => $request->bio,
                 'status'           => $request->status ?? Doctor::STATUS_ACTIVE,
@@ -156,8 +182,10 @@ class AdminController extends Controller
     }
 
     public function editDoctor($id) {
-        $doctorEdit = Doctor::with('user')->findOrFail($id);
-        return view('admin.doctors_edit', compact('doctorEdit'));
+        $doctorEdit = Doctor::with(['user', 'specialty', 'city'])->findOrFail($id);
+        $specialties = Specialty::active()->orderBy('sort_order')->get();
+        $cities      = City::active()->orderBy('sort_order')->get();
+        return view('admin.doctors_edit', compact('doctorEdit', 'specialties', 'cities'));
     }
 
     public function updateDoctor(Request $request, $id)
@@ -168,8 +196,8 @@ class AdminController extends Controller
         $request->validate([
             'email'            => 'required|email|unique:users,email,' . $user->id,
             'full_name'        => 'required|string|max:255',
-            'specialty'        => 'required|string|max:100',
-            'city'             => 'required|in:Hà Nội,Hồ Chí Minh,Đà Nẵng',
+            'specialty_id'     => 'required|exists:specialties,id',
+            'city_id'          => 'required|exists:cities,id',
             'experience_years' => 'nullable|integer|min:0',
             'bio'              => 'nullable|string',
             'status'           => 'nullable|in:0,1',
@@ -198,6 +226,8 @@ class AdminController extends Controller
 
             // 2. Update Doctor
             $doctorData = [
+                'specialty_id'     => $request->specialty_id,
+                'city_id'          => $request->city_id,
                 'specialty'        => $request->specialty,
                 'city'             => $request->city,
                 'experience_years' => $request->experience_years,

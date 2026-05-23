@@ -63,7 +63,11 @@
                             <small class="text-info">{{ $d->user->email ?? 'N/A' }}</small>
                         </td>
                         <td class="align-middle">
-                            <span class="badge badge-primary">{{ $d->specialty ?? 'Chưa rõ' }}</span>
+                            @php
+                                // Ưu tiên relationship (FK), fallback về column text legacy
+                                $specialtyName = $d->getRelation('specialty')?->name ?? $d->specialty;
+                            @endphp
+                            <span class="badge badge-primary">{{ $specialtyName ?? 'Chưa rõ' }}</span>
                         </td>
                         <td class="align-middle">{{ $d->experience_years ?? 0 }} năm</td>
                         <td class="align-middle">
@@ -124,20 +128,20 @@
                         </div>
                         <div class="form-group col-md-6">
                             <label>Chuyên khoa <span class="text-danger">*</span></label>
-                            <select name="specialty" class="form-control" required>
+                            <select name="specialty_id" class="form-control" required>
                                 <option value="">-- Chọn chuyên khoa --</option>
-                                @foreach(\App\Models\Doctor::SPECIALTIES as $spec)
-                                    <option value="{{ $spec }}">{{ $spec }}</option>
+                                @foreach($specialties as $sp)
+                                    <option value="{{ $sp->id }}">{{ $sp->icon }} {{ $sp->name }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="form-group col-md-6">
                             <label>Thành phố / Cơ sở <span class="text-danger">*</span></label>
-                            <select name="city" class="form-control" required>
+                            <select name="city_id" class="form-control" required>
                                 <option value="">-- Chọn thành phố --</option>
-                                <option value="Hà Nội">Hà Nội</option>
-                                <option value="Hồ Chí Minh">Hồ Chí Minh</option>
-                                <option value="Đà Nẵng">Đà Nẵng</option>
+                                @foreach($cities as $c)
+                                    <option value="{{ $c->id }}">{{ $c->name }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="form-group col-md-6">
