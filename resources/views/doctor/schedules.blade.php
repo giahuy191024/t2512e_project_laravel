@@ -1,232 +1,125 @@
 @extends('layouts.doctordashboard')
-@section('title', 'Quản lý Lịch & Ca khám')
+@section('title', 'Lịch tuần của tôi')
 
 @section('content')
-    <div class="card card-primary card-outline">
-        <div class="card-header">
-            <h3 class="card-title text-bold"><i class="fas fa-calendar-check mr-2"></i> Lịch trình chi tiết</h3>
-            <div class="card-tools">
-                <a href="{{ route('doctor.schedules.create') }}" class="btn btn-primary btn-sm">
-                    <i class="fas fa-plus"></i> Đăng ký đợt mới
-                </a>
-            </div>
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title">Lịch tuần của tôi</h3>
+            <a href="{{ route('doctor.schedules.create') }}" class="btn btn-primary">Đăng ký tuần mới</a>
         </div>
+        <div class="card-body">
+            @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
+            @if($schedules->isEmpty())
+                <p>Chưa có tuần nào được đăng ký.</p>
+            @else
+                @php
+                    $dayNames = [1=>'Thứ 2',2=>'Thứ 3',3=>'Thứ 4',4=>'Thứ 5',5=>'Thứ 6',6=>'Thứ 7',7=>'Chủ nhật'];
+                    $slotLabels = \App\Models\DoctorWeekSchedule::defaultSlots();
+                @endphp
 
-        <div class="card-body p-0">
-            <div id="accordion">
-                @forelse($schedules as $groupKey => $groupItems)
-                    @php
-                        $first = $groupItems->first();
-                        $last = $groupItems->last();
-                        $groupId = md5($groupKey);
-                        $idsInGroup = $groupItems->pluck('id')->toArray();
-                    @endphp
+                <div class="d-flex gap-3 overflow-auto py-2" id="weeksRow">
+                    @foreach($schedules as $weekStart => $items)
+                        @php
+                            $week = \Carbon\Carbon::parse($weekStart);
+                            $display = $week->format('d/m/Y');
+                            $byDay = $items->groupBy('day_of_week');
+                        @endphp
 
-                    <div class="border-bottom p-3">
-                        <div class="row align-items-center">
-                            <div class="col-md-4">
-                                <span class="text-primary font-weight-bold">
-                                    <i class="far fa-calendar-alt mr-1"></i>
-                                    {{ \Carbon\Carbon::parse($first->work_date)->format('d/m/Y') }}
-                                    <i class="fas fa-arrow-right mx-2 text-xs text-muted"></i>
-                                    {{ \Carbon\Carbon::parse($last->work_date)->format('d/m/Y') }}
-                                </span>
+                        <div class="card shadow" style="min-width:370px;background:#f8fafc">
+                            <div class="card-header d-flex justify-content-between align-items-center bg-primary text-white">
+                                <strong>Tuần bắt đầu: {{ $display }}</strong>
+                                <!-- Nút xóa tuần đã bị ẩn theo yêu cầu, hệ thống sẽ tự xóa tuần cũ -->
                             </div>
-                            <div class="col-md-3">
-                                <span class="badge badge-info shadow-sm">
-                                    <i class="far fa-clock mr-1"></i> {{ $first->start_time }} - {{ $first->end_time }}
-                                </span>
-                            </div>
-                            <div class="col-md-2 text-muted small">{{ $groupItems->count() }} ngày</div>
-                            <div class="col-md-3 text-right d-flex justify-content-end align-items-center">
-                                <button class="btn btn-sm btn-info shadow-sm mr-2 px-3" data-toggle="collapse" data-target="#collapse{{ $groupId }}">
-                                    <i class="fas fa-eye mr-1"></i> Xem ca khám
-                                </button>
-
-                                <form action="{{route('doctor.schedules.destroy-Schedule_Group')}}" method="POST" onsubmit="return confirm('Xóa toàn bộ đợt lịch này?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    @foreach($idsInGroup as $id)
-                                        <input type="hidden" name="ids[]" value="{{ $id }}">
-                                    @endforeach
-                                    <button type="submit" class="btn btn-sm btn-outline-danger btn-circle shadow-sm" title="Xóa toàn bộ đợt này">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-
-                        <div id="collapse{{ $groupId }}" class="collapse mt-3 bg-light rounded p-3" data-parent="#accordion">
-                            <div class="row">
-                                @foreach($groupItems as $item)
-                                    <div class="col-md-6 col-lg-4 mb-3">
-                                        <div class="card h-100 shadow-sm border-0">
-                                            <div class="card-header bg-white py-2">
-                                                <strong class="text-dark small">{{ \Carbon\Carbon::parse($item->work_date)->translatedFormat('l') }}, {{ \Carbon\Carbon::parse($item->work_date)->format('d/m/Y') }}</strong>
+                            <div class="card-body p-3">
+                                @for($dow=1;$dow<=6;$dow++)
+                                    <div class="mb-3 p-2 rounded" style="background:#fff;border:1px solid #e3e6ea;">
+                                        <div class="d-flex align-items-center mb-2 flex-wrap">
+                                            <div style="width:110px;font-weight:700;font-size:1.1em;color:#0d47a1">
+                                                {{ $dayNames[$dow] ?? $dow }}
                                             </div>
-                                            <div class="card-body p-0">
-                                                <table class="table table-sm mb-0">
-                                                    <tbody class="small">
-                                                    @foreach($item->timeSlots as $slot)
-                                                        <tr>
-                                                            <td class="pl-3 py-2 font-weight-bold text-secondary">{{ $slot->start_time }} - {{ $slot->end_time }}</td>
-                                                            <td class="text-right pr-3 py-2">
-                                                                @if($slot->current_patient == 0)
-                                                                    <button class="btn btn-xs text-info p-0 mr-2"
-                                                                            data-toggle="modal" data-target="#editSlotModal"
-                                                                            data-id="{{ $slot->id }}"
-                                                                            data-start="{{ $slot->start_time }}"
-                                                                            data-end="{{ $slot->end_time }}">
-                                                                        <i class="fas fa-edit"></i> Sửa
-                                                                    </button>
-
-                                                                    <button type="button"
-                                                                            class="btn btn-xs text-danger p-0 btn-delete-slot"
-                                                                            data-id="{{ $slot->id }}"
-                                                                            data-url="{{ route('doctor.schedules.destroySlot', $slot->id) }}">
-                                                                        <i class="fas fa-trash"></i> Xóa
-                                                                    </button>
-                                                                @else
-                                                                    <span class="badge badge-warning">Đã có người đặt</span>
-                                                                @endif
-                                                            </td>
-                                                        </tr>
-                                                    @endforeach
-                                                    </tbody>
-                                                </table>
+                                            <div class="d-flex flex-row justify-content-center align-items-center gap-4 flex-nowrap" style="min-width:220px;">
+                                                @foreach($slotLabels as $code => $label)
+                                                    @php
+                                                        $exists = isset($byDay[$dow]) && $byDay[$dow]->contains(fn($x)=> $x->slot_code===$code);
+                                                    @endphp
+                                                    <div class="form-check form-switch d-flex align-items-center" style="min-width:100px;">
+                                                        <input class="form-check-input week-slot-toggle" type="checkbox" role="switch"
+                                                            data-weekstart="{{ $weekStart }}" data-dow="{{ $dow }}" data-slot="{{ $code }}"
+                                                            id="toggle_{{ $weekStart }}_{{ $dow }}_{{ $code }}" {{ $exists ? 'checked' : '' }}>
+                                                        <label class="form-check-label ms-2" for="toggle_{{ $weekStart }}_{{ $dow }}_{{ $code }}">{{ $label }}</label>
+                                                    </div>
+                                                @endforeach
                                             </div>
                                         </div>
+                                        <div class="d-flex gap-2">
+                                            @foreach($slotLabels as $code => $label)
+                                                @php
+                                                    $exists = isset($byDay[$dow]) && $byDay[$dow]->contains(fn($x)=> $x->slot_code===$code);
+                                                    $def = $code==='morning' ? ['08:00','11:30'] : ['13:00','16:30'];
+                                                    $start = \Carbon\Carbon::createFromFormat('H:i', $def[0]);
+                                                    $end = \Carbon\Carbon::createFromFormat('H:i', $def[1]);
+                                                    $slots = [];
+                                                    while($start->lt($end)) {
+                                                        $slotStart = $start->format('H:i');
+                                                        $slotEnd = $start->copy()->addMinutes(30);
+                                                        if($slotEnd->gt($end)) $slotEnd = $end->copy();
+                                                        $slots[] = $slotStart.'-'.$slotEnd->format('H:i');
+                                                        $start->addMinutes(30);
+                                                    }
+                                                    $badgeId = 'badges_'.$weekStart.'_'.$dow.'_'.$code;
+                                                @endphp
+                                                <div id="{{ $badgeId }}" class="bg-gradient p-2 px-3 rounded border text-primary-emphasis"
+                                                    style="background:linear-gradient(90deg,#e3f2fd,#fff);font-size:.95em;display:{{ $exists ? 'block':'none' }};">
+                                                    <strong>{{ $label }}:</strong>
+                                                    @foreach($slots as $s)
+                                                        <span class="badge bg-primary-subtle border border-primary text-primary mx-1">{{ $s }}</span>
+                                                    @endforeach
+                                                </div>
+                                            @endforeach
+                                        </div>
                                     </div>
-                                @endforeach
+                                @endfor
                             </div>
                         </div>
-                    </div>
-                @empty
-                    <div class="text-center p-5 text-muted">Chưa có lịch.</div>
-                @endforelse
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="editSlotModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-sm" role="document">
-            <form action="{{ route('doctor.schedules.updateSlot') }}" method="POST">
-                @csrf
-                <div class="modal-content">
-                    <div class="modal-header py-2">
-                        <h6 class="modal-title font-weight-bold">Sửa giờ ca khám</h6>
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="hidden" name="slot_id" id="modal_slot_id">
-                        <div class="form-group mb-2">
-                            <label class="small">Giờ bắt đầu</label>
-                            <input type="time" name="start_time" id="modal_start_time" class="form-control form-control-sm" required>
-                        </div>
-                        <div class="form-group mb-0">
-                            <label class="small">Giờ kết thúc</label>
-                            <input type="time" name="end_time" id="modal_end_time" class="form-control form-control-sm" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer py-2">
-                        <button type="submit" class="btn btn-primary btn-sm btn-block">Lưu thay đổi</button>
-                    </div>
+                    @endforeach
                 </div>
-            </form>
+            @endif
         </div>
     </div>
-
-    @section('scripts')
-        <script>
-            // JS để đổ dữ liệu vào modal khi bác sĩ bấm nút "Sửa"
-            $('#editSlotModal').on('show.bs.modal', function (event) {
-                var button = $(event.relatedTarget);
-                var id = button.data('id');
-                var start = button.data('start');
-                var end = button.data('end');
-
-                var modal = $(this);
-                modal.find('#modal_slot_id').val(id);
-                modal.find('#modal_start_time').val(start);
-                modal.find('#modal_end_time').val(end);
-            });
-            // Dùng $(document).on để chắc chắn nút nào cũng "ăn"
-            $(document).ready(function() {
-                console.log("1. Đã vào Document Ready"); // Kiểm tra xem JS có load không
-
-                $(document).on('click', '.btn-delete-slot', function(e) {
-                    e.preventDefault();
-                    console.log("2. Đã bấm nút Xóa"); // Kiểm tra xem nút có ăn click không
-
-                    let btn = $(this);
-                    let url = btn.data('url');
-                    console.log("3. URL nhận được là: " + url); // Kiểm tra xem lấy được URL không
-
-                    if (confirm('Xác nhận xóa ca này?')) {
-                        $.ajax({
-                            url: url,
-                            type: 'POST',
-                            data: {
-                                _token: '{{ csrf_token() }}',
-                                _method: 'DELETE'
-                            },
-                            success: function(response) {
-                                console.log("4. Xóa thành công trên Server");
-                                btn.closest('tr').fadeOut(300);
-                            },
-                            error: function(xhr) {
-                                console.log("Lỗi Ajax: ", xhr.status);
-                            }
-                        });
-                    }
-                });
-            });
-        </script>
-    @endsection
-
-    <style>
-        .collapse { transition: all 0.3s ease; }
-        .bg-light { background-color: #f4f6f9 !important; }
-        .table-sm td { vertical-align: middle; }
-        .btn-circle {
-            width: 32px;
-            height: 32px;
-            padding: 6px 0;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 1.42857;
-            transition: all 0.3s ease;
-        }
-
-        /* Hiệu ứng hover cho nút xóa */
-        .btn-outline-danger:hover {
-            background-color: #dc3545;
-            color: white;
-            transform: scale(1.1); /* Phóng to nhẹ khi di chuột vào */
-            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
-        }
-
-        /* Bo góc card và shadow nhẹ */
-        .card {
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        /* Chỉnh lại cái accordion cho sang */
-        .border-bottom {
-            border-bottom: 1px solid #edf2f7 !important;
-            transition: background 0.2s;
-        }
-
-        .border-bottom:hover {
-            background-color: #fcfdfe; /* Highlight nhẹ dòng đang xem */
-        }
-
-        .badge-info {
-            background-color: #e1effe;
-            color: #1e429f;
-            padding: 5px 10px;
-            border-radius: 6px;
-        }
-    </style>
 @endsection
+
+@push('scripts')
+<script>
+    document.querySelectorAll('.week-slot-toggle').forEach(cb => {
+        cb.addEventListener('change', async function(){
+            const weekStart = this.dataset.weekstart;
+            const dow = this.dataset.dow;
+            const slot = this.dataset.slot;
+            const enabled = this.checked ? 1 : 0;
+
+            // Hiện/ẩn badge ca 30 phút ngay khi bật/tắt
+            const badgeId = `badges_${weekStart}_${dow}_${slot}`;
+            const badge = document.getElementById(badgeId);
+            if (badge) badge.style.display = enabled ? 'block' : 'none';
+
+            try {
+                const res = await fetch("{{ route('doctor.schedules.toggleWeekSlot') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({ week_start: weekStart, day_of_week: dow, slot_code: slot, enabled: enabled })
+                });
+                const json = await res.json();
+                if (!json.success) throw new Error(json.message || 'Error');
+            } catch (err) {
+                alert('Có lỗi khi lưu thay đổi: ' + err.message);
+                // revert
+                this.checked = !this.checked;
+                if (badge) badge.style.display = this.checked ? 'block' : 'none';
+            }
+        });
+    });
+</script>
+@endpush

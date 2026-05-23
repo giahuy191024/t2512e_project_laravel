@@ -59,6 +59,15 @@ Route::middleware(['auth','role:patient'])->prefix('patient')->name('patient.')-
     Route::get('/notifications', [PatientController::class, 'notifications'])->name('notifications');
     Route::get('/medical-news', [PatientController::class, 'news'])->name('news');
 });
+
+// PayPal IPN/Notify endpoint
+Route::post('payment/paypal/notify', [\App\Http\Controllers\PaymentController::class, 'handlePaypalNotify'])->name('payment.paypal.notify');
+// PayPal payment routes
+Route::middleware(['auth', 'role:patient'])->group(function() {
+    Route::get('payment/paypal/{booking}/create', [\App\Http\Controllers\PaymentController::class, 'createPaypalPayment'])->name('payment.paypal.create');
+    Route::get('payment/paypal/{booking}/return', [\App\Http\Controllers\PaymentController::class, 'handlePaypalReturn'])->name('payment.paypal.return');
+    Route::get('payment/paypal/{booking}/cancel', [\App\Http\Controllers\PaymentController::class, 'handlePaypalCancel'])->name('payment.paypal.cancel');
+});
 //doctor
 Route::middleware(['auth','role:doctor'])->name('doctor.')->group(function () {
     // 1. DASHBOARD
@@ -87,6 +96,12 @@ Route::middleware(['auth','role:doctor'])->name('doctor.')->group(function () {
 
         // Route DELETE (hoặc GET tạm thời) để xóa lịch
         Route::delete('/delete/{id}', [DoctorController::class, 'destroySchedule'])->name('destroy');
+
+    // Delete entire week schedule (by week_start)
+    Route::delete('/week/delete', [DoctorController::class, 'destroyWeek'])->name('destroyWeek');
+
+    // Toggle a slot in a week (on/off) via AJAX
+    Route::post('/week/toggle', [DoctorController::class, 'toggleWeekSlot'])->name('toggleWeekSlot');
 
         //Route get cho tung cai
         Route::post('slot/update',[DoctorController::class,'updateSlot'])->name('updateSlot');
