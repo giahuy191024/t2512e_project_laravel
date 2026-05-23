@@ -114,7 +114,7 @@
                             <li><a href="#" class="dropdown-item">Thông báo</a></li>
                             <li class="dropdown-divider"></li>
                             <li>
-                                <form action="/logout" method="POST">
+                                <form action="{{ route('logout') }}" method="POST">
                                     @csrf
                                     <button type="submit" class="dropdown-item text-danger">Đăng xuất</button>
                                 </form>

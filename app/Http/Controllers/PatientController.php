@@ -192,8 +192,12 @@ class PatientController extends Controller
         return view('patient.appointments', compact('bookings'));
     }
 
-    public function booking($doctor_id)
+    public function booking($doctor_id = null)
     {
+        if (!$doctor_id) {
+        return redirect()->route('patient.doctors')
+            ->with('error', 'Vui lòng chọn bác sĩ trước');
+    }
         // 1. Lấy thông tin bác sĩ
         $doctor = Doctor::with(['user'])->findOrFail($doctor_id);
 
