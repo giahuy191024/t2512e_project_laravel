@@ -383,4 +383,15 @@ class PatientController extends Controller
         // Redirect to PayPal to complete deposit/payment before confirming the booking
         return redirect()->route('payment.paypal.create', $booking->id);
     }
+
+    // ===== TRANG THÔNG BÁO BỆNH NHÂN =====
+    public function notifications()
+    {
+        $notifications = \App\Models\Notification::where('user_id', auth()->id())
+            ->orderByDesc('created_at')
+            ->limit(50)
+            ->get();
+
+        return view('patient.notifications', compact('notifications'));
+    }
 }

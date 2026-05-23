@@ -146,6 +146,14 @@
                             </a>
                         </li>
 
+                        <li class="nav-item">
+                            <a href="{{ route('admin.cancellations') }}"
+                               class="nav-link {{ request()->routeIs('admin.cancellations*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-calendar-times"></i>
+                                <p>Quản lý hủy lịch</p>
+                            </a>
+                        </li>
+
                     @endif
 
                 </ul>
@@ -238,6 +246,12 @@ function loadNotifications() {
                 let message = '';
                 if (n.type === 'new_booking') {
                     message = `<strong>${patientName}</strong> đã đặt lịch khám${doctorName ? ' với BS. ' + doctorName : ''}`;
+                } else if (n.type === 'booking_cancelled') {
+                    const reason = data.cancel_reason || '';
+                    message = `<strong>${patientName}</strong> đã bị huỷ lịch${doctorName ? ' (BS. ' + doctorName + ')' : ''}`;
+                    if (reason) message += `<br><small style="color:#dc2626">Lý do: ${reason}</small>`;
+                } else if (n.type === 'booking_transferred') {
+                    message = `<strong>${patientName}</strong> đã được chuyển sang BS. <strong>${data.new_doctor_name || 'bác sĩ mới'}</strong>`;
                 }
                 
                 const time = new Date(n.created_at).toLocaleString('vi-VN');

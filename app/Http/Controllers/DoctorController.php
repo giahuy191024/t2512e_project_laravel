@@ -9,6 +9,7 @@ use App\Models\DoctorSchedule;
 use App\Models\TimeSlot;
 use App\Models\DoctorWeekSchedule;
 use App\Models\Booking;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
@@ -66,7 +67,45 @@ class DoctorController extends Controller
         // Nếu bác sĩ huỷ → đặt patient_read = 0 để bệnh nhân nhận thông báo
         if ($request->status == 3) {
             $data['patient_read'] = 0;
+            $data['admin_handled'] = 0;
             $data['cancel_reason'] = $request->cancel_reason ?? 'Bác sĩ đã huỷ lịch hẹn.';
+
+            $doctorName = Auth::user()->doctor->full_name ?? 'Bác sĩ';
+            $workDate = $booking->timeSlot?->doctorSchedule?->work_date;
+            $timeSlotStr = optional($booking->timeSlot)->start_time . ' - ' . optional($booking->timeSlot)->end_time;
+
+            // Tạo thông báo cho bệnh nhân
+            $patientUser = $booking->patient?->user;
+            if ($patientUser) {
+                Notification::create([
+                    'user_id' => $patientUser->id,
+                    'type' => 'booking_cancelled',
+                    'data' => [
+                        'doctor_name' => $doctorName,
+                        'cancel_reason' => $data['cancel_reason'],
+                        'work_date' => $workDate,
+                        'time_slot' => $timeSlotStr,
+                    ],
+                    'booking_id' => $booking->id,
+                ]);
+            }
+
+            // Tạo thông báo cho tất cả admin
+            $admins = \App\Models\User::where('role', 'admin')->get();
+            foreach ($admins as $admin) {
+                Notification::create([
+                    'user_id' => $admin->id,
+                    'type' => 'booking_cancelled',
+                    'data' => [
+                        'doctor_name' => $doctorName,
+                        'patient_name' => optional($booking->patient?->user)->name ?? 'Bệnh nhân',
+                        'cancel_reason' => $data['cancel_reason'],
+                        'work_date' => $workDate,
+                        'time_slot' => $timeSlotStr,
+                    ],
+                    'booking_id' => $booking->id,
+                ]);
+            }
         }
 
         $booking->update($data);

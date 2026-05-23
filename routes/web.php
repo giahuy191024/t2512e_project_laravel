@@ -77,7 +77,7 @@ Route::middleware(['auth','role:doctor'])->name('doctor.')->group(function () {
     Route::get('/doctordashboard', [DoctorController::class, 'dashboard'])->name('dashboard');
 
     // 2. QUẢN LÝ LỊCH KHÁM (Bệnh nhân đặt)
-    Route::prefix('bookings')->prefix('doctor')->name('bookings.')->group(function () {
+    Route::prefix('bookings')->name('bookings.')->group(function () {
         Route::get('/', [DoctorController::class, 'indexBookings'])->name('index');
         Route::get('/{id}', [DoctorController::class, 'showBooking'])->name('show');
         // Route POST để bác sĩ xác nhận hoặc hủy lịch của bệnh nhân

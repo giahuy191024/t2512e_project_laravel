@@ -1,0 +1,26 @@
+services:
+  app:
+    image: php:8.2-fpm
+    container_name: laravel_project_app
+    ports:
+      - "8000:8000"  # Thêm dòng này
+    volumes:
+      - .:/var/www/html
+    working_dir: /var/www/html
+    networks:
+      - laravel-net
+    # Thêm lệnh này để server chạy ngay khi container khởi động
+    command: php artisan serve --host=0.0.0.0 --port=8000 
+
+  db:
+    image: mysql:8.0
+    container_name: laravel_project_db
+    environment:
+      MYSQL_DATABASE: t2512e_laravel
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    networks:
+      - laravel-net
+
+networks:
+  laravel-net:
+    driver: bridge
