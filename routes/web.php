@@ -47,7 +47,14 @@ Route::get('/appointment',[AppointmentController::class,'create']
 Route::post('/appointment', [AppointmentController::class, 'store'])->middleware('auth');
 Route::get('/dashboard', [DashboardController::class,'index'])->middleware('auth')->name('dashboard');
 //menu
-Route::view('/about', 'about-page');
+Route::get('/about', function () {
+    $leaders = \App\Models\Doctor::with('user')
+        ->where('status', 1)
+        ->orderByDesc('experience_years')
+        ->take(4)
+        ->get();
+    return view('about-page', compact('leaders'));
+});
 Route::view('/services', 'services-page');
 Route::view('/news', 'news-page');
 Route::view('/contact', 'contact-page');

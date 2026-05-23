@@ -5,11 +5,11 @@
 
         {{-- ===== HEADER pill ===== --}}
         <div class="flex flex-col items-center text-center mb-12">
-            <h2 class="inline-block rounded-full bg-sky-100
+            <h2 class="inline-block w-135 rounded-full bg-sky-100
                        px-6 md:px-10 py-3 md:py-4
                        text-2xl md:text-3xl lg:text-4xl font-bold text-slate-800
                        mb-5 leading-tight">
-                Hơn <span class="text-sky-600">15.000+</span> nụ cười hài lòng
+                Hơn <span class="text-sky-400">15.000</span><span class="text-sky-600">+</span> nụ cười hài lòng
             </h2>
             <p class="max-w-2xl mx-auto text-base md:text-lg text-slate-500 leading-8">
                 Cảm nhận chân thực từ khách hàng đã tin tưởng và đồng hành cùng MediConnect.
@@ -27,14 +27,11 @@
                 ];
             @endphp
             @foreach ($stats as $s)
-                <div class="bg-white rounded-2xl border border-slate-100
-                    p-6 shadow-sm text-center
-                    flex flex-col items-center justify-center
-                    min-h-32.5">
+                <div class="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm text-center"
+                     style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 140px; width: 100%;">
                     <div class="text-3xl md:text-4xl font-bold
-                        bg-linear-to-br from-sky-500 to-cyan-500
-                        bg-clip-text text-transparent
-                        leading-none">
+                bg-linear-to-br from-sky-500 to-cyan-500
+                bg-clip-text text-transparent leading-none">
                         {{ $s['num'] }}
                     </div>
                     <div class="text-sm text-slate-500 mt-2">

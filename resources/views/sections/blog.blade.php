@@ -3,11 +3,11 @@
 
         {{-- ===== HEADER pill ===== --}}
         <div class="flex flex-col items-center text-center mb-14">
-            <h2 class="inline-block rounded-full bg-sky-100
+            <h2 class="inline-block w-125 rounded-full bg-sky-100
                        px-6 md:px-10 py-3 md:py-4
                        text-2xl md:text-3xl lg:text-4xl font-bold text-slate-800
                        mb-5 leading-tight">
-                Tin tức &amp; <span class="text-sky-600">kiến thức</span> nổi bật
+                Tin tức & <span class="text-sky-600">kiến thức</span> nổi bật
             </h2>
             <p class="max-w-2xl mx-auto text-base md:text-lg text-slate-500 leading-8">
                 Cập nhật kiến thức nha khoa, mẹo chăm sóc răng miệng và công nghệ
@@ -57,20 +57,13 @@
                             border border-slate-100 shadow-sm
                             hover:shadow-xl transition-all duration-300
                             overflow-hidden flex flex-col">
-
                 <a href="#" class="block relative overflow-hidden">
                     <img src="{{ asset('img/' . $featured['image']) }}"
                          alt="{{ $featured['title'] }}"
                          class="w-full h-80 md:h-105 object-cover
                                 group-hover:scale-105 transition-transform duration-500">
-                    <span class="absolute top-4 left-4
-                                 bg-sky-500 text-white text-xs font-bold
-                                 px-3 py-1.5 rounded-full shadow-md">
-                        {{ $featured['category'] }}
-                    </span>
                 </a>
-
-                <div class="p-6 md:p-8 flex flex-col flex-1">
+                <div class="flex flex-col flex-1" style="padding: 28px 40px;">
                     <div class="flex items-center gap-3 text-slate-400 text-xs mb-3">
                         <span>{{ $featured['date'] }}</span>
                         <span class="w-1 h-1 rounded-full bg-slate-300"></span>
@@ -109,14 +102,14 @@
 
                 {{-- List scroll với padding để lộ màu nền slate quanh các card --}}
                 <div class="max-h-[500px] overflow-y-auto custom-scrollbar"
-                     style="padding: 12px;">
+                     style="padding: 12px 0;">
 
                     @foreach ($sideArticles as $a)
                         <a href="#"
-                           style="background-color: #ffffff; margin-bottom: 12px; display: flex;"
+                           style="background-color: #ffffff; margin-bottom: 12px; display: flex; width: 100%; box-sizing: border-box;"
                            class="gap-4 items-start p-3 rounded-xl
-                      shadow-sm hover:shadow-md
-                      hover:bg-sky-50 transition group">
+                                  shadow-sm hover:shadow-md
+                                  hover:bg-sky-50 transition group">
                             <img src="{{ asset('img/' . $a['image']) }}"
                                  alt="{{ $a['title'] }}"
                                  class="w-24 h-24 object-cover rounded-xl shrink-0">

@@ -82,10 +82,10 @@
         {{-- ===== CTA ===== --}}
         <div class="text-center mt-16">
             <a href="{{ route('booking-requests.create') }}"
-               class="inline-flex items-center gap-2 px-7 py-3.5 rounded-full
-                      bg-gradient-to-r from-sky-500 to-cyan-500 text-white
-                      font-semibold shadow-md hover:shadow-lg
-                      hover:-translate-y-0.5 transition">
+               class="inline-flex items-center justify-center w-65 rounded-full
+              bg-linear-to-r from-sky-500 to-cyan-500 text-white
+              font-semibold shadow-md hover:shadow-lg
+              hover:-translate-y-0.5 transition px-6 py-3" style="margin-left: 8px">
                 Đặt lịch khám ngay
 
             </a>

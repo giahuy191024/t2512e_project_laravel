@@ -22,9 +22,8 @@
         @php
             $services = [
                 'implant' => [
-                    'category' => 'PHỤC HÌNH RĂNG',
                     'title'    => 'Trồng Răng Implant',
-                    'image'    => 'service2.png',
+                    'image'    => 'https://elitedental.com.vn/wp-content/uploads/2022/12/tru-implant-bi-dao-thai.png',
                     'intro'    => 'Công nghệ trồng răng Implant hiện đại giúp phục hồi răng đã mất một cách toàn diện và bền vững.',
                     'benefits' => [
                         'Phục hồi răng đã mất bằng trụ Implant cấy trực tiếp vào xương hàm.',
@@ -34,9 +33,8 @@
                     ],
                 ],
                 'nguyen-ham' => [
-                    'category' => 'PHỤC HÌNH RĂNG',
                     'title'    => 'Trồng Răng Nguyên Hàm',
-                    'image'    => 'service2.png',
+                    'image'    => 'https://nhakhoamarina.com/wp-content/uploads/2023/12/trong-rang-implant-nguyen-ham.jpg',
                     'intro'    => 'Giải pháp phục hồi toàn bộ răng mất trên một hàm bằng công nghệ hiện đại.',
                     'benefits' => [
                         'Phục hồi toàn bộ răng mất trên một hàm hiệu quả.',
@@ -46,9 +44,8 @@
                     ],
                 ],
                 'invisalign' => [
-                    'category' => 'CHỈNH NHA',
                     'title'    => 'Niềng Răng Invisalign',
-                    'image'    => 'service3.png',
+                    'image'    => 'https://nhakhoaucare.org/wp-content/uploads/2024/04/nieng-rang-bang-mang-trong-suot-1.jpg',
                     'intro'    => 'Công nghệ chỉnh nha hiện đại bằng khay niềng trong suốt.',
                     'benefits' => [
                         'Sử dụng khay niềng trong suốt thay cho mắc cài.',
@@ -58,9 +55,8 @@
                     ],
                 ],
                 'mac-cai' => [
-                    'category' => 'CHỈNH NHA',
                     'title'    => 'Niềng Răng Mắc Cài Tiết Kiệm',
-                    'image'    => 'service4.png',
+                    'image'    => 'https://cdn.eva.vn/upload/4-2020/images/2020-10-26/tiet-kiem-may-trieu-de-nieng-rang-gia-re-ban-se-giat-minh-khi-doc-nhung-dieu-nay-1-1603682153-660-width660height495.jpg',
                     'intro'    => 'Giải pháp chỉnh nha hiệu quả với chi phí hợp lý.',
                     'benefits' => [
                         'Chi phí phù hợp với nhiều đối tượng.',
@@ -70,9 +66,8 @@
                     ],
                 ],
                 'tre-em' => [
-                    'category' => 'CHĂM SÓC ĐẶC BIỆT',
                     'title'    => 'Nha Khoa Trẻ Em',
-                    'image'    => 'service5.png',
+                    'image'    => 'https://nhakhoaphenikaa.vn/storage/2023/11/Tre-em-1.jpg',
                     'intro'    => 'Dịch vụ chăm sóc răng miệng chuyên biệt dành cho trẻ nhỏ.',
                     'benefits' => [
                         'Theo dõi sự phát triển răng miệng của trẻ.',
@@ -82,9 +77,8 @@
                     ],
                 ],
                 'cao-rang' => [
-                    'category' => 'NHA KHOA TỔNG QUÁT',
                     'title'    => 'Lấy Cao Răng',
-                    'image'    => 'service6.png',
+                    'image'    => 'https://nhakhoapeace.vn/wp-content/uploads/2024/12/cao-voi-rang.jpg',
                     'intro'    => 'Làm sạch mảng bám và cao răng để bảo vệ sức khỏe răng miệng.',
                     'benefits' => [
                         'Loại bỏ mảng bám và cao răng lâu ngày.',
@@ -94,9 +88,8 @@
                     ],
                 ],
                 'trong-suot' => [
-                    'category' => 'CHỈNH NHA',
                     'title'    => 'Niềng Răng Trong Suốt',
-                    'image'    => 'service7.png',
+                    'image'    => 'https://nhakhoakim.com/wp-content/uploads/2022/07/nieng-rang-trong-suot-1.jpg',
                     'intro'    => 'Giải pháp chỉnh nha thẩm mỹ bằng khay niềng trong suốt.',
                     'benefits' => [
                         'Chỉnh nha bằng khay niềng gần như vô hình.',
@@ -106,9 +99,8 @@
                     ],
                 ],
                 'rang-khon' => [
-                    'category' => 'TIỂU PHẪU',
                     'title'    => 'Nhổ Răng Khôn',
-                    'image'    => 'service8.png',
+                    'image'    => 'https://platinumdentalvietnam.com/wp-content/uploads/2025/07/NHO%CC%82%CC%89-RA%CC%86NG-KHO%CC%82N-CO%CC%81-NGUY-HIE%CC%82%CC%89M-KHO%CC%82NG.jpg',
                     'intro'    => 'Giải pháp an toàn cho răng khôn mọc lệch hoặc gây đau nhức.',
                     'benefits' => [
                         'Loại bỏ răng khôn mọc lệch, mọc ngầm.',
@@ -118,9 +110,8 @@
                     ],
                 ],
                 'rang-su' => [
-                    'category' => 'THẨM MỸ',
                     'title'    => 'Răng Sứ Thẩm Mỹ',
-                    'image'    => 'service9.png',
+                    'image'    => 'https://suckhoedoisong.qltns.mediacdn.vn/Images/duylinh/2017/12/30/gia-boc-rang-su-tham-my.jpg',
                     'intro'    => 'Giải pháp cải thiện thẩm mỹ nụ cười nhanh chóng.',
                     'benefits' => [
                         'Cải thiện màu sắc và hình dáng răng.',
@@ -130,9 +121,8 @@
                     ],
                 ],
                 'tram-rang' => [
-                    'category' => 'NHA KHOA TỔNG QUÁT',
                     'title'    => 'Hàn Trám Răng',
-                    'image'    => 'service10.png',
+                    'image'    => 'https://nhakhoakim.com/wp-content/uploads/2017/08/han-tram-rang-gia-bao-nhieu-tien-1.jpg',
                     'intro'    => 'Khôi phục răng tổn thương và bảo vệ răng thật.',
                     'benefits' => [
                         'Điều trị răng sâu, răng mẻ hiệu quả.',
@@ -178,7 +168,7 @@
                                         overflow-hidden">
                             {{-- HERO IMAGE với overlay title --}}
                             <div class="relative h-72 md:h-96">
-                                <img src="{{ asset('img/' . $sv['image']) }}"
+                                <img src="{{ $sv['image'] }}"
                                      alt="{{ $sv['title'] }}"
                                      class="w-full h-full object-cover">
                                 <div class="absolute inset-0

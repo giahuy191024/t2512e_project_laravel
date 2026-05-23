@@ -12,74 +12,41 @@
 @include('components.auth-modal')
 
 <main class="bg-slate-50 text-slate-800 antialiased overflow-x-hidden">
-    {{-- 1. HERO  --}}
-    <section class="bg-white py-16 md:py-20 lg:py-24 border-b border-slate-100">
-        <div class="max-w-7xl mx-auto px-6 lg:px-8
-                    grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+    {{-- 1. HERO --}}
+    <section class="relative py-28 md:py-36 lg:py-44 overflow-hidden">
+        {{-- Background image --}}
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1920&q=80"
+                 alt="MediConnect background"
+                 class="w-full h-full object-cover">
+            {{-- Overlay tối để text dễ đọc --}}
+            <div class="absolute inset-0"
+                 style="background: linear-gradient(to right, rgba(15,23,42,0.85) 0%, rgba(15,23,42,0.65) 50%, rgba(15,23,42,0.4) 100%);"></div>
+        </div>
 
-            <div class="lg:col-span-7 space-y-6">
+        {{-- Content --}}
+        <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="max-w-3xl space-y-6">
 
-                <h1 class="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900
-                           leading-tight tracking-tight">
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight text-white"
+                    style="font-family: 'Lora', serif;">
                     Kiến tạo nụ cười,
-                    <span class="bg-gradient-to-r from-sky-500 to-cyan-500
-                                 bg-clip-text text-transparent">gửi trao hạnh phúc</span>
+                    <span class="block mt-2 bg-gradient-to-r from-sky-300 to-cyan-300
+                             bg-clip-text text-transparent">
+                    gửi trao hạnh phúc
+                </span>
                 </h1>
 
-                <div class="space-y-4 text-slate-600 text-base md:text-lg leading-relaxed">
+                <div class="space-y-4 text-slate-100 text-base md:text-lg leading-relaxed max-w-2xl">
                     <p>
                         Được thành lập với sứ mệnh mang lại giải pháp chăm sóc răng miệng toàn diện,
-                        <strong class="text-slate-900">MediConnect</strong> đã và đang khẳng định
+                        <strong class="text-white">MediConnect</strong> đã và đang khẳng định
                         vị thế là hệ thống nha khoa uy tín hàng đầu Việt Nam.
                     </p>
                     <p>
                         Chúng tôi tin rằng một nụ cười khỏe đẹp không chỉ mang lại sự tự tin,
                         mà còn là chìa khóa nâng tầm chất lượng cuộc sống.
                     </p>
-                </div>
-
-                {{-- Stats inline --}}
-                <div class="grid grid-cols-3 gap-4 pt-8 border-t border-slate-100">
-                    @php
-                        $heroStats = [
-                            ['num' => '15+', 'label' => 'Năm kinh nghiệm'],
-                            ['num' => '10+', 'label' => 'Chi nhánh'],
-                            ['num' => '15K+', 'label' => 'Khách hàng'],
-                        ];
-                    @endphp
-                    @foreach ($heroStats as $st)
-                        <div>
-                            <span class="block text-3xl lg:text-4xl font-black
-                                         bg-gradient-to-br from-sky-500 to-cyan-600
-                                         bg-clip-text text-transparent">
-                                {{ $st['num'] }}
-                            </span>
-                            <span class="text-[11px] font-bold text-slate-400
-                                         uppercase tracking-wider block mt-1">
-                                {{ $st['label'] }}
-                            </span>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-
-            <div class="lg:col-span-5 relative">
-                <div class="aspect-[4/5] rounded-3xl overflow-hidden shadow-xl">
-                    <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=900&q=80"
-                         alt="MediConnect"
-                         class="w-full h-full object-cover hover:scale-105 transition duration-700">
-                </div>
-                {{-- Decorative badge --}}
-                <div class="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl p-5
-                            flex items-center gap-3 max-w-[240px]">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-sky-500 to-cyan-500
-                                flex items-center justify-center text-white text-xl shrink-0">
-                        ⭐
-                    </div>
-                    <div>
-                        <div class="font-bold text-slate-900">4.9/5</div>
-                        <div class="text-xs text-slate-500">Đánh giá từ khách hàng</div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -124,7 +91,7 @@
                     "Sứ mệnh của chúng tôi không chỉ là chữa bệnh răng miệng,
                     mà là trao đi sự tự tin và niềm vui sống."
                     <footer class="mt-2 text-sm not-italic text-slate-500">
-                        — <strong class="text-sky-600">BS. Đào Hồng Luyến</strong>, Sáng lập viên
+                        — <strong class="text-sky-600">BS. Lê Hoàng Minh</strong>, Sáng lập viên
                     </footer>
                 </blockquote>
             </div>
@@ -134,7 +101,7 @@
     <section class="py-20 md:py-24 bg-white">
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
             <div class="flex flex-col items-center text-center mb-14">
-                <h2 class="inline-block rounded-full bg-sky-100
+                <h2 class="inline-block w-110 rounded-full bg-sky-100
                            px-6 md:px-10 py-3 md:py-4
                            text-2xl md:text-3xl lg:text-4xl font-bold text-slate-800
                            mb-5 leading-tight">
@@ -147,8 +114,9 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div class="group bg-gradient-to-br from-sky-50 to-white
-                            p-8 md:p-10 rounded-3xl border border-sky-100
-                            hover:shadow-xl transition duration-300">
+                            rounded-3xl border border-sky-100
+                            hover:shadow-xl transition duration-300"
+                        style="padding: 40px 48px;">
                     <div class="w-16 h-16 bg-gradient-to-br from-sky-500 to-cyan-500
                                 rounded-2xl flex items-center justify-center mb-6
                                 shadow-lg shadow-sky-500/30">
@@ -169,8 +137,9 @@
                 </div>
 
                 <div class="group bg-gradient-to-br from-emerald-50 to-white
-                            p-8 md:p-10 rounded-3xl border border-emerald-100
-                            hover:shadow-xl transition duration-300">
+                            rounded-3xl border border-emerald-100
+                            hover:shadow-xl transition duration-300"
+                                     style="padding: 40px 48px;">
                     <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-500
                                 rounded-2xl flex items-center justify-center mb-6
                                 shadow-lg shadow-emerald-500/30">
@@ -197,7 +166,7 @@
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
 
             <div class="flex flex-col items-center text-center mb-16">
-                <h2 class="inline-block rounded-full bg-sky-100
+                <h2 class="inline-block w-150 rounded-full bg-sky-100
                            px-6 md:px-10 py-3 md:py-4
                            text-2xl md:text-3xl lg:text-4xl font-bold text-slate-800
                            mb-5 leading-tight">
@@ -284,7 +253,7 @@
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
 
             <div class="flex flex-col items-center text-center mb-14">
-                <h2 class="inline-block rounded-full bg-sky-100
+                <h2 class="inline-block w-64 rounded-full bg-sky-100
                            px-6 md:px-10 py-3 md:py-4
                            text-2xl md:text-3xl lg:text-4xl font-bold text-slate-800
                            mb-5 leading-tight">
@@ -324,7 +293,7 @@
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
 
             <div class="flex flex-col items-center text-center mb-14">
-                <h2 class="inline-block rounded-full bg-sky-100
+                <h2 class="inline-block w-80 rounded-full bg-sky-100
                            px-6 md:px-10 py-3 md:py-4
                            text-2xl md:text-3xl lg:text-4xl font-bold text-slate-800
                            mb-5 leading-tight">
@@ -335,45 +304,39 @@
                 </p>
             </div>
 
-            @php
-                $leaders = [
-                    [
-                        'name'  => 'BS. Đào Hồng Luyến',
-                        'title' => 'Sáng lập / Giám đốc chuyên môn',
-                        'image' => 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80',
-                    ],
-                    [
-                        'name'  => 'BS. Nguyễn Tuấn Việt',
-                        'title' => 'Trưởng khoa Chỉnh nha',
-                        'image' => 'https://images.unsplash.com/photo-1612531385446-f7e6d131e1d0?auto=format&fit=crop&w=600&q=80',
-                    ],
-                    [
-                        'name'  => 'BS. Bùi Gia Huy',
-                        'title' => 'Trưởng khoa Implant',
-                        'image' => 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=600&q=80',
-                    ],
-                    [
-                        'name'  => 'BS. Lê Thị Hà',
-                        'title' => 'Trưởng khoa Thẩm mỹ',
-                        'image' => 'https://images.unsplash.com/photo-1551836022-deb4988cc6c0?auto=format&fit=crop&w=600&q=80',
-                    ],
-                ];
-            @endphp
-
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
                 @foreach ($leaders as $ld)
                     <div class="group text-center">
                         <div class="relative overflow-hidden rounded-3xl shadow-md
-                                    hover:shadow-xl transition mb-4 aspect-[3/4]">
-                            <img src="{{ $ld['image'] }}" alt="{{ $ld['name'] }}"
-                                 class="w-full h-full object-cover
-                                        group-hover:scale-105 transition duration-500">
+                        hover:shadow-xl transition mb-4 aspect-[3/4]">
+                            @if ($ld->avatar_url)
+                                <img src="{{ asset('storage/' . $ld->avatar_url) }}"
+                                     alt="{{ $ld->user->full_name }}"
+                                     class="w-full h-full object-cover
+                                group-hover:scale-105 transition duration-500">
+                            @else
+                                <img src="https://ui-avatars.com/api/?name={{ urlencode($ld->user->full_name) }}&size=400&background=0ea5e9&color=fff&bold=true"
+                                     alt="{{ $ld->user->full_name }}"
+                                     class="w-full h-full object-cover
+                                group-hover:scale-105 transition duration-500">
+                            @endif
                             <div class="absolute inset-0 bg-gradient-to-t
-                                        from-sky-900/60 via-transparent to-transparent
-                                        opacity-0 group-hover:opacity-100 transition"></div>
+                            from-sky-900/60 via-transparent to-transparent
+                            opacity-0 group-hover:opacity-100 transition"></div>
+
+                            {{-- Badge chuyên khoa hover --}}
+                            <div class="absolute bottom-3 left-3 right-3
+                            bg-white/90 backdrop-blur rounded-xl px-3 py-2
+                            opacity-0 group-hover:opacity-100 transition
+                            text-xs text-slate-700">
+                                <strong>📍 {{ $ld->city ?? '—' }}</strong>
+                                @if($ld->experience_years)
+                                    · {{ $ld->experience_years }} năm KN
+                                @endif
+                            </div>
                         </div>
-                        <h3 class="font-bold text-slate-900">{{ $ld['name'] }}</h3>
-                        <p class="text-sm text-sky-600 mt-1">{{ $ld['title'] }}</p>
+                        <h3 class="font-bold text-slate-900">{{ $ld->user->full_name }}</h3>
+                        <p class="text-sm text-sky-600 mt-1">{{ $ld->specialty }}</p>
                     </div>
                 @endforeach
             </div>
@@ -384,7 +347,7 @@
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
 
             <div class="flex flex-col items-center text-center mb-14">
-                <h2 class="inline-block rounded-full bg-sky-100
+                <h2 class="inline-block w-130 rounded-full bg-sky-100
                            px-6 md:px-10 py-3 md:py-4
                            text-2xl md:text-3xl lg:text-4xl font-bold text-slate-800
                            mb-5 leading-tight">
@@ -404,14 +367,19 @@
                 ];
             @endphp
 
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                @foreach ($awards as $aw)
-                    <div class="bg-white rounded-2xl p-6 text-center
-                                border border-slate-100 shadow-sm
-                                hover:shadow-md hover:border-sky-200 transition">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 pb-12">
+                @foreach ($awards as $i => $aw)
+                    <div class="bg-white rounded-2xl text-center
+                    border border-slate-100 shadow-sm
+                    hover:shadow-lg hover:border-sky-200 hover:-translate-y-1
+                    transition-all duration-300
+                    flex flex-col items-center justify-center"
+                         style="padding: 32px 20px;
+                    min-height: 220px;
+                    margin-top: {{ $i % 2 === 0 ? '0' : '40px' }};">
                         <div class="text-5xl mb-3">{{ $aw['icon'] }}</div>
-                        <h3 class="font-bold text-slate-900 mb-1">{{ $aw['title'] }}</h3>
-                        <p class="text-xs text-slate-500">{{ $aw['desc'] }}</p>
+                        <h3 class="font-bold text-slate-900 mb-2 text-base">{{ $aw['title'] }}</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed">{{ $aw['desc'] }}</p>
                     </div>
                 @endforeach
             </div>
@@ -422,7 +390,7 @@
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
 
             <div class="flex flex-col items-center text-center mb-14">
-                <h2 class="inline-block rounded-full bg-sky-100
+                <h2 class="inline-block w-110 rounded-full bg-sky-100
                            px-6 md:px-10 py-3 md:py-4
                            text-2xl md:text-3xl lg:text-4xl font-bold text-slate-800
                            mb-5 leading-tight">
@@ -446,8 +414,10 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach ($promises as $p)
                     <div class="relative bg-gradient-to-br from-white to-sky-50/40
-                                rounded-2xl p-6 border border-slate-100
-                                hover:shadow-lg hover:border-sky-200 transition">
+                                rounded-2xl border border-slate-100
+                                hover:shadow-lg hover:border-sky-200 hover:-translate-y-1
+                                transition-all duration-300"
+                         style="padding: 28px 32px; min-height: 200px; display: flex; flex-direction: column;">
                         <div class="absolute top-4 right-4 text-5xl font-black
                                     text-sky-100 leading-none select-none">
                             {{ $p['num'] }}

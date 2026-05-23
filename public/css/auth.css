@@ -1,10 +1,17 @@
 
 /* RESET */
+/* Ép tất cả các thẻ và các thẻ giả (:before, :after) dùng chung một font */
+*, *::before, *::after {
+    font-family: Arial, Helvetica, sans-serif !important;
+}
+/* Đảm bảo các khung nhập liệu và nút bấm cũng đổi theo */
+input, button, select, textarea {
+    font-family: Arial, Helvetica, sans-serif !important;
+}
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: Arial, Helvetica, sans-serif;
     scroll-behavior: smooth;
 }
 /* BODY */
@@ -12,7 +19,6 @@ body {
     background: #f5f7fa;
     padding-top: 90px;
 }
-
 /* ===== POPUP WRAPPER ===== */
 .wrapper {
     position: fixed;
@@ -341,7 +347,6 @@ section {
 /* Dot + Icon — đổi màu theo state */
 .branch-card .branch-dot   { background: #cbd5e1; }   /* slate-300 */
 .branch-card .branch-icon  { color: #94a3b8; }        /* slate-400 */
-
 .branch-card:hover .branch-icon,
 .branch-card.active .branch-dot,
 .branch-card.active .branch-icon {

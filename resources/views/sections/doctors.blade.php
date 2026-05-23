@@ -34,18 +34,6 @@
                              class="w-full h-full min-h-56 sm:min-h-72 lg:min-h-[400px]
                             object-cover object-top">
                     @endif
-                    <span class="absolute top-5 left-5 inline-flex items-center gap-2
-                         rounded-full bg-white/90 backdrop-blur
-                         px-3 py-1.5 text-xs font-bold text-sky-600 shadow">
-                ⭐ BÁC SĨ ĐẦU NGÀNH
-            </span>
-                    @if($featuredDoctor->city)
-                        <span class="absolute top-5 right-5 inline-flex items-center gap-1
-                             rounded-full bg-sky-500/90 backdrop-blur
-                             px-3 py-1.5 text-xs font-bold text-white shadow">
-                    📍 {{ $featuredDoctor->city }}
-                </span>
-                    @endif
                 </div>
 
                 {{-- INFO BÊN PHẢI --}}
@@ -151,9 +139,6 @@
                                          alt="{{ $bs->full_name }}"
                                          class="w-full h-72 object-cover object-top group-hover:scale-105 transition-transform duration-500">
                                 @endif
-                                <span class="absolute top-3 right-3 bg-sky-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                                📍 {{ $bs->city }}
-                            </span>
                             </div>
 
                             <div class="p-6 text-center">

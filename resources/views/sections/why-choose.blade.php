@@ -88,18 +88,13 @@
                  bg-gradient-to-l from-transparent to-sky-200"></span>
         </div>
         {{-- ===== CTA bottom ===== --}}
-        <div class="text-center mt-14">
+        <div class="text-center mt-16">
             <a href="{{ url('/about') }}"
-               class="inline-flex items-center gap-2 px-7 py-3.5 rounded-full
-                      bg-linear-to-r from-sky-500 to-cyan-500 text-white
-                      font-semibold shadow-md hover:shadow-lg
-                      hover:-translate-y-0.5 transition">
+               class="inline-flex items-center justify-center w-65 rounded-full
+              bg-linear-to-r from-sky-500 to-cyan-500 text-white
+              font-semibold shadow-md hover:shadow-lg
+              hover:-translate-y-0.5 transition px-6 py-3" style="margin-left: 8px">
                 Tìm hiểu thêm về chúng tôi
-                <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                     stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                </svg>
             </a>
         </div>
     </div>

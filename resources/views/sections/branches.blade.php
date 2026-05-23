@@ -22,7 +22,7 @@
 
         {{-- HEADER --}}
         <div class="flex flex-col items-center text-center mb-14">
-            <h2 class="inline-block rounded-full bg-sky-100 px-6 md:px-10 py-3 md:py-4
+            <h2 class="inline-block w-165 rounded-full bg-sky-100 px-6 md:px-10 py-3 md:py-4
                        text-2xl md:text-3xl lg:text-4xl font-bold text-slate-800 mb-5 leading-tight">
                 Mạng lưới <span class="text-sky-600">MediConnect</span> toàn quốc
             </h2>
@@ -36,7 +36,6 @@
             $branches = [
                 [
                     'name'    => 'Hà Nội',
-                    'badge'   => 'Trụ sở chính',
                     'address' => '13 Phan Tây Nhạc, Xuân Phương, Hà Nội',
                     'hotline' => '1900 6000 (Phím 1)',
                     'hours'   => '08:00 - 20:00 (Thứ 2 - Chủ Nhật)',
@@ -44,7 +43,6 @@
                 ],
                 [
                     'name'    => 'TP. Hồ Chí Minh',
-                    'badge'   => null,
                     'address' => '456 Đường Nguyễn Thị Minh Khai, Quận 3, TP. HCM',
                     'hotline' => '1900 6000 (Phím 2)',
                     'hours'   => '08:00 - 20:00 (Thứ 2 - Chủ Nhật)',
@@ -52,7 +50,6 @@
                 ],
                 [
                     'name'    => 'Đà Nẵng',
-                    'badge'   => null,
                     'address' => '789 Đường Lê Duẩn, Quận Hải Châu, Đà Nẵng',
                     'hotline' => '1900 6000 (Phím 3)',
                     'hours'   => '08:00 - 17:30 (Thứ 2 - Thứ 7)',
@@ -86,17 +83,7 @@
                             class="branch-card {{ $i === 0 ? 'active' : '' }}
                                    text-left p-6 rounded-3xl border-2
                                    transition-all duration-300 relative cursor-pointer">
-
-                        @if ($b['badge'])
-                            <span class="absolute top-6 right-6 px-3 py-1
-                                         bg-gradient-to-r from-sky-500 to-cyan-500
-                                         text-white text-xs font-bold rounded-full shadow-md">
-                                {{ $b['badge'] }}
-                            </span>
-                        @endif
-
-                        <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2 pr-28">
-                            <span class="branch-dot w-2 h-5 rounded-full"></span>
+                        <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2 pr-28 " style="padding-left: 16px;">
                             Cơ sở {{ $b['name'] }}
                         </h3>
 
@@ -130,12 +117,10 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const mapFrame = document.getElementById('branchMap');
-
             document.querySelectorAll('.branch-card').forEach((card) => {
                 card.addEventListener('click', function() {
                     const query = this.dataset.query;
                     mapFrame.src = `https://www.google.com/maps?q=${query}&z=16&output=embed`;
-
                     document.querySelectorAll('.branch-card').forEach(c => c.classList.remove('active'));
                     this.classList.add('active');
                 });

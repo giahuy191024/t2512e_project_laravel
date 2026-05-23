@@ -12,29 +12,43 @@
 @include('components.auth-modal')
 
 <main class="bg-slate-50 text-slate-800 antialiased overflow-x-hidden">
-    {{-- 1. HERO    --}}
-    <section class="bg-gradient-to-b from-sky-50 to-white pt-32 md:pt-36 pb-20 md:pb-24">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-0 items-center max-w-[1400px] mx-auto">
+    {{-- 1. HERO --}}
+    <section class="relative pt-32 md:pt-40 lg:pt-44 pb-20 md:pb-28 overflow-hidden">
+        {{-- Background image --}}
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1609840114035-3c981b782dfe?auto=format&fit=crop&w=1920&q=80"
+                 alt="MediConnect Services background"
+                 class="w-full h-full object-cover">
+            {{-- Overlay tối để text dễ đọc --}}
+            <div class="absolute inset-0"
+                 style="background: linear-gradient(to right, rgba(15,23,42,0.85) 0%, rgba(15,23,42,0.65) 50%, rgba(15,23,42,0.4) 100%);"></div>
+        </div>
 
-            <div class="lg:col-span-7 space-y-8 pl-4 md:pl-8 lg:pl-16 pr-4 md:pr-12">
-                <h1 class="text-4xl md:text-5xl lg:text-6xl font-black text-slate-900
-                           leading-tight tracking-tight">
+        {{-- Content --}}
+        <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="max-w-3xl space-y-8">
+
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight text-white"
+                    style="font-family: 'Lora', serif;">
                     Dịch vụ nha khoa
-                    <span class="bg-gradient-to-r from-sky-500 to-cyan-500
-                                 bg-clip-text text-transparent">toàn diện</span>
-                    dành riêng cho bạn
+                    <span class="block mt-2 bg-gradient-to-r from-sky-300 to-cyan-300
+                             bg-clip-text text-transparent">
+                    toàn diện
+                </span>
+                    <span class="block mt-2">dành riêng cho bạn</span>
                 </h1>
 
-                <p class="text-slate-500 text-base md:text-lg leading-relaxed max-w-2xl">
+                <p class="text-slate-100 text-base md:text-lg leading-relaxed max-w-2xl">
                     Từ Implant, chỉnh nha Invisalign, phục hình thẩm mỹ đến điều trị tổng quát —
                     MediConnect mang đến giải pháp cá nhân hóa phù hợp với từng tình trạng răng miệng.
                 </p>
 
                 {{-- Search bar --}}
-                <div class="bg-white rounded-3xl shadow-md p-2.5
-                            flex items-center gap-3 border border-slate-200/80 max-w-2xl">
-                    <div class="text-xl px-2 text-slate-400">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                <div class="bg-white rounded-3xl shadow-lg
+            flex items-center gap-3 border border-slate-200/80"
+                     style="padding: 14px; max-width: 720px;">
+                    <div class="px-3 text-slate-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor"
                              stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                   d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
@@ -43,42 +57,16 @@
                     <input type="text"
                            placeholder="Tìm dịch vụ như Implant, Invisalign..."
                            class="flex-1 outline-none text-slate-700 placeholder:text-slate-400
-                                  bg-transparent text-sm md:text-base">
+                  bg-transparent"
+                           style="font-size: 17px; padding: 8px 0;">
                     <button class="bg-gradient-to-r from-sky-500 to-cyan-500
-                                   hover:from-sky-600 hover:to-cyan-600
-                                   text-white font-semibold px-5 py-3 w-20 rounded-xl
-                                   shadow-md hover:shadow-lg
-                                   transition text-sm md:text-base whitespace-nowrap">
+                   hover:from-sky-600 hover:to-cyan-600
+                   text-white font-semibold rounded-2xl
+                   shadow-md hover:shadow-lg
+                   transition whitespace-nowrap"
+                            style="padding: 14px 28px; font-size: 15px;">
                         Tìm kiếm
                     </button>
-                </div>
-
-                {{-- Filter tags --}}
-                <div class="flex flex-wrap gap-2.5">
-                    @foreach (['Implant', 'Invisalign', 'Răng sứ', 'Tẩy trắng', 'Niềng mắc cài'] as $tag)
-                        <span class="px-4 py-2 rounded-full bg-white shadow-sm
-                                     border border-slate-100 text-slate-600
-                                     text-xs md:text-sm font-medium
-                                     hover:border-sky-500 hover:text-sky-600
-                                     transition cursor-pointer">
-                            {{ $tag }}
-                        </span>
-                    @endforeach
-                </div>
-            </div>
-
-            <div class="lg:col-span-5 w-full h-full min-h-[400px] lg:min-h-[500px] relative">
-                {{-- Blur decoration --}}
-                <div class="absolute -top-12 -right-12 w-80 h-80 bg-sky-300
-                            rounded-full blur-3xl opacity-20 pointer-events-none"></div>
-
-                <div class="w-full h-full relative overflow-hidden
-                            rounded-sm lg:rounded
-                            shadow-xl bg-slate-100">
-                    <img src="{{ asset('img/service1.png') }}"
-                         alt="MediConnect Services"
-                         class="w-full h-full object-cover
-                                hover:scale-105 transition duration-700">
                 </div>
             </div>
         </div>
@@ -88,7 +76,7 @@
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
 
             <div class="flex flex-col items-center text-center mb-14">
-                <h2 class="inline-block rounded-full bg-sky-100
+                <h2 class="inline-block w-90 rounded-full bg-sky-100
                            px-6 md:px-10 py-3 md:py-4
                            text-2xl md:text-3xl lg:text-4xl font-bold text-slate-800
                            mb-5 leading-tight">
@@ -112,11 +100,12 @@
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
                 @foreach ($categories as $c)
-                    <a href="#" class="group bg-white rounded-2xl p-5 md:p-6 text-center
-                                       border border-slate-100 shadow-sm
-                                       hover:shadow-xl hover:-translate-y-1
-                                       hover:border-sky-200
-                                       transition duration-300 block">
+                    <a href="#" class="group bg-white rounded-2xl text-center
+                           border border-slate-100 shadow-sm
+                           hover:shadow-xl hover:-translate-y-1
+                           hover:border-sky-200
+                           transition duration-300 block"
+                       style="padding: 24px 20px;">
                         <div class="text-4xl md:text-5xl mb-3
                                     group-hover:scale-110 transition duration-300">
                             {{ $c['icon'] }}
@@ -137,7 +126,7 @@
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
 
             <div class="flex flex-col items-center text-center mb-14">
-                <h2 class="inline-block rounded-full bg-sky-100
+                <h2 class="inline-block w-70 rounded-full bg-sky-100
                        px-6 md:px-10 py-3 md:py-4
                        text-2xl md:text-3xl lg:text-4xl font-bold text-slate-800
                        mb-5 leading-tight">
@@ -189,7 +178,7 @@
                                 </div>
 
                                 {{-- Content bên phải --}}
-                                <div class="flex-1 py-4 pr-4 min-w-0 flex flex-col justify-between">
+                                <div class="flex-1 py-4 min-w-0 flex flex-col justify-between" style="padding-right: 24px;">
                                     <div>
                                     <span class="text-[10px] font-bold text-sky-600 tracking-wider uppercase">
                                         {{ $p['category'] }}
@@ -239,7 +228,7 @@
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
 
             <div class="flex flex-col items-center text-center mb-16">
-                <h2 class="inline-block rounded-full bg-sky-100
+                <h2 class="inline-block w-80 rounded-full bg-sky-100
                            px-6 md:px-10 py-3 md:py-4
                            text-2xl md:text-3xl lg:text-4xl font-bold text-slate-800
                            mb-5 leading-tight">
@@ -297,7 +286,7 @@
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
 
             <div class="flex flex-col items-center text-center mb-14">
-                <h2 class="inline-block rounded-full bg-sky-100
+                <h2 class="inline-block w-100 rounded-full bg-sky-100
                            px-6 md:px-10 py-3 md:py-4
                            text-2xl md:text-3xl lg:text-4xl font-bold text-slate-800
                            mb-5 leading-tight">
@@ -320,10 +309,11 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 @foreach ($warranties as $w)
                     <div class="group relative bg-gradient-to-br from-white to-sky-50/50
-                                rounded-2xl p-6 text-center
+                                rounded-2xl text-center
                                 border border-slate-100
-                                hover:shadow-xl hover:border-sky-200
-                                transition duration-300">
+                                hover:shadow-xl hover:border-sky-200 hover:-translate-y-1
+                                transition duration-300"
+                         style="padding: 32px 24px;">
                         <div class="text-4xl mb-3
                                     group-hover:scale-110 transition duration-300">
                             {{ $w['icon'] }}
@@ -343,9 +333,8 @@
     {{-- FAQ --}}
     <section class="py-20 md:py-24 bg-white">
         <div class="max-w-3xl mx-auto px-6">
-
             <div class="flex flex-col items-center text-center mb-14">
-                <h2 class="inline-block rounded-full bg-sky-100
+                <h2 class="inline-block w-95 rounded-full bg-sky-100
                            px-6 md:px-10 py-3 md:py-4
                            text-2xl md:text-3xl lg:text-4xl font-bold text-slate-800
                            mb-5 leading-tight">
@@ -366,25 +355,27 @@
                 ];
             @endphp
 
-            <div class="space-y-3">
+            <div style="display: flex; flex-direction: column; gap: 10px;">
                 @foreach ($faqs as $faq)
                     <details class="group bg-white rounded-2xl border border-slate-100
-                                    overflow-hidden hover:border-sky-200 transition">
+                            overflow-hidden hover:border-sky-200 transition">
                         <summary class="flex items-center justify-between cursor-pointer
-                                        p-5 md:p-6 font-semibold text-slate-800
-                                        list-none [&::-webkit-details-marker]:hidden">
+                    font-semibold text-slate-800
+                    list-none [&::-webkit-details-marker]:hidden"
+                                 style="padding: 24px 32px;">
                             <span class="flex-1 pr-4">{{ $faq['q'] }}</span>
                             <span class="w-8 h-8 shrink-0 rounded-full bg-sky-100 text-sky-600
-                                         flex items-center justify-center transition
-                                         group-open:rotate-180 group-open:bg-sky-500 group-open:text-white">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                     stroke-width="2.5" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                          d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
-                                </svg>
-                            </span>
+                     flex items-center justify-center transition
+                     group-open:rotate-180 group-open:bg-sky-500 group-open:text-white">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                 stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
+            </svg>
+        </span>
                         </summary>
-                        <div class="px-5 md:px-6 pb-5 md:pb-6 text-slate-600 leading-relaxed">
+                        <div class="text-slate-600 leading-relaxed"
+                             style="padding: 0 32px 24px 32px;">
                             {{ $faq['a'] }}
                         </div>
                     </details>

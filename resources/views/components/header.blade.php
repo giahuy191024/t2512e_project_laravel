@@ -1,12 +1,12 @@
 <header id="siteHeader"
-        class="fixed top-0 left-0 z-50 w-full bg-white px-4 md:px-8
+        class=" fixed top-0 left-0 z-50 w-full bg-white px-8 lg:px-16
                transition-all duration-300 shadow-[0_4px_18px_rgba(0,0,0,0.06)]">
     <div id="headerInner"
          class="flex items-center justify-between mx-auto max-w-7xl
                 h-24 md:h-32 transition-all duration-300">
 
         {{-- LOGO --}}
-        <div class="shrink-0">
+        <div class="shrink-0 " style="margin-left: 24px;">
             <a href="{{ url('/') }}" class="block">
                 <img id="siteLogo" src="{{ asset('img/logo2.png') }}" alt="logo"
                      class="h-16 md:h-24 object-contain transition-all duration-300">
@@ -67,8 +67,8 @@
         <div class="flex items-center gap-3 md:gap-4 shrink-0">
 
             <input type="text" placeholder="Tìm kiếm..."
-                   class="hidden md:block h-12 w-48 lg:w-64 rounded-md border border-gray-300
-                  px-4 text-base outline-none focus:border-blue-500">
+                   class="hidden md:block h-12 w-48 lg:w-64  rounded-2xl border border-gray-300 text-base outline-none focus:border-blue-500"
+                   style="padding-left: 24px; padding-right: 24px;">
 
             <a href="tel:19006900" class="hidden md:block font-bold text-red-600 whitespace-nowrap">
                 1900.6900
@@ -113,12 +113,6 @@
                               clip-rule="evenodd"/>
                     </svg>
                 </button>
-                <div id="submenu-services" class="hidden pl-4 pb-3 flex-col gap-2">
-                    <a href="{{ url('/services/web') }}" class="block py-1 text-sm text-slate-600">Thiết kế Website</a>
-                    <a href="{{ url('/services/seo') }}" class="block py-1 text-sm text-slate-600">Dịch vụ SEO</a>
-                    <a href="{{ url('/services/ads') }}" class="block py-1 text-sm text-slate-600">Quảng cáo Google Ads</a>
-                    <a href="{{ url('/services/design') }}" class="block py-1 text-sm text-slate-600">Thiết kế đồ họa</a>
-                </div>
             </div>
 
             {{-- Tin tức - accordion --}}
@@ -133,11 +127,6 @@
                               clip-rule="evenodd"/>
                     </svg>
                 </button>
-                <div id="submenu-news" class="hidden pl-4 pb-3 flex-col gap-2">
-                    <a href="{{ url('/news/company') }}" class="block py-1 text-sm text-slate-600">Tin công ty</a>
-                    <a href="{{ url('/news/industry') }}" class="block py-1 text-sm text-slate-600">Tin ngành</a>
-                    <a href="{{ url('/news/tutorials') }}" class="block py-1 text-sm text-slate-600">Hướng dẫn / Blog</a>
-                </div>
             </div>
 
             <a href="{{ url('/contact') }}" class="py-3 font-semibold text-blue-500">

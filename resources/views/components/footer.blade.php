@@ -151,7 +151,7 @@
 
         {{-- ===== BOTTOM BAR ===== --}}
         <div class="pt-6 border-t border-slate-800/80
-                    flex flex-col md:flex-row items-center justify-between gap-4
+                    flex flex-col md:flex-row items-center justify-center gap-4
                     text-xs text-slate-500">
             <p>© 2026 MediConnect. All rights reserved.</p>
             <div class="flex items-center gap-5">
