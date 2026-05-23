@@ -106,12 +106,19 @@
                     </li>
 
                     <li class="nav-item dropdown">
-                        <a id="dropdownSubMenu1" href="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle">
-                            <i class="fas fa-user-circle"></i> {{ auth()->user()->name ?? 'Bệnh nhân' }}
+                        <a id="dropdownSubMenu1" href="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle d-inline-flex align-items-center">
+                            @if(auth()->user()->avatar_url)
+                                <img src="{{ asset('storage/' . auth()->user()->avatar_url) }}"
+                                     style="width:28px;height:28px;border-radius:50%;object-fit:cover;margin-right:8px"
+                                     alt="Avatar">
+                            @else
+                                <i class="fas fa-user-circle mr-2"></i>
+                            @endif
+                            {{ auth()->user()->full_name ?? 'Bệnh nhân' }}
                         </a>
                         <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
                             <li><a href="{{route('patient.profile')}}" class="dropdown-item">Hồ sơ cá nhân</a></li>
-                            <li><a href="#" class="dropdown-item">Thông báo</a></li>
+                            <li><a href="{{route('patient.notifications')}}" class="dropdown-item">Thông báo</a></li>
                             <li class="dropdown-divider"></li>
                             <li>
                                 <form action="{{ route('logout') }}" method="POST">
@@ -144,6 +151,21 @@
 
                     {{-- MAIN CONTENT --}}
                     <div class="main-content-col">
+                        {{-- Flash messages --}}
+                        @if(session('success'))
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                <i class="fas fa-check-circle mr-1"></i> {{ session('success') }}
+                            </div>
+                        @endif
+
+                        @if(session('error'))
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                <i class="fas fa-times-circle mr-1"></i> {{ session('error') }}
+                            </div>
+                        @endif
+
                         @yield('content')
                     </div>
 

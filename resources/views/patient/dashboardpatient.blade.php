@@ -226,7 +226,7 @@
 
     @foreach($cancelledUnread as $bk)
     @php
-        $sched  = $bk->timeSlot?->doctorSchedule;
+        $sched  = $bk->slot?->schedule;
         $doctor = $sched?->doctor;
     @endphp
     <div class="notif-item">
@@ -241,8 +241,8 @@
                 @if($sched)
                     vào <strong>{{ \Carbon\Carbon::parse($sched->work_date)->format('d/m/Y') }}</strong>
                 @endif
-                @if($bk->timeSlot)
-                    lúc <strong>{{ \Carbon\Carbon::parse($bk->timeSlot->start_time)->format('H:i') }}</strong>
+                @if($bk->slot)
+                    lúc <strong>{{ \Carbon\Carbon::parse($bk->slot->start_time)->format('H:i') }}</strong>
                 @endif
                 đã bị huỷ.
                 @if($bk->cancel_reason)
@@ -266,7 +266,7 @@
 
 {{-- ===== HERO BANNER ===== --}}
 <div class="dash-hero">
-    <h2>Xin chào, {{ auth()->user()->name }}! 👋</h2>
+    <h2>Xin chào, {{ auth()->user()->full_name }}! 👋</h2>
     <p>Hôm nay bạn cảm thấy thế nào? Chúng tôi luôn sẵn sàng hỗ trợ bạn.</p>
     <div class="dash-hero-actions">
         <a href="{{ route('patient.doctors') }}" class="btn-hero-primary">

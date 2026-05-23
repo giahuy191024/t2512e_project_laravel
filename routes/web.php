@@ -9,22 +9,36 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PatientController;
-use App\Http\Controllers\NotificationController;
-//Route::get('/', function () {
-//    return view('home');
-//});
-Route::get('/homepage', [HomeController::class, 'index']);
+use App\Http\Controllers\BookingRequestController;
 
 Route::get('/', function () {
-    return view('auth');
-})->name('login');
-//Route::get('/login', function () {
-//    return view('auth');
-//})->name('login');
+    if (auth()->check()) {
+        return redirect('/dashboard');
+    }
+
+    // Featured = doctor có kinh nghiệm cao nhất
+    $featuredDoctor = \App\Models\Doctor::with('user')
+        ->where('status', 1)
+        ->orderByDesc('experience_years')
+        ->first();
+
+    // Helper: query base (loại bỏ featured)
+    $base = fn() => \App\Models\Doctor::with('user')
+        ->where('status', 1)
+        ->when($featuredDoctor, fn($q) => $q->where('id', '!=', $featuredDoctor->id))
+        ->orderByDesc('experience_years');
+
+    // Group theo city
+    $doctorsHaNoi  = (clone $base())->where('city', 'Hà Nội')->get();
+    $doctorsHCM    = (clone $base())->where('city', 'Hồ Chí Minh')->get();
+    $doctorsDaNang = (clone $base())->where('city', 'Đà Nẵng')->get();
+
+    return view('auth', compact('featuredDoctor', 'doctorsHaNoi', 'doctorsHCM', 'doctorsDaNang'));
+});
 
 Route::post('/auth', [AuthController::class, 'handleAuth']);
 
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::post('/logout', [AuthController::class, 'logout']);
 
 Route::get('/appointment',[AppointmentController::class,'create']
 
@@ -32,8 +46,21 @@ Route::get('/appointment',[AppointmentController::class,'create']
 
 Route::post('/appointment', [AppointmentController::class, 'store'])->middleware('auth');
 Route::get('/dashboard', [DashboardController::class,'index'])->middleware('auth')->name('dashboard');
+//menu
+Route::get('/about', function () {
+    $leaders = \App\Models\Doctor::with('user')
+        ->where('status', 1)
+        ->orderByDesc('experience_years')
+        ->take(4)
+        ->get();
+    return view('about-page', compact('leaders'));
+});
+Route::view('/services', 'services-page');
+Route::view('/news', 'news-page');
+Route::view('/contact', 'contact-page');
+
 //phan quyen cho patient
-Route::middleware(['auth','role:patient'])->prefix('patient')->name('patient.')->group(function () {
+    Route::middleware(['auth','role:patient'])->prefix('patient')->name('patient.')->group(function () {
     Route::get('/dashboard', [PatientController::class, 'dashboard'])->name('dashboard_patient');
 
     // 2. Tài khoản & Hồ sơ cá nhân
@@ -51,10 +78,7 @@ Route::middleware(['auth','role:patient'])->prefix('patient')->name('patient.')-
     // 5. Quản lý lịch hẹn
     Route::get('/appointments', [PatientController::class, 'appointments'])->name('appointments');
 
-    // 6. Huỷ lịch hẹn (bệnh nhân tự huỷ)
-    Route::post('/bookings/{id}/cancel', [PatientController::class, 'cancelBooking'])->name('bookings.cancel');
-
-    // 7. Thông báo huỷ lịch
+    // 6. Thông báo huỷ lịch
     Route::post('/notifications/{id}/read', [PatientController::class, 'markNotificationRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [PatientController::class, 'markAllNotificationsRead'])->name('notifications.readAll');
 
@@ -62,22 +86,13 @@ Route::middleware(['auth','role:patient'])->prefix('patient')->name('patient.')-
     Route::get('/notifications', [PatientController::class, 'notifications'])->name('notifications');
     Route::get('/medical-news', [PatientController::class, 'news'])->name('news');
 });
-
-// PayPal IPN/Notify endpoint
-Route::post('payment/paypal/notify', [\App\Http\Controllers\PaymentController::class, 'handlePaypalNotify'])->name('payment.paypal.notify');
-// PayPal payment routes
-Route::middleware(['auth', 'role:patient'])->group(function() {
-    Route::get('payment/paypal/{booking}/create', [\App\Http\Controllers\PaymentController::class, 'createPaypalPayment'])->name('payment.paypal.create');
-    Route::get('payment/paypal/{booking}/return', [\App\Http\Controllers\PaymentController::class, 'handlePaypalReturn'])->name('payment.paypal.return');
-    Route::get('payment/paypal/{booking}/cancel', [\App\Http\Controllers\PaymentController::class, 'handlePaypalCancel'])->name('payment.paypal.cancel');
-});
 //doctor
 Route::middleware(['auth','role:doctor'])->name('doctor.')->group(function () {
     // 1. DASHBOARD
     Route::get('/doctordashboard', [DoctorController::class, 'dashboard'])->name('dashboard');
 
     // 2. QUẢN LÝ LỊCH KHÁM (Bệnh nhân đặt)
-    Route::prefix('bookings')->name('bookings.')->group(function () {
+    Route::prefix('bookings')->prefix('doctor')->name('bookings.')->group(function () {
         Route::get('/', [DoctorController::class, 'indexBookings'])->name('index');
         Route::get('/{id}', [DoctorController::class, 'showBooking'])->name('show');
         // Route POST để bác sĩ xác nhận hoặc hủy lịch của bệnh nhân
@@ -99,12 +114,6 @@ Route::middleware(['auth','role:doctor'])->name('doctor.')->group(function () {
 
         // Route DELETE (hoặc GET tạm thời) để xóa lịch
         Route::delete('/delete/{id}', [DoctorController::class, 'destroySchedule'])->name('destroy');
-
-    // Delete entire week schedule (by week_start)
-    Route::delete('/week/delete', [DoctorController::class, 'destroyWeek'])->name('destroyWeek');
-
-    // Toggle a slot in a week (on/off) via AJAX
-    Route::post('/week/toggle', [DoctorController::class, 'toggleWeekSlot'])->name('toggleWeekSlot');
 
         //Route get cho tung cai
         Route::post('slot/update',[DoctorController::class,'updateSlot'])->name('updateSlot');
@@ -139,17 +148,42 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/doctors/{id}/edit',[AdminController::class,'editDoctor'])->name('admin.doctors.edit');
     Route::put('/doctors/{id}',[AdminController::class,'updateDoctor'])->name('admin.doctors.update');
     Route::delete('/doctors/{id}',[AdminController::class,'deleteDoctor'])->name('admin.doctors.destroy');
-
-    // === QUẢN LÝ HỦY LỊCH (Lễ tân) ===
-    Route::get('/cancellations', [AdminController::class, 'manageCancellations'])->name('admin.cancellations');
-    Route::post('/cancellations/transfer', [AdminController::class, 'transferBooking'])->name('admin.cancellations.transfer');
-    Route::post('/cancellations/handle', [AdminController::class, 'handleCancellation'])->name('admin.cancellations.handle');
 });
+    //Test
+    Route::get('/test',function(){
+       return view('testview');
+    });
+    Route::post('/test1',function (){
+        return view('viewforresult');
+    })->name('viewforresult');
 
-// Notifications routes (dùng chung cho admin và doctor)
-Route::middleware(['auth'])->group(function () {
-    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-    Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markAsRead'])->name('notifications.markRead');
-    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
-    Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unreadCount');
-});
+    Route::get('/user1',function(Request $request){
+        $newName = $request->input('fullname');
+        session(['name' => $newName]);
+        return 'Ten hien tai la :' . session('name');
+    });
+    //Cap nhat lai ten nguoi dung
+    Route::put('test',function(Request $request){
+       $newName = $request->input('fullname');
+       session(['name'=> $newName]);
+       return 'Ten hien tai la :' . session('name');
+    })->name('update-name');
+    Route::controller(HomeController::class)->group(function () {
+        Route::get('/trangchu','index');
+        Route::get('/trangchu1','index2');
+        Route::get('/trangchu2','index3');
+    });
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/trangchu3', function () {
+           return 'hello man';
+        });
+    });
+// === ĐẶT LỊCH NHANH CHO KHÁCH VÃNG LAI (không cần đăng nhập) ===
+Route::controller(BookingRequestController::class)
+    ->prefix('dat-lich-nhanh')
+    ->name('booking-requests.')
+    ->group(function () {
+        Route::get('/',               'create')->name('create');
+        Route::post('/',              'store')->name('store');
+        Route::get('/thanks/{code}',  'thanks')->name('thanks');
+    });

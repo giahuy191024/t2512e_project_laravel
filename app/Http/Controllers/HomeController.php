@@ -6,7 +6,9 @@ class HomeController
 {
     public function index()
     {
-        return view('home');
+        $doctors = Doctor::all();
+
+        return view('auth', compact('doctors'));
     }
     public function index2(){
         return 'hello work';

@@ -139,13 +139,13 @@
                     <tr>
                         <td class="align-middle">#{{ $u->id }}</td>
                         <td class="align-middle">
-                            <span class="font-weight-bold">{{ $u->name }}</span>
+                            <span class="font-weight-bold">{{ $u->full_name }}</span>
                         </td>
                         <td class="align-middle">{{ $u->email }}</td>
                         <td class="align-middle">
-                            @if($u->role === 'admin')
+                            @if($u->isAdmin())
                                 <span class="badge badge-danger">Admin</span>
-                            @elseif($u->role === 'doctor')
+                            @elseif($u->isDoctor())
                                 <span class="badge badge-success">Doctor</span>
                             @else
                                 <span class="badge badge-secondary">Patient</span>

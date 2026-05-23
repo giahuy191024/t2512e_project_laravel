@@ -93,16 +93,21 @@
             <div class="user-panel mt-3 pb-3 mb-3 d-flex">
 
                 <div class="image">
-
-                    <img src="https://i.pravatar.cc/150"
-                         class="img-circle elevation-2">
-
+                    @if(auth()->user()->avatar_url)
+                        <img src="{{ asset('storage/' . auth()->user()->avatar_url) }}"
+                             class="img-circle elevation-2"
+                             style="width:33px;height:33px;object-fit:cover" alt="Avatar">
+                    @else
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->full_name) }}&background=4361ee&color=fff"
+                             class="img-circle elevation-2"
+                             style="width:33px;height:33px;object-fit:cover" alt="Avatar">
+                    @endif
                 </div>
 
                 <div class="info">
 
                     <a href="#" class="d-block">
-                        {{ auth()->user()->name }}
+                        {{ auth()->user()->full_name }}
                     </a>
 
                 </div>
@@ -111,7 +116,7 @@
 
             <!-- Menu -->
             <nav class="mt-2">
-                    @if(auth()->user()->role === 'admin')
+                    @if(auth()->user()->isAdmin())
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
 
                         <li class="nav-item">
