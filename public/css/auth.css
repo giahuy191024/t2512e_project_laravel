@@ -224,8 +224,6 @@ body{
     z-index: 9999;
     cursor: pointer;
 }
-.wrapper .form-box.login{
-}
 .wrapper .form-box.registration{
     position: absolute;
     transform: translateX(400px);

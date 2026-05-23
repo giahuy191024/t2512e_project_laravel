@@ -10,6 +10,8 @@ use App\Models\City;
 use App\Models\Booking;
 use App\Models\Patient;
 use App\Models\TimeSlot;
+use App\Models\Notification;
+use App\Models\User;
 
 class PatientController extends Controller
 {
@@ -128,48 +130,190 @@ class PatientController extends Controller
         // 1. Lấy thông tin bác sĩ
         $doctor = Doctor::with(['user'])->findOrFail($doctor_id);
 
-        // 2. Lấy lịch làm việc và các Slot còn trống (status = 1)
-        // Chỉ lấy từ ngày hôm nay trở đi
-        $schedules = DoctorSchedule::with(['timeSlots' => function ($query) {
-            $query->where('status', 1) // Chỉ lấy slot đang mở
-            ->whereColumn('current_patient', '<', 'max_patient'); // Chỉ lấy slot chưa đầy
-        }])
-            ->where('doctor_id', $doctor_id)
-            ->where('work_date', '>=', now()->toDateString())
-            ->orderBy('work_date', 'asc')
-            ->get();
+        // 2. Xây dựng lịch có thể đặt từ DoctorWeekSchedule (trong 14 ngày tới)
+        $slotDefinitions = [
+            'morning' => ['start' => '08:00', 'end' => '11:30'],
+            'afternoon' => ['start' => '13:00', 'end' => '16:30'],
+        ];
 
-        return view('patient.booking', compact('doctor', 'schedules'));
+        $days = [];
+        $startDate = \Carbon\Carbon::today();
+        $endDate = $startDate->copy()->addDays(13); // 14 days window
+
+        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+            // Lấy ngày đầu tuần (thứ 2) cho ngày hiện tại
+            $weekStart = $date->copy()->startOfWeek(1); // 1 = Monday
+            $dayOfWeek = $date->copy()->dayOfWeekIso; // 1..7 (Mon..Sun)
+
+            $weeklyEntries = \App\Models\DoctorWeekSchedule::where('doctor_id', $doctor_id)
+                ->where('week_start', $weekStart->toDateString())
+                ->where('day_of_week', $dayOfWeek)
+                ->get();
+
+            if ($weeklyEntries->isEmpty()) {
+                continue; // no slots that week for this day
+            }
+
+            $slotItems = [];
+            foreach ($weeklyEntries as $entry) {
+                $code = $entry->slot_code;
+                if (!isset($slotDefinitions[$code])) continue;
+                $start = $slotDefinitions[$code]['start'];
+                $end = $slotDefinitions[$code]['end'];
+
+                // Chia nhỏ thành các ca 30 phút
+                $startTime = \Carbon\Carbon::createFromFormat('H:i', $start);
+                $endTime = \Carbon\Carbon::createFromFormat('H:i', $end);
+                while ($startTime->lt($endTime)) {
+                    $slotStart = $startTime->format('H:i');
+                    $slotEnd = $startTime->copy()->addMinutes(30);
+                    if ($slotEnd->gt($endTime)) {
+                        $slotEnd = $endTime->copy();
+                    }
+
+                    // Try to find existing DoctorSchedule + TimeSlot for this 30-min slot
+                    $existingSchedule = DoctorSchedule::where('doctor_id', $doctor_id)
+                        ->where('work_date', $date->toDateString())
+                        ->where('start_time', $slotStart)
+                        ->where('end_time', $slotEnd->format('H:i'))
+                        ->first();
+
+                    $available = 1; // default capacity if no timeslot exists
+                    $current = 0;
+                    $timeSlotId = null;
+
+                    if ($existingSchedule) {
+                        $ts = \App\Models\TimeSlot::where('schedule_id', $existingSchedule->id)
+                            ->where('start_time', $slotStart)
+                            ->where('end_time', $slotEnd->format('H:i'))
+                            ->first();
+                        if ($ts) {
+                            $available = max(0, $ts->max_patient - $ts->current_patient);
+                            $current = $ts->current_patient;
+                            $timeSlotId = $ts->id;
+                        }
+                    }
+
+                    $slotItems[] = (object)[
+                        'code' => $code,
+                        'start_time' => $slotStart,
+                        'end_time' => $slotEnd->format('H:i'),
+                        'available' => $available,
+                        'current' => $current,
+                        'timeslot_id' => $timeSlotId,
+                    ];
+
+                    $startTime->addMinutes(30);
+                }
+            }
+
+            if (!empty($slotItems)) {
+                $days[] = (object)[
+                    'date' => $date->toDateString(),
+                    'label' => $date->translatedFormat('l, d/m/Y'),
+                    'slots' => $slotItems,
+                ];
+            }
+        }
+
+        return view('patient.booking', ['doctor' => $doctor, 'days' => $days]);
     }
 
     public function storeBooking(Request $request)
     {
         $request->validate([
-            'slot_id' => 'required|exists:time_slots,id',
+            'doctor_id' => 'required|exists:doctors,id',
+            'date' => 'required|date',
+            'slot_code' => 'required|string',
         ]);
+
+        $doctorId = $request->doctor_id;
+
+
+        // slot_code format: code_start_end (e.g. morning_08:00_08:30)
+        $parts = explode('_', $request->slot_code);
+        if (count($parts) !== 3) {
+            return back()->with('error', 'Ca không hợp lệ');
+        }
+        list($code, $start, $end) = $parts;
+        $date = \Carbon\Carbon::parse($request->date)->toDateString();
 
         // Tự động tạo hồ sơ patient nếu user chưa có
         $patient = auth()->user()->patient
             ?? Patient::create(['user_id' => auth()->id()]);
 
+        // Tìm hoặc tạo DoctorSchedule cho ngày này và khung giờ
+        $schedule = DoctorSchedule::firstOrCreate([
+            'doctor_id' => $doctorId,
+            'work_date' => $date,
+            'start_time' => $start,
+            'end_time' => $end,
+        ]);
+
+        // Tìm hoặc tạo TimeSlot cho schedule
+        $slot = TimeSlot::firstOrCreate([
+            'schedule_id' => $schedule->id,
+            'start_time' => $start,
+            'end_time' => $end,
+        ], [
+            'max_patient' => 1,
+            'current_patient' => 0,
+            'status' => 1,
+        ]);
+
+        // Kiểm tra còn chỗ
+        if ($slot->current_patient >= $slot->max_patient) {
+            return back()->with('error', 'Ca này đã đầy. Vui lòng chọn ca khác.');
+        }
+
         // Tạo bản ghi Booking
         $booking = Booking::create([
-            'slot_id' => $request->slot_id,
+            'slot_id' => $slot->id,
             'patient_id' => $patient->id,
-            'status' => 0, // 0 = Chờ xác nhận (pending)
-            'created_by' => auth()->id()
+            'status' => 0,
+            'created_by' => auth()->id(),
         ]);
 
         // Cập nhật số người đã đặt vào TimeSlot
-        $slot = TimeSlot::find($request->slot_id);
         $slot->increment('current_patient');
 
-        // Nếu ca đã đầy thì tự động khóa slot đó lại
         if ($slot->current_patient >= $slot->max_patient) {
             $slot->update(['status' => 0]);
         }
 
-        return redirect()->route('patient.dashboard_patient')->with('success', 'Đặt lịch thành công! Vui lòng chờ bác sĩ xác nhận.');
-        // ... các hàm khác tương tự
+        // Tạo thông báo như cũ
+        $doctor = $schedule->doctor ?? Doctor::find($doctorId);
+        if ($doctor && $doctor->user_id) {
+            Notification::create([
+                'user_id' => $doctor->user_id,
+                'type' => 'new_booking',
+                'data' => [
+                    'patient_name' => auth()->user()->name,
+                    'patient_email' => auth()->user()->email,
+                    'work_date' => $schedule->work_date ?? null,
+                    'time_slot' => $start . ' - ' . $end,
+                ],
+                'booking_id' => $booking->id,
+            ]);
+        }
+
+        $admins = User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            Notification::create([
+                'user_id' => $admin->id,
+                'type' => 'new_booking',
+                'data' => [
+                    'patient_name' => auth()->user()->name,
+                    'patient_email' => auth()->user()->email,
+                    'doctor_name' => $doctor?->full_name ?? 'N/A',
+                    'work_date' => $schedule->work_date ?? null,
+                    'time_slot' => $start . ' - ' . $end,
+                ],
+                'booking_id' => $booking->id,
+            ]);
+        }
+
+        // Redirect to PayPal to complete deposit/payment before confirming the booking
+        return redirect()->route('payment.paypal.create', $booking->id);
     }
 }
