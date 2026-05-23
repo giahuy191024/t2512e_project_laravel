@@ -163,6 +163,19 @@
         font-weight: 500;
     }
     .slot-radio:checked + .slot-label .slot-remain { color: rgba(255,255,255,.8); }
+    
+    /* Slot disabled/hết chỗ */
+    .slot-radio:disabled + .slot-label {
+        opacity: 0.5;
+        cursor: not-allowed;
+        border-color: #f0f0f0;
+        background: #f5f5f5;
+    }
+    .slot-radio:disabled + .slot-label:hover {
+        border-color: #f0f0f0;
+        background: #f5f5f5;
+        transform: none;
+    }
 
     .empty-slots {
         text-align: center; padding: 40px 20px; color: #9aa0a6;
@@ -259,7 +272,7 @@
     {{-- ===== MAIN: CHỌN LỊCH ===== --}}
     <div class="booking-main">
 
-        @if($schedules->isEmpty())
+        @if(empty($days) || count($days) === 0)
             {{-- Empty --}}
             <div class="slots-panel">
                 <div class="empty-slots">
@@ -273,8 +286,11 @@
             </div>
         @else
 
-        <form action="{{ route('patient.booking.store') }}" method="POST" id="bookingForm">
+            <form action="{{ route('patient.booking.store') }}" method="POST" id="bookingForm">
             @csrf
+                <input type="hidden" name="doctor_id" value="{{ $doctor->id }}">
+                <input type="hidden" name="date" id="bookingDate" value="">
+                <input type="hidden" name="slot_code" id="bookingSlotCode" value="">
 
             {{-- ===== THANH CHỌN NGÀY ===== --}}
             <div class="date-bar-wrap">
@@ -282,18 +298,18 @@
                     <i class="far fa-calendar-alt mr-1"></i> Chọn ngày khám
                 </div>
                 <div class="date-bar" id="dateBar">
-                    @foreach($schedules as $i => $schedule)
+                    @foreach($days as $i => $day)
                     @php
-                        $carbon    = \Carbon\Carbon::parse($schedule->work_date);
-                        $days_vi   = ['CN','T2','T3','T4','T5','T6','T7'];
-                        $dayName   = $days_vi[$carbon->dayOfWeek];
-                        $slotCount = $schedule->timeSlots->count();
+                        $carbon = \Carbon\Carbon::parse($day->date);
+                        $label = $carbon->format('D, d/m/Y');
+                        $slotCount = count($day->slots);
                     @endphp
                     <div class="date-btn {{ $i === 0 ? 'active' : '' }}"
-                         data-target="day-{{ $schedule->id }}"
-                         data-label="{{ $dayName }}, {{ $carbon->format('d/m/Y') }}"
+                         data-target="day-{{ $i }}"
+                         data-label="{{ $label }}"
+                         data-value="{{ $day->date }}"
                          onclick="selectDate(this)">
-                        <span class="day-name">{{ $dayName }}</span>
+                        <span class="day-name">{{ strtoupper($carbon->translatedFormat('D')) }}</span>
                         <span class="day-num">{{ $carbon->format('d') }}</span>
                         <span class="month">Th{{ $carbon->format('m') }}</span>
                         <span class="slot-count">{{ $slotCount }} ca</span>
@@ -306,28 +322,33 @@
             <div class="slots-panel">
                 <div class="slots-panel-header">
                     <h5><i class="far fa-clock mr-2 text-primary"></i>Chọn giờ khám</h5>
-                    <span class="selected-date-label" id="selectedDateLabel">
-                        {{ $days_vi[\Carbon\Carbon::parse($schedules->first()->work_date)->dayOfWeek] }},
-                        {{ \Carbon\Carbon::parse($schedules->first()->work_date)->format('d/m/Y') }}
-                    </span>
+                    <span class="selected-date-label" id="selectedDateLabel">—</span>
                 </div>
 
-                @foreach($schedules as $i => $schedule)
-                <div class="day-slots {{ $i === 0 ? 'show' : '' }}" id="day-{{ $schedule->id }}">
-                    @if($schedule->timeSlots->isEmpty())
+                @foreach($days as $i => $day)
+                <div class="day-slots {{ $i === 0 ? 'show' : '' }}" id="day-{{ $i }}">
+                    @if(empty($day->slots))
                         <div class="empty-slots">
                             <i class="far fa-clock"></i>
                             <p>Không có ca trống trong ngày này.</p>
                         </div>
                     @else
                     <div class="slot-grid">
-                        @foreach($schedule->timeSlots as $slot)
+                        @foreach($day->slots as $slot)
                         <div>
-                            <input type="radio" name="slot_id" id="slot_{{ $slot->id }}" value="{{ $slot->id }}" class="slot-radio" onchange="updateSummary(this)">
-                            <label for="slot_{{ $slot->id }}" class="slot-label">
-                                <span class="slot-time">{{ \Carbon\Carbon::parse($slot->start_time)->format('H:i') }}</span>
+                            <input type="radio" 
+                                   name="slot_code" 
+                                   id="slot_{{ $i }}_{{ $slot->code }}_{{ $slot->start_time }}_{{ $slot->end_time }}" 
+                                   value="{{ $slot->code }}_{{ $slot->start_time }}_{{ $slot->end_time }}" 
+                                   class="slot-radio" 
+                                   data-start="{{ $slot->start_time }}" 
+                                   data-end="{{ $slot->end_time }}" 
+                                   onchange="updateSummary(this, '{{ $day->date }}')"
+                                   {{ $slot->available == 0 ? 'disabled' : '' }}>
+                            <label for="slot_{{ $i }}_{{ $slot->code }}_{{ $slot->start_time }}_{{ $slot->end_time }}" class="slot-label">
+                                <span class="slot-time">{{ $slot->start_time }} - {{ $slot->end_time }}</span>
                                 <span class="slot-remain">
-                                    {{ $slot->max_patient - $slot->current_patient }} chỗ còn
+                                    {{ $slot->available }} {{ $slot->available == 0 ? 'hết chỗ' : 'chỗ còn' }}
                                 </span>
                             </label>
                         </div>
@@ -356,7 +377,7 @@
             </div>
 
             {{-- ===== NÚT XÁC NHẬN ===== --}}
-            <button type="submit" class="btn-confirm" id="btnConfirm" disabled>
+            <button type="submit" class="btn-confirm" id="btnConfirm" onclick="return confirm('Xác nhận đặt lịch?');" disabled>
                 <i class="fas fa-check-circle mr-2"></i> Xác nhận đặt lịch
             </button>
 
@@ -388,18 +409,23 @@
 
         // Reset summary khi đổi ngày
         document.querySelectorAll('.slot-radio').forEach(r => r.checked = false);
+        document.getElementById('bookingDate').value = el.dataset.value || '';
+        document.getElementById('bookingSlotCode').value = '';
         hideSummary();
     }
 
     // Khi chọn 1 slot giờ
-    function updateSummary(radio) {
-        const label     = radio.nextElementSibling;
-        const time      = label.querySelector('.slot-time').textContent.trim();
-        const activeBtn = document.querySelector('.date-btn.active');
-        const date      = activeBtn ? activeBtn.dataset.label : '—';
+    function updateSummary(radio, date) {
+        const start = radio.dataset.start || '';
+        const end = radio.dataset.end || '';
+        const time = start && end ? (start + ' - ' + end) : (radio.nextElementSibling && radio.nextElementSibling.querySelector('.slot-time') ? radio.nextElementSibling.querySelector('.slot-time').textContent.trim() : '—');
 
-        document.getElementById('summaryDate').textContent = date;
         document.getElementById('summaryTime').textContent = time;
+        document.getElementById('summaryDate').textContent = date || (document.querySelector('.date-btn.active') ? document.querySelector('.date-btn.active').dataset.label : '—');
+
+        document.getElementById('bookingDate').value = date || (document.querySelector('.date-btn.active') ? document.querySelector('.date-btn.active').dataset.value : '');
+        document.getElementById('bookingSlotCode').value = radio.value;
+
         document.getElementById('bookingSummary').classList.add('show');
         document.getElementById('btnConfirm').disabled = false;
     }

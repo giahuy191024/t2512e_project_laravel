@@ -15,76 +15,35 @@
                         </div>
 
                         <div class="card-body">
-                            <div class="form-group mb-4">
-                                <label class="text-muted d-block"><i class="fas fa-check-double mr-1"></i> Chọn Thứ:</label>
-                                <div class="d-flex flex-wrap justify-content-between bg-light p-3 rounded border">
+                            <div class="form-group mb-3">
+                                <label class="text-muted"><i class="fas fa-calendar-day mr-1"></i> Tuần bắt đầu (chọn 1 ngày thuộc tuần muốn đăng ký)</label>
+                                <input type="date" name="week_start" class="form-control" value="{{ old('week_start', $defaultWeekStart ?? date('Y-m-d')) }}">
+                                @error('week_start') <small class="text-danger">{{ $message }}</small> @enderror
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label class="text-muted d-block"><i class="fas fa-check-double mr-1"></i> Chọn Thứ trong tuần</label>
+                                <div class="d-flex flex-wrap gap-2 bg-light p-3 rounded border">
                                     @php
-                                        $days = [
-                                            1 => 'Thứ 2', 2 => 'Thứ 3', 3 => 'Thứ 4',
-                                            4 => 'Thứ 5', 5 => 'Thứ 6', 6 => 'Thứ 7', 0 => 'Chủ Nhật'
-                                        ];
+                                        $days = [1=>'Thứ 2',2=>'Thứ 3',3=>'Thứ 4',4=>'Thứ 5',5=>'Thứ 6',6=>'Thứ 7',7=>'Chủ nhật'];
                                     @endphp
-                                    @foreach($days as $value => $label)
-                                        <div class="custom-control custom-checkbox custom-control-inline mx-2">
-                                            <input class="custom-control-input" type="checkbox" name="week_days[]" id="day_{{ $value }}" value="{{ $value }}">
-                                            <label for="day_{{ $value }}" class="custom-control-label font-weight-normal">{{ $label }}</label>
-                                        </div>
+                                    @foreach($days as $k=>$label)
+                                        <label class="mr-3"><input type="checkbox" name="week_days[]" value="{{ $k }}"> {{ $label }}</label>
                                     @endforeach
                                 </div>
-                                @error('week_days') <small class="text-danger font-italic">{{ $message }}</small> @enderror
+                                @error('week_days') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
 
-                            <div class="row">
-                                <div class="col-md-6 border-right">
-                                    <label class="text-muted"><i class="fas fa-calendar-day mr-1"></i> Giai đoạn áp dụng:</label>
-                                    <div class="row">
-                                        <div class="col-6">
-                                            <div class="form-group">
-                                                <small class="text-secondary">Từ ngày</small>
-                                                <input type="date" name="start_date" class="form-control shadow-sm" value="{{ date('Y-m-d') }}" min="{{ date('Y-m-d') }}">
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="form-group">
-                                                <small class="text-secondary">Đến ngày</small>
-                                                <input type="date" name="end_date" class="form-control shadow-sm" value="{{ date('Y-m-d', strtotime('+1 month')) }}">
-                                            </div>
-                                        </div>
-                                    </div>
+                            <div class="form-group mb-3">
+                                <label class="text-muted d-block"><i class="fas fa-clock mr-1"></i> Chọn ca trong ngày</label>
+                                <div class="d-flex gap-3 bg-light p-3 rounded border">
+                                    @foreach(\App\Models\DoctorWeekSchedule::defaultSlots() as $code => $label)
+                                        <label class="mr-3"><input type="checkbox" name="slots[]" value="{{ $code }}"> {{ $label }}</label>
+                                    @endforeach
                                 </div>
-
-                                <div class="col-md-6">
-                                    <label class="text-muted"><i class="fas fa-clock mr-1"></i> Khung giờ & Thời lượng:</label>
-                                    <div class="row">
-                                        <div class="col-4">
-                                            <div class="form-group">
-                                                <small class="text-secondary">Bắt đầu</small>
-                                                <div class="input-group shadow-sm">
-                                                    <input type="time" name="start_time" class="form-control" required>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-4">
-                                            <div class="form-group">
-                                                <small class="text-secondary">Kết thúc</small>
-                                                <div class="input-group shadow-sm">
-                                                    <input type="time" name="end_time" class="form-control" required>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-4">
-                                            <div class="form-group">
-                                                <small class="text-secondary">Phút/Ca</small>
-                                                <select name="slot_duration" class="form-control shadow-sm">
-                                                    <option value="30">30p</option>
-                                                    <option value="45">45p</option>
-                                                    <option value="60">60p</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                @error('slots') <small class="text-danger">{{ $message }}</small> @enderror
                             </div>
+                        </div>
                         </div>
 
                         <div class="card-footer bg-white border-top-0 py-3">

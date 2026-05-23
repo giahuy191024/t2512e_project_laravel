@@ -68,12 +68,33 @@ $statusMap=[0=>['label'=>'Chờ xác nhận','class'=>'status-0','icon'=>'fa-clo
     <p>Xem thông tin và lịch sử đặt khám của từng bệnh nhân</p>
 </div>
 
-{{-- Search + count --}}
-<div class="search-bar">
-    <i class="fas fa-search" style="color:#aaa"></i>
-    <input type="text" id="patient-search" class="search-input" placeholder="Tìm theo tên hoặc email...">
-    <div class="total-badge"><i class="fas fa-users"></i> {{ $patients->count() }} bệnh nhân</div>
-</div>
+<style>
+/* Unified filter styles for all admin pages */
+.filter-card{background:#f8f9fa;border-radius:10px;padding:18px 20px;margin-bottom:22px;box-shadow:0 2px 8px rgba(67,97,238,.04)}
+.filter-row{display:flex;gap:14px;flex-wrap:wrap;align-items:end}
+.filter-group{flex:1;min-width:180px;display:flex;flex-direction:column}
+.filter-group label{font-size:13px;font-weight:700;color:#495057;margin-bottom:6px;letter-spacing:.2px}
+.filter-group label i{margin-right:5px;color:#6c757d}
+.filter-input,.filter-select{width:100%;padding:9px 13px;border:1.5px solid #d1d5db;border-radius:7px;font-size:14px;background:white;transition:border-color .2s,box-shadow .2s}
+.filter-input:focus,.filter-select:focus{outline:none;border-color:#4361ee;box-shadow:0 0 0 2px rgba(67,97,238,.13)}
+.btn-filter{padding:9px 22px;border-radius:7px;font-size:14px;font-weight:700;background:#4361ee;color:white;border:none;transition:background .2s}
+.btn-filter:hover{background:#2746b6}
+.btn-reset{padding:9px 22px;border-radius:7px;font-size:14px;font-weight:700;background:#adb5bd;color:white;text-decoration:none;display:inline-block;transition:background .2s}
+.btn-reset:hover{background:#6c757d;color:white}
+.stats-row{display:flex;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.stat-chip{flex:1;min-width:150px;background:white;border-radius:10px;padding:15px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:transform .18s,box-shadow .18s;border-left:5px solid #e8ecff;box-shadow:0 2px 8px rgba(67,97,238,.04)}
+.stat-chip:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(67,97,238,.10)}
+.stat-chip.active{background:#e8ecff}
+.stat-chip .label{font-size:12px;font-weight:700;text-transform:uppercase;color:#6c757d;letter-spacing:.5px}
+.stat-chip .value{font-size:22px;font-weight:800}
+.chip-all{border-left-color:#6c757d}
+.chip-admin{border-left-color:#dc3545}
+.chip-doctor{border-left-color:#28a745}
+.chip-patient{border-left-color:#17a2b8}
+.chip-specialization{border-left-color:#17a2b8}
+.chip-city{border-left-color:#28a745}
+.result-badge{background:#4361ee;color:white;padding:5px 12px;border-radius:20px;font-size:13px;font-weight:600;margin-left:10px}
+</style>
 
 {{-- Patient list --}}
 @if($patients->isEmpty())
@@ -99,16 +120,10 @@ $statusMap=[0=>['label'=>'Chờ xác nhận','class'=>'status-0','icon'=>'fa-clo
                         <i class="fas fa-calendar-alt"></i>
                         Đăng ký: {{ $user->created_at->format('d/m/Y') }}
                     </span>
-                    @if($bookingCount > 0)
                     <span class="meta-chip chip-count">
                         <i class="fas fa-calendar-check"></i>
-                        {{ $bookingCount }} lịch đặt
+                        {{ $bookingCount }} lịch khám
                     </span>
-                    @else
-                    <span class="meta-chip chip-none">
-                        <i class="fas fa-calendar-times"></i> Chưa đặt lịch
-                    </span>
-                    @endif
                 </div>
             </div>
             <button type="button" class="expand-btn" id="btn-{{ $user->id }}">
@@ -162,6 +177,55 @@ $statusMap=[0=>['label'=>'Chờ xác nhận','class'=>'status-0','icon'=>'fa-clo
     </div>
     @endforeach
 @endif
+            <button type="button" class="expand-btn" id="btn-{{ $user->id }}">
+                <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+
+        <div class="bookings-panel" id="panel-{{ $user->id }}">
+            <div class="bookings-inner">
+                @if($bookingCount === 0)
+                    <div class="no-booking">
+                        <i class="fas fa-calendar-times"></i>
+                        Bệnh nhân này chưa có lịch đặt khám nào
+                    </div>
+                @else
+                <table class="bk-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Bác sĩ</th>
+                            <th>Ngày khám</th>
+                            <th>Giờ khám</th>
+                            <th>Trạng thái</th>
+                            <th>Lý do huỷ</th>
+                            <th>Ngày đặt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($bookings->sortByDesc('created_at') as $bi => $bk)
+                        @php
+                            $slot = $bk->timeSlot;
+                            $schedule = $slot?->doctorSchedule;
+                            $doctor = $schedule?->doctor;
+                            $s = $statusMap[$bk->status] ?? $statusMap[0];
+                        @endphp
+                        <tr>
+                            <td style="color:#aaa;font-weight:600">{{ $bi+1 }}</td>
+                            <td style="font-weight:600;color:#1a1a2e">{{ $doctor?->full_name ?? '—' }}</td>
+                            <td>{{ $schedule?->work_date ? \Carbon\Carbon::parse($schedule->work_date)->format('d/m/Y') : '—' }}</td>
+                            <td>{{ $slot ? substr($slot->start_time,0,5).' - '.substr($slot->end_time,0,5) : '—' }}</td>
+                            <td><span class="status-badge {{ $s['class'] }}"><i class="fas {{ $s['icon'] }}"></i> {{ $s['label'] }}</span></td>
+                            <td style="color:#aaa;font-size:12px">{{ $bk->cancel_reason ?? '—' }}</td>
+                            <td style="color:#aaa;font-size:12px">{{ $bk->created_at->format('d/m/Y H:i') }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                @endif
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -172,14 +236,6 @@ function togglePanel(id) {
     panel.classList.toggle('open');
     btn.classList.toggle('open');
 }
-
-// Live search
-document.getElementById('patient-search').addEventListener('input', function() {
-    const q = this.value.toLowerCase();
-    document.querySelectorAll('.patient-card').forEach(card => {
-        card.style.display = card.dataset.search.includes(q) ? '' : 'none';
-    });
-});
 </script>
 @endpush
 
