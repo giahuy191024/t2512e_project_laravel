@@ -59,12 +59,24 @@ class DoctorController extends Controller
     public function updateBookingStatus(Request $request, $id)
     {
         $request->validate(['status' => 'required|in:1,2,3']);
-        $booking = Booking::findOrFail($id);
+        $booking = Booking::with('timeSlot')->findOrFail($id);
 
         $data = ['status' => $request->status];
 
-        // Nếu bác sĩ huỷ → đặt patient_read = 0 để bệnh nhân nhận thông báo
+        // Nếu bác sĩ huỷ → giảm current_patient và đặt patient_read = 0
         if ($request->status == 3) {
+            // Giảm số người đã đặt
+            if ($booking->timeSlot) {
+                $slot = $booking->timeSlot;
+                $slot->decrement('current_patient');
+                $slot->refresh();
+                
+                // Nếu slot vừa có chỗ trống, đổi status lại thành available
+                if ($slot->current_patient < $slot->max_patient && $slot->status == 0) {
+                    $slot->update(['status' => 1]);
+                }
+            }
+            
             $data['patient_read'] = 0;
             $data['cancel_reason'] = $request->cancel_reason ?? 'Bác sĩ đã huỷ lịch hẹn.';
         }

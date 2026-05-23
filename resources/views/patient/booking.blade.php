@@ -163,6 +163,19 @@
         font-weight: 500;
     }
     .slot-radio:checked + .slot-label .slot-remain { color: rgba(255,255,255,.8); }
+    
+    /* Slot disabled/hết chỗ */
+    .slot-radio:disabled + .slot-label {
+        opacity: 0.5;
+        cursor: not-allowed;
+        border-color: #f0f0f0;
+        background: #f5f5f5;
+    }
+    .slot-radio:disabled + .slot-label:hover {
+        border-color: #f0f0f0;
+        background: #f5f5f5;
+        transform: none;
+    }
 
     .empty-slots {
         text-align: center; padding: 40px 20px; color: #9aa0a6;
@@ -276,6 +289,8 @@
             <form action="{{ route('patient.booking.store') }}" method="POST" id="bookingForm">
             @csrf
                 <input type="hidden" name="doctor_id" value="{{ $doctor->id }}">
+                <input type="hidden" name="date" id="bookingDate" value="">
+                <input type="hidden" name="slot_code" id="bookingSlotCode" value="">
 
             {{-- ===== THANH CHỌN NGÀY ===== --}}
             <div class="date-bar-wrap">
@@ -292,6 +307,7 @@
                     <div class="date-btn {{ $i === 0 ? 'active' : '' }}"
                          data-target="day-{{ $i }}"
                          data-label="{{ $label }}"
+                         data-value="{{ $day->date }}"
                          onclick="selectDate(this)">
                         <span class="day-name">{{ strtoupper($carbon->translatedFormat('D')) }}</span>
                         <span class="day-num">{{ $carbon->format('d') }}</span>
@@ -320,11 +336,19 @@
                     <div class="slot-grid">
                         @foreach($day->slots as $slot)
                         <div>
-                            <input type="radio" name="slot_code" id="slot_{{ $i }}_{{ $slot->code }}_{{ $slot->start_time }}_{{ $slot->end_time }}" value="{{ $slot->code }}_{{ $slot->start_time }}_{{ $slot->end_time }}" class="slot-radio" data-start="{{ $slot->start_time }}" data-end="{{ $slot->end_time }}" onchange="updateSummary(this, '{{ $day->date }}')">
+                            <input type="radio" 
+                                   name="slot_code" 
+                                   id="slot_{{ $i }}_{{ $slot->code }}_{{ $slot->start_time }}_{{ $slot->end_time }}" 
+                                   value="{{ $slot->code }}_{{ $slot->start_time }}_{{ $slot->end_time }}" 
+                                   class="slot-radio" 
+                                   data-start="{{ $slot->start_time }}" 
+                                   data-end="{{ $slot->end_time }}" 
+                                   onchange="updateSummary(this, '{{ $day->date }}')"
+                                   {{ $slot->available == 0 ? 'disabled' : '' }}>
                             <label for="slot_{{ $i }}_{{ $slot->code }}_{{ $slot->start_time }}_{{ $slot->end_time }}" class="slot-label">
                                 <span class="slot-time">{{ $slot->start_time }} - {{ $slot->end_time }}</span>
                                 <span class="slot-remain">
-                                    {{ $slot->available }} chỗ còn
+                                    {{ $slot->available }} {{ $slot->available == 0 ? 'hết chỗ' : 'chỗ còn' }}
                                 </span>
                             </label>
                         </div>
@@ -353,7 +377,7 @@
             </div>
 
             {{-- ===== NÚT XÁC NHẬN ===== --}}
-            <button type="submit" class="btn-confirm" id="btnConfirm" onsubmit="return confirm('Xác nhận đặt lịch?');" disabled>
+            <button type="submit" class="btn-confirm" id="btnConfirm" onclick="return confirm('Xác nhận đặt lịch?');" disabled>
                 <i class="fas fa-check-circle mr-2"></i> Xác nhận đặt lịch
             </button>
 
@@ -385,6 +409,8 @@
 
         // Reset summary khi đổi ngày
         document.querySelectorAll('.slot-radio').forEach(r => r.checked = false);
+        document.getElementById('bookingDate').value = el.dataset.value || '';
+        document.getElementById('bookingSlotCode').value = '';
         hideSummary();
     }
 
@@ -397,24 +423,8 @@
         document.getElementById('summaryTime').textContent = time;
         document.getElementById('summaryDate').textContent = date || (document.querySelector('.date-btn.active') ? document.querySelector('.date-btn.active').dataset.label : '—');
 
-        // Ensure form has hidden inputs for date and slot_code
-        let hiddenDate = document.querySelector('input[name="date"]');
-        if (!hiddenDate) {
-            hiddenDate = document.createElement('input');
-            hiddenDate.type = 'hidden';
-            hiddenDate.name = 'date';
-            document.getElementById('bookingForm').appendChild(hiddenDate);
-        }
-        hiddenDate.value = date || (document.querySelector('.date-btn.active') ? document.querySelector('.date-btn.active').dataset.label : '');
-
-        let hiddenSlot = document.querySelector('input[name="slot_code"]');
-        if (!hiddenSlot) {
-            hiddenSlot = document.createElement('input');
-            hiddenSlot.type = 'hidden';
-            hiddenSlot.name = 'slot_code';
-            document.getElementById('bookingForm').appendChild(hiddenSlot);
-        }
-        hiddenSlot.value = radio.value;
+        document.getElementById('bookingDate').value = date || (document.querySelector('.date-btn.active') ? document.querySelector('.date-btn.active').dataset.value : '');
+        document.getElementById('bookingSlotCode').value = radio.value;
 
         document.getElementById('bookingSummary').classList.add('show');
         document.getElementById('btnConfirm').disabled = false;

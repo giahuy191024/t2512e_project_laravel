@@ -24,7 +24,7 @@ Route::get('/', function () {
 
 Route::post('/auth', [AuthController::class, 'handleAuth']);
 
-Route::post('/logout', [AuthController::class, 'logout']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/appointment',[AppointmentController::class,'create']
 

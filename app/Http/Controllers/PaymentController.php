@@ -23,7 +23,7 @@ class PaymentController extends Controller
             "purchase_units" => [[
                 "amount" => [
                     "currency_code" => config('paypal.currency', 'USD'),
-                    "value" => $booking->deposit_amount ?? 10
+                    "value" => $booking->deposit_amount ?? 1
                 ],
                 "description" => "Dat coc lich kham #{$booking->id}",
             ]],
@@ -62,7 +62,7 @@ class PaymentController extends Controller
             // Cập nhật trạng thái booking và transaction
             DB::transaction(function() use ($booking_id, $response) {
                 $booking = Booking::findOrFail($booking_id);
-                $booking->status = 'paid';
+                $booking->status = 1; // 1: Đã xác nhận
                 $booking->save();
                 Transaction::create([
                     'booking_id' => $booking->id,
@@ -75,14 +75,39 @@ class PaymentController extends Controller
                     'gateway_response' => json_encode($response),
                 ]);
             });
-            return redirect()->route('patient.bookings')->with('success', 'Thanh toán thành công!');
+            return redirect()->route('patient.appointments')->with('success', 'Thanh toán thành công!');
         }
-        return redirect()->route('patient.bookings')->with('error', 'Thanh toán thất bại!');
+        return redirect()->route('patient.appointments')->with('error', 'Thanh toán thất bại!');
     }
 
     // Bước 3: Xử lý khi PayPal cancel
     public function handlePaypalCancel($booking_id)
     {
-        return redirect()->route('patient.bookings')->with('error', 'Bạn đã hủy thanh toán.');
+        DB::transaction(function() use ($booking_id) {
+            $booking = Booking::with('timeSlot')->findOrFail($booking_id);
+            $slot = $booking->timeSlot;
+
+            if ($slot) {
+                if ($slot->current_patient > 0) {
+                    $slot->decrement('current_patient');
+                }
+                $slot->refresh();
+                if ($slot->current_patient < $slot->max_patient && $slot->status == 0) {
+                    $slot->update(['status' => 1]);
+                }
+            }
+
+            $booking->delete();
+        });
+
+        return redirect()->route('patient.doctors')->with('error', 'Bạn đã hủy thanh toán. Lịch hẹn chưa được đăng ký.');
+    }
+
+    // Bước 4: Xử lý khi PayPal notify (IPN)
+    public function handlePaypalNotify(Request $request)
+    {
+        // Chỉ cần ghi Log hoặc xử lý cập nhật trạng thái nếu IPN gửi webhook
+        \Log::info('PayPal Notify Response', $request->all());
+        return response()->json(['status' => 'success'], 200);
     }
 }
