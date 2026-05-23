@@ -97,14 +97,14 @@ class AdminController extends Controller{
         }
         $userEdit->save();
 
-        return redirect()->route('admin.accounts')->with('success', 'Cập nhật thành công!');
+        return redirect()->route('admin.accounts')->with('success', 'Updated successfully!');
     }
 
     // --- XÓA TÀI KHOẢN ---
     public function deleteAccount($id) {
         $user = User::findOrFail($id);
         $user->delete();
-        return back()->with('success', 'Đã xóa tài khoản!');
+        return back()->with('success', 'Deleted successfully!');
     }
 
     //---Quan ly bac si---
@@ -139,10 +139,10 @@ class AdminController extends Controller{
             ]);
 
             DB::commit();
-            return redirect()->route('admin.doctors')->with('success', 'Thêm Bác sĩ thành công!');
+            return redirect()->route('admin.doctors')->with('success', 'Added Doctor successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'Lỗi: ' . $e->getMessage()])->withInput();
+            return back()->withErrors(['error' => 'Error: ' . $e->getMessage()])->withInput();
         }
     }
     public function editDoctor($id)
@@ -181,10 +181,10 @@ class AdminController extends Controller{
             ]);
 
             DB::commit();
-            return redirect()->route('admin.doctors')->with('success', 'Cập nhật thành công!');
+            return redirect()->route('admin.doctors')->with('success', 'Updated successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'Lỗi: ' . $e->getMessage()])->withInput();
+            return back()->withErrors(['error' => 'Error: ' . $e->getMessage()])->withInput();
         }
     }
     public function deleteDoctor($id) {
