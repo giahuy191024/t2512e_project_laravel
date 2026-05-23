@@ -32,13 +32,21 @@
 @endpush
 
 @section('content')
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-            <h5><i class="icon fas fa-check"></i> Thành công!</h5>
-            {{ session('success') }}
-        </div>
-    @endif
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@if(session('success'))
+<script>
+    Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: "{{ session('success') }}",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+    });
+</script>
+@endif
 
     {{-- Stats Row --}}
     <div class="stats-row">

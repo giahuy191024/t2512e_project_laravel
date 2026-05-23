@@ -353,7 +353,7 @@
             </div>
 
             {{-- ===== NÚT XÁC NHẬN ===== --}}
-            <button type="submit" class="btn-confirm" id="btnConfirm" disabled>
+            <button type="submit" class="btn-confirm" id="btnConfirm" onsubmit="return confirm('Xác nhận đặt lịch?');" disabled>
                 <i class="fas fa-check-circle mr-2"></i> Xác nhận đặt lịch
             </button>
 

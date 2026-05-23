@@ -4,28 +4,12 @@ const loginLink = document.querySelector('.login-link');
 const registerLink = document.querySelector('.register-link');
 const iconClose = document.querySelector('.icon-close');
 
-// Luôn hiển thị form khi trang load
+// mở form
+// chuyển sang register
+registerLink.addEventListener('click', () => {
+    wrapper.classList.add('active');
+});
+loginLink.addEventListener('click',()=>{
+    wrapper.classList.remove('active');
+});
 wrapper.classList.add('active-popup');
-
-// Chuyển sang form Register
-if (registerLink) {
-    registerLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        wrapper.classList.add('active');
-    });
-}
-
-// Chuyển về form Login
-if (loginLink) {
-    loginLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        wrapper.classList.remove('active');
-    });
-}
-
-// Đóng form (nếu cần)
-if (iconClose) {
-    iconClose.addEventListener('click', () => {
-        wrapper.classList.remove('active-popup');
-    });
-}

@@ -13,9 +13,9 @@ use App\Http\Controllers\NotificationController;
 //Route::get('/', function () {
 //    return view('home');
 //});
-Route::get('/', [HomeController::class, 'index']);
+Route::get('/homepage', [HomeController::class, 'index']);
 
-Route::get('/login', function () {
+Route::get('/', function () {
     return view('auth');
 })->name('login');
 //Route::get('/login', function () {
