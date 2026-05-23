@@ -47,6 +47,73 @@ class PatientController extends Controller
         return view('patient.dashboardpatient', compact('upcomingCount', 'pastCount', 'cancelledUnread'));
     }
 
+    // ===== BỆNH NHÂN HUỶ LỊCH HẸN =====
+    public function cancelBooking(Request $request, $id)
+    {
+        $patient = auth()->user()->patient;
+
+        if (!$patient) {
+            return back()->with('error', 'Bạn chưa có hồ sơ bệnh nhân!');
+        }
+
+        $request->validate([
+            'cancel_reason' => 'required|string|max:500',
+        ]);
+
+        $booking = Booking::with(['timeSlot.doctorSchedule.doctor'])
+            ->where('id', $id)
+            ->where('patient_id', $patient->id)
+            ->whereIn('status', [0, 1]) // chỉ huỷ lịch đang chờ hoặc đã xác nhận
+            ->first();
+
+        if (!$booking) {
+            return back()->with('error', 'Không tìm thấy lịch hẹn hoặc lịch không thể huỷ!');
+        }
+
+        // Cập nhật trạng thái
+        $booking->update([
+            'status' => 3,
+            'cancel_reason' => $request->cancel_reason,
+            'patient_read' => 1,
+            'admin_handled' => 0,
+        ]);
+
+        // Thông báo cho bác sĩ
+        $doctorUser = $booking->timeSlot?->doctorSchedule?->doctor?->user;
+        if ($doctorUser) {
+            Notification::create([
+                'user_id' => $doctorUser->id,
+                'type' => 'booking_cancelled',
+                'data' => [
+                    'patient_name' => auth()->user()->name,
+                    'cancel_reason' => $request->cancel_reason,
+                    'work_date' => $booking->timeSlot?->doctorSchedule?->work_date,
+                    'time_slot' => optional($booking->timeSlot)->start_time . ' - ' . optional($booking->timeSlot)->end_time,
+                ],
+                'booking_id' => $booking->id,
+            ]);
+        }
+
+        // Thông báo cho admin
+        $admins = User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            Notification::create([
+                'user_id' => $admin->id,
+                'type' => 'booking_cancelled',
+                'data' => [
+                    'patient_name' => auth()->user()->name,
+                    'doctor_name' => $booking->timeSlot?->doctorSchedule?->doctor?->full_name ?? 'Bác sĩ',
+                    'cancel_reason' => $request->cancel_reason,
+                    'work_date' => $booking->timeSlot?->doctorSchedule?->work_date,
+                    'time_slot' => optional($booking->timeSlot)->start_time . ' - ' . optional($booking->timeSlot)->end_time,
+                ],
+                'booking_id' => $booking->id,
+            ]);
+        }
+
+        return back()->with('success', 'Đã huỷ lịch hẹn thành công!');
+    }
+
     // Đánh dấu đã đọc 1 thông báo
     public function markNotificationRead($bookingId)
     {

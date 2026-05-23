@@ -6,6 +6,9 @@ use App\Models\Specialization;
 use App\Models\User;
 use App\Models\Booking;
 use App\Models\Patient;
+use App\Models\Notification;
+use App\Models\TimeSlot;
+use App\Models\DoctorSchedule;
 use Illuminate\Http\Request;
 use App\Models\Doctor;
 use Illuminate\Support\Facades\Hash;
@@ -261,5 +264,159 @@ class AdminController extends Controller{
         $doctor = Doctor::findOrFail($id);
         User::destroy($doctor->user_id);
         return view('admin.doctors_edit', compact('doctor'));
+    }
+
+    // ==========================================
+    // QUẢN LÝ HỦY LỊCH (Lễ tân xử lý)
+    // ==========================================
+    public function manageCancellations(Request $request)
+    {
+        $query = Booking::with(['patient.user', 'timeSlot.doctorSchedule.doctor'])
+            ->where('status', 3) // chỉ lịch đã hủy
+            ->orderByDesc('updated_at');
+
+        // Filter: tất cả / chưa xử lý / đã xử lý
+        if ($request->filled('filter')) {
+            if ($request->filter === 'unhandled') {
+                $query->where('admin_handled', 0);
+            } elseif ($request->filter === 'handled') {
+                $query->where('admin_handled', 1);
+            }
+        } // mặc định: hiện tất cả
+
+        $cancellations = $query->get();
+
+        // Thống kê
+        $stats = [
+            'total' => Booking::where('status', 3)->count(),
+            'unhandled' => Booking::where('status', 3)->where('admin_handled', 0)->count(),
+            'handled' => Booking::where('status', 3)->where('admin_handled', 1)->count(),
+        ];
+
+        // Danh sách bác sĩ để chuyển
+        $doctors = Doctor::with('user', 'specialization', 'city')->get();
+
+        return view('admin.cancellations', compact('cancellations', 'stats', 'doctors'));
+    }
+
+    // Chuyển booking sang bác sĩ khác (giữ nguyên slot thời gian)
+    public function transferBooking(Request $request)
+    {
+        $request->validate([
+            'booking_id' => 'required|exists:bookings,id',
+            'new_doctor_id' => 'required|exists:doctors,id',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        $oldBooking = Booking::with(['timeSlot.doctorSchedule', 'patient'])->findOrFail($request->booking_id);
+
+        if ($oldBooking->status != 3 || $oldBooking->admin_handled) {
+            return back()->with('error', 'Lịch này đã được xử lý hoặc không phải trạng thái hủy!');
+        }
+
+        DB::beginTransaction();
+        try {
+            $oldSlot = $oldBooking->timeSlot;
+            $oldSchedule = $oldSlot?->doctorSchedule;
+
+            // Tìm hoặc tạo DoctorSchedule cho bác sĩ mới vào cùng ngày + giờ
+            $newSchedule = DoctorSchedule::firstOrCreate([
+                'doctor_id' => $request->new_doctor_id,
+                'work_date' => $oldSchedule?->work_date ?? now()->toDateString(),
+                'start_time' => $oldSlot?->start_time ?? '08:00',
+                'end_time' => $oldSlot?->end_time ?? '08:30',
+            ]);
+
+            // Tìm hoặc tạo TimeSlot mới
+            $newSlot = TimeSlot::firstOrCreate([
+                'schedule_id' => $newSchedule->id,
+                'start_time' => $oldSlot?->start_time ?? '08:00',
+                'end_time' => $oldSlot?->end_time ?? '08:30',
+            ], [
+                'max_patient' => 1,
+                'current_patient' => 0,
+                'status' => 1,
+            ]);
+
+            if ($newSlot->current_patient >= $newSlot->max_patient) {
+                DB::rollBack();
+                return back()->with('error', 'Ca này của bác sĩ mới đã đầy. Vui lòng chọn bác sĩ khác!');
+            }
+
+            // Tạo booking mới cho bác sĩ mới
+            $newBooking = Booking::create([
+                'slot_id' => $newSlot->id,
+                'patient_id' => $oldBooking->patient_id,
+                'status' => 1, // tự động xác nhận (admin đã sắp xếp)
+                'created_by' => auth()->id(),
+                'cancel_reason' => null,
+                'patient_read' => 1,
+            ]);
+
+            $newSlot->increment('current_patient');
+            if ($newSlot->current_patient >= $newSlot->max_patient) {
+                $newSlot->update(['status' => 0]);
+            }
+
+            // Cập nhật booking cũ: đánh dấu đã xử lý + ghi chú + link sang booking mới
+            $oldBooking->update([
+                'admin_handled' => 1,
+                'handled_note' => 'Đã chuyển sang bác sĩ khác. ' . ($request->notes ?? ''),
+                'transferred_to_id' => $newBooking->id,
+            ]);
+
+            // Thông báo cho bệnh nhân về lịch mới
+            $patientUser = $oldBooking->patient?->user;
+            $doctorName = Doctor::find($request->new_doctor_id)?->full_name ?? 'Bác sĩ mới';
+            if ($patientUser) {
+                Notification::create([
+                    'user_id' => $patientUser->id,
+                    'type' => 'booking_transferred',
+                    'data' => [
+                        'new_doctor_name' => $doctorName,
+                        'work_date' => $newSchedule->work_date,
+                        'time_slot' => ($newSlot->start_time ?? '') . ' - ' . ($newSlot->end_time ?? ''),
+                        'note' => $request->notes ?? 'Lịch khám của bạn đã được sắp xếp lại.',
+                    ],
+                    'booking_id' => $newBooking->id,
+                ]);
+            }
+
+            DB::commit();
+            return back()->with('success', 'Đã chuyển lịch sang bác sĩ ' . $doctorName . ' thành công!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Lỗi: ' . $e->getMessage());
+        }
+    }
+
+    // Đánh dấu đã xử lý hủy lịch (sau khi gọi khách, không chuyển)
+    public function handleCancellation(Request $request)
+    {
+        $request->validate([
+            'booking_id' => 'required|exists:bookings,id',
+            'handled_note' => 'nullable|string|max:500',
+            'action' => 'required|in:handled,rescheduled',
+        ]);
+
+        $booking = Booking::findOrFail($request->booking_id);
+
+        if ($booking->status != 3 || $booking->admin_handled) {
+            return back()->with('error', 'Lịch này đã được xử lý hoặc không phải trạng thái hủy!');
+        }
+
+        $notes = $request->handled_note ?? '';
+        if ($request->action === 'rescheduled') {
+            $notes = 'Bệnh nhân đã được sắp xếp lịch mới. ' . $notes;
+        } else {
+            $notes = 'Đã gọi khách - xác nhận đồng ý hủy. ' . $notes;
+        }
+
+        $booking->update([
+            'admin_handled' => 1,
+            'handled_note' => $notes,
+        ]);
+
+        return back()->with('success', 'Đã cập nhật trạng thái xử lý!');
     }
 }

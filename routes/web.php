@@ -51,7 +51,10 @@ Route::middleware(['auth','role:patient'])->prefix('patient')->name('patient.')-
     // 5. Quản lý lịch hẹn
     Route::get('/appointments', [PatientController::class, 'appointments'])->name('appointments');
 
-    // 6. Thông báo huỷ lịch
+    // 6. Huỷ lịch hẹn (bệnh nhân tự huỷ)
+    Route::post('/bookings/{id}/cancel', [PatientController::class, 'cancelBooking'])->name('bookings.cancel');
+
+    // 7. Thông báo huỷ lịch
     Route::post('/notifications/{id}/read', [PatientController::class, 'markNotificationRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [PatientController::class, 'markAllNotificationsRead'])->name('notifications.readAll');
 
@@ -136,6 +139,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/doctors/{id}/edit',[AdminController::class,'editDoctor'])->name('admin.doctors.edit');
     Route::put('/doctors/{id}',[AdminController::class,'updateDoctor'])->name('admin.doctors.update');
     Route::delete('/doctors/{id}',[AdminController::class,'deleteDoctor'])->name('admin.doctors.destroy');
+
+    // === QUẢN LÝ HỦY LỊCH (Lễ tân) ===
+    Route::get('/cancellations', [AdminController::class, 'manageCancellations'])->name('admin.cancellations');
+    Route::post('/cancellations/transfer', [AdminController::class, 'transferBooking'])->name('admin.cancellations.transfer');
+    Route::post('/cancellations/handle', [AdminController::class, 'handleCancellation'])->name('admin.cancellations.handle');
 });
 
 // Notifications routes (dùng chung cho admin và doctor)
