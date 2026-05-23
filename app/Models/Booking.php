@@ -11,7 +11,8 @@ class Booking extends Model
 
     protected $fillable = [
         'slot_id', 'patient_id', 'status',
-        'cancel_reason', 'created_by', 'patient_read'
+        'cancel_reason', 'created_by', 'patient_read',
+        'admin_handled', 'handled_note', 'transferred_to_id'
     ];
 
     // Lấy thông tin ca khám của lượt đặt này
@@ -30,5 +31,17 @@ class Booking extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    // Booking đã được chuyển đến (nếu có)
+    public function transferredTo()
+    {
+        return $this->belongsTo(Booking::class, 'transferred_to_id');
+    }
+
+    // Booking được chuyển từ (nếu là booking mới từ chuyển đổi)
+    public function transferredFrom()
+    {
+        return $this->hasOne(Booking::class, 'transferred_to_id');
     }
 }

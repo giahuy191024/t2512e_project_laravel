@@ -238,6 +238,10 @@ function loadNotifications() {
                 let message = '';
                 if (n.type === 'new_booking') {
                     message = `<strong>${patientName}</strong> đã đặt lịch khám`;
+                } else if (n.type === 'booking_cancelled') {
+                    const reason = data.cancel_reason || '';
+                    message = `<strong>${patientName}</strong> đã huỷ lịch hẹn`;
+                    if (reason) message += `<br><small style="color:#dc2626">Lý do: ${reason}</small>`;
                 }
                 
                 const time = new Date(n.created_at).toLocaleString('vi-VN');
