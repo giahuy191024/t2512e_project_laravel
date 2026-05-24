@@ -120,6 +120,9 @@ Route::middleware(['auth','role:doctor'])->name('doctor.')->group(function () {
         Route::delete('slot/delete/{id}',[DoctorController::class,'destroySlot'])->name('destroySlot');
         //Route xoa dot lich
         Route::delete('schedule/delete',[DoctorController::class,'destroyGroup'])->name('destroy-Schedule_Group');
+        Route::post('toggleWeekSlot', function() {
+            return response()->json(['success' => false, 'message' => '🚧 Đang phát triển']);
+        })->name('toggleWeekSlot');
     });
 
     // 4. THÔNG TIN CÁ NHÂN

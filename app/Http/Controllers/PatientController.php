@@ -67,9 +67,18 @@ class PatientController extends Controller
 
     public function notifications()
     {
-        $notifications = Notification::where('user_id', auth()->id())
-            ->orderByDesc('created_at')
-            ->get();
+        $patient = auth()->user()->patient;
+        $notifications = collect();
+
+        if ($patient) {
+            // Lấy bookings đã huỷ làm notifications (giống dashboard)
+            $notifications = Booking::with(['slot.schedule.doctor.user'])
+                ->where('patient_id', $patient->id)
+                ->where('status', Booking::STATUS_CANCELLED)
+                ->orderByDesc('updated_at')
+                ->get();
+        }
+
         return view('patient.notifications', compact('notifications'));
     }
 

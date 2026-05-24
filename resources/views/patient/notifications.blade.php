@@ -82,15 +82,33 @@
         </div>
     @else
         @foreach($notifications as $notif)
+            @php
+                $doctorName = $notif->slot?->schedule?->doctor?->user?->full_name ?? 'BS';
+                $workDate = $notif->slot?->schedule?->work_date
+                    ? \Carbon\Carbon::parse($notif->slot->schedule->work_date)->format('d/m/Y')
+                    : '—';
+                $startTime = $notif->slot?->start_time ?? '';
+                $endTime = $notif->slot?->end_time ?? '';
+                $timeSlot = $startTime && $endTime ? $startTime . ' - ' . $endTime : '';
+                $reason = $notif->cancel_reason ?? '';
+            @endphp
             <div class="notif-item">
                 <div class="notif-icon">
-                    <i class="fas fa-bell"></i>
+                    <i class="fas fa-calendar-times" style="color:#dc2626"></i>
                 </div>
                 <div class="notif-body">
-                    <div class="notif-title">{{ $notif->type ?? 'Thông báo' }}</div>
-                    <div class="notif-message">{{ $notif->message }}</div>
+                    <div class="notif-title">Lịch hẹn đã bị huỷ</div>
+                    <div class="notif-message">
+                        Lịch khám với <strong>{{ $doctorName }}</strong>
+                        @if($workDate !== '—') vào <strong>{{ $workDate }}</strong> @endif
+                        @if($timeSlot) lúc <strong>{{ $timeSlot }}</strong> @endif
+                        đã bị huỷ.
+                        @if($reason)
+                            <br><small style="color:#dc2626">📝 Lý do: {{ $reason }}</small>
+                        @endif
+                    </div>
                     <div class="notif-time">
-                        <i class="far fa-clock"></i>{{ $notif->created_at?->diffForHumans() }}
+                        <i class="far fa-clock"></i> {{ $notif->updated_at?->diffForHumans() }}
                     </div>
                 </div>
             </div>
