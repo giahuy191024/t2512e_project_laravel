@@ -126,6 +126,24 @@
     }
     .btn-cancel:hover { background: #fee2e2; }
 
+    /* ===== TOAST SUCCESS/ERROR ===== */
+    .toast-msg {
+        position: fixed; top: 20px; right: 20px; z-index: 99999;
+        color: #fff; border-radius: 12px;
+        padding: 14px 22px; font-weight: 600; font-size: .88rem;
+        box-shadow: 0 8px 28px rgba(0,0,0,.15);
+        animation: slideInRight .4s ease both;
+        max-width: 400px;
+        display: flex; align-items: center; gap: 10px;
+        line-height: 1.4;
+    }
+    .toast-msg.success { background: linear-gradient(135deg,#10b981,#059669); }
+    .toast-msg.error   { background: linear-gradient(135deg,#ef4444,#dc2626); }
+    @keyframes slideInRight {
+        from { opacity: 0; transform: translateX(50px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+
     /* ===== EMPTY STATE ===== */
     .empty-appt {
         text-align: center; padding: 70px 20px;
@@ -150,6 +168,18 @@
 @endpush
 
 @section('content')
+
+{{-- ===== TOAST SUCCESS/ERROR ===== --}}
+@if(session('success'))
+    <div class="toast-msg success" id="toast">
+        <i class="fas fa-check-circle"></i> {{ session('success') }}
+    </div>
+@endif
+@if(session('error'))
+    <div class="toast-msg error" id="toast">
+        <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
+    </div>
+@endif
 
 {{-- ===== HERO ===== --}}
 <div class="appt-hero">
@@ -198,12 +228,10 @@
 
     @forelse($list as $booking)
     @php
-        $slot     = $booking->timeSlot;
-        $schedule = $slot?->doctorSchedule;
+        $slot     = $booking->slot;
+        $schedule = $slot?->schedule;
         $doctor   = $schedule?->doctor;
         $st       = $statusMap[$booking->status] ?? $statusMap[0];
-        $photoId  = (($doctor?->id ?? 1) % 70) + 1;
-        $gender   = (($doctor?->id ?? 1) % 2 === 0) ? 'men' : 'women';
     @endphp
     <div class="booking-card">
         <div class="booking-card-inner">
@@ -213,16 +241,18 @@
 
             {{-- Ảnh bác sĩ --}}
             <div class="bk-doctor-photo">
-                <img
-                    src="https://randomuser.me/api/portraits/{{ $gender }}/{{ $photoId }}.jpg"
-                    alt="{{ $doctor?->full_name }}"
-                    onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($doctor?->full_name ?? 'BS') }}&background=1a73e8&color=fff&size=128&bold=true'"
-                >
+                @if($doctor?->user?->avatar_url)
+                    <img src="{{ asset('storage/' . $doctor->user->avatar_url) }}"
+                         alt="{{ $doctor->full_name }}">
+                @else
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode($doctor?->full_name ?? 'BS') }}&background=1a73e8&color=fff&size=128&bold=true"
+                         alt="{{ $doctor?->full_name }}">
+                @endif
             </div>
 
             {{-- Thông tin --}}
             <div class="bk-info">
-                <div class="bk-doctor-name">BS. {{ $doctor?->full_name ?? '—' }}</div>
+                <div class="bk-doctor-name">{{ $doctor?->full_name ?? '—' }}</div>
                 <div class="bk-spec">
                     <i class="fas fa-tooth mr-1"></i>{{ $doctor?->specialization?->name ?? 'Chuyên khoa' }}
                 </div>
@@ -236,8 +266,8 @@
                         <span>{{ $slot ? \Carbon\Carbon::parse($slot->start_time)->format('H:i') : '—' }}</span>
                     </div>
                     <div class="bk-meta-item">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span>{{ $doctor?->city?->name ?? '—' }}</span>
+                        <i class="fas fa-briefcase"></i>
+                        <span>{{ ($doctor?->experience_years ?? '?') . ' năm KN' }}</span>
                     </div>
                     <div class="bk-meta-item">
                         <i class="fas fa-hashtag"></i>
@@ -253,10 +283,10 @@
                 </span>
 
                 @if(in_array($booking->status, [0, 1]))
-                    <form action="#" method="POST">
-                        @csrf @method('DELETE')
-                        <button type="submit" class="btn-cancel"
-                            onclick="return confirm('Bạn chắc chắn muốn huỷ lịch hẹn này?')">
+                    <form action="{{ route('patient.bookings.cancel', $booking->id) }}" method="POST" class="cancel-form">
+                        @csrf
+                        <input type="hidden" name="cancel_reason" value="">
+                        <button type="button" class="btn-cancel btn-cancel-with-reason">
                             <i class="fas fa-times mr-1"></i> Huỷ lịch
                         </button>
                     </form>
@@ -284,6 +314,7 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.querySelectorAll('.filter-tab').forEach(function(tab) {
         tab.addEventListener('click', function() {
@@ -291,6 +322,58 @@
             document.querySelectorAll('.tab-content-section').forEach(s => s.style.display = 'none');
             this.classList.add('active');
             document.getElementById('tab-' + this.dataset.tab).style.display = 'block';
+        });
+    });
+
+    // Auto hide toast after 3.5s
+    const toast = document.getElementById('toast');
+    if (toast) setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(50px)'; }, 3500);
+
+    // ===== SWEETALERT2: HUỶ LỊCH KÈM LÝ DO =====
+    document.querySelectorAll('.btn-cancel-with-reason').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const form = this.closest('form');
+            const card = form.closest('.booking-card');
+            const doctorNameEl = card.querySelector('.bk-doctor-name');
+            const doctorName = doctorNameEl ? doctorNameEl.textContent.trim() : 'Bác sĩ';
+
+            Swal.fire({
+                title: '<i class="fas fa-times-circle" style="color:#ef4444"></i> Xác nhận huỷ lịch',
+                html: `
+                    <div style="text-align:left;font-size:14px;color:#5f6368">
+                        <p style="margin-bottom:14px">Bạn có chắc muốn huỷ lịch hẹn với <strong>${doctorName}</strong>?</p>
+                        <label style="font-weight:700;font-size:13px;color:#3c4043;display:block;margin-bottom:6px">
+                            <i class="fas fa-pen mr-1" style="color:#ef4444"></i> Lý do huỷ:
+                        </label>
+                        <textarea id="cancel-reason-input" class="swal2-textarea" placeholder="Nhập lý do huỷ lịch..." style="min-height:90px;border-radius:10px;border:2px solid #fee2e2;resize:vertical;width:100%;padding:10px 12px;font-size:13px"></textarea>
+                    </div>`,
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-check mr-1"></i> Xác nhận huỷ',
+                cancelButtonText: '<i class="fas fa-arrow-left mr-1"></i> Quay lại',
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6c757d',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'rounded-lg',
+                    confirmButton: 'btn btn-danger px-4 py-2 font-weight-bold',
+                    cancelButton: 'btn btn-secondary px-4 py-2 font-weight-bold'
+                },
+                preConfirm: () => {
+                    const reason = document.getElementById('cancel-reason-input').value.trim();
+                    if (!reason) {
+                        Swal.showValidationMessage('Vui lòng nhập lý do huỷ lịch!');
+                        return false;
+                    }
+                    return reason;
+                }
+            }).then((result) => {
+                if (result.isConfirmed && result.value) {
+                    form.querySelector('input[name="cancel_reason"]').value = result.value;
+                    form.querySelector('button[type="button"]').disabled = true;
+                    form.submit();
+                }
+            });
         });
     });
 </script>

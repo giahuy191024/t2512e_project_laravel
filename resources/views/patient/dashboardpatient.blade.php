@@ -226,7 +226,7 @@
 
     @foreach($cancelledUnread as $bk)
     @php
-        $sched  = $bk->timeSlot?->doctorSchedule;
+        $sched  = $bk->slot?->schedule;
         $doctor = $sched?->doctor;
     @endphp
     <div class="notif-item">
@@ -241,8 +241,8 @@
                 @if($sched)
                     vào <strong>{{ \Carbon\Carbon::parse($sched->work_date)->format('d/m/Y') }}</strong>
                 @endif
-                @if($bk->timeSlot)
-                    lúc <strong>{{ \Carbon\Carbon::parse($bk->timeSlot->start_time)->format('H:i') }}</strong>
+                @if($bk->slot)
+                    lúc <strong>{{ \Carbon\Carbon::parse($bk->slot->start_time)->format('H:i') }}</strong>
                 @endif
                 đã bị huỷ.
                 @if($bk->cancel_reason)
@@ -266,7 +266,7 @@
 
 {{-- ===== HERO BANNER ===== --}}
 <div class="dash-hero">
-    <h2>Xin chào, {{ auth()->user()->name }}! 👋</h2>
+    <h2>Xin chào, {{ auth()->user()->full_name }}! 👋</h2>
     <p>Hôm nay bạn cảm thấy thế nào? Chúng tôi luôn sẵn sàng hỗ trợ bạn.</p>
     <div class="dash-hero-actions">
         <a href="{{ route('patient.doctors') }}" class="btn-hero-primary">
@@ -395,67 +395,4 @@
         </div>
     </div>
 </div>
-
 @endsection
-
-{{-- ===== LEFT ADS ===== --}}
-@push('left-ad')
-    <div class="ad-card" style="animation-delay:.1s">
-        <div class="ad-card-label">Quảng cáo</div>
-        <div class="ad-card-body">
-            <span class="ad-card-icon">🦷</span>
-            <div class="ad-card-title">Tẩy trắng răng</div>
-            <div class="ad-card-desc">Công nghệ Laser Whitening, trắng sáng sau 1 buổi. Giảm 30% tháng này!</div>
-            <a href="#" class="ad-card-btn text-white" style="background:linear-gradient(135deg,#1a73e8,#0d47a1)">Đặt lịch ngay</a>
-        </div>
-    </div>
-    <div class="ad-card" style="animation-delay:.2s">
-        <div class="ad-card-label">Quảng cáo</div>
-        <div class="ad-card-body">
-            <span class="ad-card-icon">😁</span>
-            <div class="ad-card-title">Niềng răng Invisalign</div>
-            <div class="ad-card-desc">Máng niềng trong suốt, thoải mái & thẩm mỹ. Tư vấn miễn phí.</div>
-            <a href="#" class="ad-card-btn text-white" style="background:linear-gradient(135deg,#7b1fa2,#4a148c)">Tư vấn ngay</a>
-        </div>
-    </div>
-    <div class="ad-card" style="animation-delay:.3s">
-        <div class="ad-card-label">Quảng cáo</div>
-        <div class="ad-card-body">
-            <span class="ad-card-icon">🪥</span>
-            <div class="ad-card-title">Bàn chải điện Oral-B</div>
-            <div class="ad-card-desc">Làm sạch gấp 10 lần bàn chải thường. Mua ngay giảm 20%.</div>
-            <a href="#" class="ad-card-btn text-white" style="background:linear-gradient(135deg,#00897b,#004d40)">Mua ngay</a>
-        </div>
-    </div>
-@endpush
-
-{{-- ===== RIGHT ADS ===== --}}
-@push('right-ad')
-    <div class="ad-card" style="animation-delay:.15s">
-        <div class="ad-card-label">Quảng cáo</div>
-        <div class="ad-card-body">
-            <span class="ad-card-icon">💎</span>
-            <div class="ad-card-title">Dán sứ Veneer</div>
-            <div class="ad-card-desc">Nụ cười hoàn hảo chỉ sau 2 buổi. Sứ cao cấp bảo hành 10 năm.</div>
-            <a href="#" class="ad-card-btn text-white" style="background:linear-gradient(135deg,#f57c00,#e65100)">Xem chi tiết</a>
-        </div>
-    </div>
-    <div class="ad-card" style="animation-delay:.25s">
-        <div class="ad-card-label">Quảng cáo</div>
-        <div class="ad-card-body">
-            <span class="ad-card-icon">🔬</span>
-            <div class="ad-card-title">Cấy ghép Implant</div>
-            <div class="ad-card-desc">Trồng răng cố định như răng thật. Titanium chuẩn FDA, bảo hành trọn đời.</div>
-            <a href="#" class="ad-card-btn text-white" style="background:linear-gradient(135deg,#1565c0,#0d47a1)">Tìm hiểu</a>
-        </div>
-    </div>
-    <div class="ad-card" style="animation-delay:.35s">
-        <div class="ad-card-label">Quảng cáo</div>
-        <div class="ad-card-body">
-            <span class="ad-card-icon">�</span>
-            <div class="ad-card-title">Kem đánh răng Sensodyne</div>
-            <div class="ad-card-desc">Giảm ê buốt tức thì, bảo vệ men răng lâu dài. Combo 3 tuýp giảm 15%.</div>
-            <a href="#" class="ad-card-btn text-white" style="background:linear-gradient(135deg,#2e7d32,#1b5e20)">Mua combo</a>
-        </div>
-    </div>
-@endpush

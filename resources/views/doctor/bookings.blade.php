@@ -292,11 +292,11 @@ $statusMap = [
                             <i class="fas fa-check mr-1"></i>Duyệt
                         </button>
                     </form>
-                    <form action="{{ route('doctor.bookings.updateStatus', $bk->id) }}" method="POST">
+                    <form action="{{ route('doctor.bookings.updateStatus', $bk->id) }}" method="POST" class="cancel-form">
                         @csrf @method('POST')
                         <input type="hidden" name="status" value="3">
-                        <button class="btn-sm-act btn-cancel-act" title="Huỷ"
-                            onclick="return confirm('Xác nhận huỷ lịch hẹn này?')">
+                        <input type="hidden" name="cancel_reason" value="">
+                        <button type="button" class="btn-sm-act btn-cancel-act btn-cancel-with-reason" title="Huỷ lịch">
                             <i class="fas fa-times"></i>
                         </button>
                     </form>
@@ -309,11 +309,11 @@ $statusMap = [
                             <i class="fas fa-tooth mr-1"></i>Hoàn thành
                         </button>
                     </form>
-                    <form action="{{ route('doctor.bookings.updateStatus', $bk->id) }}" method="POST">
+                    <form action="{{ route('doctor.bookings.updateStatus', $bk->id) }}" method="POST" class="cancel-form">
                         @csrf @method('POST')
                         <input type="hidden" name="status" value="3">
-                        <button class="btn-sm-act btn-cancel-act" title="Huỷ"
-                            onclick="return confirm('Xác nhận huỷ lịch hẹn này?')">
+                        <input type="hidden" name="cancel_reason" value="">
+                        <button type="button" class="btn-sm-act btn-cancel-act btn-cancel-with-reason" title="Huỷ lịch">
                             <i class="fas fa-times"></i>
                         </button>
                     </form>
@@ -352,5 +352,52 @@ $statusMap = [
     // Auto ẩn toast sau 3 giây
     const toast = document.getElementById('toast');
     if (toast) setTimeout(() => toast.style.opacity = '0', 3000);
+
+    // ===== SWEETALERT2: HUỶ LỊCH KÈM LÝ DO =====
+    document.querySelectorAll('.btn-cancel-with-reason').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const form = this.closest('form');
+            const patientNameEl = form.closest('.bk-row').querySelector('.bk-patient-name');
+            const patientName = patientNameEl ? patientNameEl.textContent.trim() : 'Bệnh nhân';
+
+            Swal.fire({
+                title: '<i class="fas fa-times-circle" style="color:#ef4444"></i> Xác nhận huỷ lịch',
+                html: `
+                    <div style="text-align:left;font-size:14px;color:#5f6368">
+                        <p style="margin-bottom:14px">Bạn có chắc muốn huỷ lịch hẹn của <strong>${patientName}</strong>?</p>
+                        <label style="font-weight:700;font-size:13px;color:#3c4043;display:block;margin-bottom:6px">
+                            <i class="fas fa-pen mr-1" style="color:#ef4444"></i> Lý do huỷ:
+                        </label>
+                        <textarea id="cancel-reason-input" class="swal2-textarea" placeholder="Nhập lý do huỷ lịch..." style="min-height:90px;border-radius:10px;border:2px solid #fee2e2;resize:vertical;width:100%;padding:10px 12px;font-size:13px"></textarea>
+                    </div>`,
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-check mr-1"></i> Xác nhận huỷ',
+                cancelButtonText: '<i class="fas fa-arrow-left mr-1"></i> Quay lại',
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6c757d',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'rounded-lg',
+                    confirmButton: 'btn btn-danger px-4 py-2 font-weight-bold',
+                    cancelButton: 'btn btn-secondary px-4 py-2 font-weight-bold'
+                },
+                preConfirm: () => {
+                    const reason = document.getElementById('cancel-reason-input').value.trim();
+                    if (!reason) {
+                        Swal.showValidationMessage('Vui lòng nhập lý do huỷ lịch!');
+                        return false;
+                    }
+                    return reason;
+                }
+            }).then((result) => {
+                if (result.isConfirmed && result.value) {
+                    form.querySelector('input[name="cancel_reason"]').value = result.value;
+                    form.querySelector('button[type="button"]').disabled = true;
+                    form.submit();
+                }
+            });
+        });
+    });
 </script>
 @endsection

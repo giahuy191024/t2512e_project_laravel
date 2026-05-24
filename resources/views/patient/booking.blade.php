@@ -163,7 +163,7 @@
         font-weight: 500;
     }
     .slot-radio:checked + .slot-label .slot-remain { color: rgba(255,255,255,.8); }
-    
+
     /* Slot disabled/hết chỗ */
     .slot-radio:disabled + .slot-label {
         opacity: 0.5;
@@ -180,7 +180,7 @@
     .empty-slots {
         text-align: center; padding: 40px 20px; color: #9aa0a6;
     }
-    .empty-slots i { font-size: 3rem; display: block; margin-bottom: 10px; }
+    .empty-slots > i { font-size: 3rem; display: block; margin-bottom: 10px; }
 
     /* ===== BOOKING SUMMARY ===== */
     .booking-summary {
@@ -228,15 +228,16 @@
     <div class="booking-sidebar">
         <div class="doc-card">
             <div class="doc-card-photo">
-                @php $photoId = ($doctor->id % 70) + 1; $gender = ($doctor->id % 2 === 0) ? 'men' : 'women'; @endphp
-                <img
-                    src="https://randomuser.me/api/portraits/{{ $gender }}/{{ $photoId }}.jpg"
-                    alt="{{ $doctor->full_name }}"
-                    onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($doctor->full_name) }}&background=1a73e8&color=fff&size=300&bold=true'"
-                >
+                @if($doctor->user?->avatar_url)
+                    <img src="{{ asset('storage/' . $doctor->user->avatar_url) }}"
+                         alt="{{ $doctor->full_name }}">
+                @else
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode($doctor->full_name) }}&background=1a73e8&color=fff&size=300&bold=true"
+                         alt="{{ $doctor->full_name }}">
+                @endif
                 <div class="doc-card-photo-overlay"></div>
                 <div class="doc-card-photo-name">
-                    <h4>BS. {{ $doctor->full_name }}</h4>
+                    <h4>{{ $doctor->full_name }}</h4>
                     <span>{{ $doctor->qualifications ?? 'Bác sĩ chuyên khoa' }}</span>
                 </div>
             </div>
@@ -248,11 +249,11 @@
                 </div>
                 <div class="doc-info-row">
                     <i class="fas fa-tooth"></i>
-                    <span>{{ $doctor->specialization->name ?? 'Chuyên khoa' }}</span>
+                    <span>{{ $doctor->getRelation('specialty')?->name ?? 'Chuyên khoa' }}</span>
                 </div>
                 <div class="doc-info-row">
                     <i class="fas fa-map-marker-alt"></i>
-                    <span>{{ $doctor->city->name ?? 'Chưa rõ' }}</span>
+                    <span>{{ $doctor->getRelation('city')?->name ?? $doctor->city ?? 'Chưa rõ' }}</span>
                 </div>
                 @if($doctor->phone_number)
                 <div class="doc-info-row">
@@ -336,13 +337,13 @@
                     <div class="slot-grid">
                         @foreach($day->slots as $slot)
                         <div>
-                            <input type="radio" 
-                                   name="slot_code" 
-                                   id="slot_{{ $i }}_{{ $slot->code }}_{{ $slot->start_time }}_{{ $slot->end_time }}" 
-                                   value="{{ $slot->code }}_{{ $slot->start_time }}_{{ $slot->end_time }}" 
-                                   class="slot-radio" 
-                                   data-start="{{ $slot->start_time }}" 
-                                   data-end="{{ $slot->end_time }}" 
+                            <input type="radio"
+                                   name="slot_code"
+                                   id="slot_{{ $i }}_{{ $slot->code }}_{{ $slot->start_time }}_{{ $slot->end_time }}"
+                                   value="{{ $slot->code }}_{{ $slot->start_time }}_{{ $slot->end_time }}"
+                                   class="slot-radio"
+                                   data-start="{{ $slot->start_time }}"
+                                   data-end="{{ $slot->end_time }}"
                                    onchange="updateSummary(this, '{{ $day->date }}')"
                                    {{ $slot->available == 0 ? 'disabled' : '' }}>
                             <label for="slot_{{ $i }}_{{ $slot->code }}_{{ $slot->start_time }}_{{ $slot->end_time }}" class="slot-label">
@@ -364,7 +365,7 @@
                 <h6><i class="fas fa-receipt mr-1"></i> Thông tin đặt lịch</h6>
                 <div class="summary-row">
                     <i class="fas fa-user-md"></i>
-                    <span>Bác sĩ: <strong>BS. {{ $doctor->full_name }}</strong></span>
+                    <span>Bác sĩ: <strong>{{ $doctor->full_name }}</strong></span>
                 </div>
                 <div class="summary-row">
                     <i class="far fa-calendar-alt"></i>

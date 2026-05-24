@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="container mt-4" style="max-width: 600px;">
-        <h3 class="fw-bold mb-4">Chỉnh Sửa Tài Khoản: {{ $userEdit->name }}</h3>
+        <h3 class="fw-bold mb-4">Chỉnh Sửa Tài Khoản: {{ $userEdit->full_name }}</h3>
 
         <div class="card p-4 shadow-sm" style="background-color: var(--sidebar-bg); border-color: var(--border-color);">
             <!-- Chú ý có @method('PUT') -->
@@ -12,7 +12,7 @@
 
                 <div class="mb-3">
                     <label class="form-label text-muted">Họ và Tên</label>
-                    <input type="text" name="name" value="{{ $userEdit->name }}" class="form-control" required style="background: transparent; color: white; border-color: var(--border-color);">
+                    <input type="text" name="name" value="{{ $userEdit->full_name }}" class="form-control" required style="background: transparent; color: white; border-color: var(--border-color);">
                 </div>
 
                 <div class="mb-3">
@@ -28,8 +28,9 @@
                 <div class="mb-4">
                     <label class="form-label text-muted">Phân quyền (Role)</label>
                     <select name="role" class="form-select" style="background: transparent; color: white; border-color: var(--border-color);">
-                        <option value="patient" {{ $userEdit->role == 'patient' ? 'selected' : '' }} style="color: black;">Bệnh nhân</option>
-                        <option value="admin" {{ $userEdit->role == 'admin' ? 'selected' : '' }} style="color: black;">Quản trị viên</option>
+                        <option value="patient" {{ $userEdit->isPatient() ? 'selected' : '' }} style="color: black;">Bệnh nhân</option>
+                        <option value="doctor"  {{ $userEdit->isDoctor()  ? 'selected' : '' }} style="color: black;">Bác sĩ</option>
+                        <option value="admin"   {{ $userEdit->isAdmin()   ? 'selected' : '' }} style="color: black;">Quản trị viên</option>
                     </select>
                 </div>
 

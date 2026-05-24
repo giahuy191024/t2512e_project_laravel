@@ -2,69 +2,48 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    // Hằng số role để code dễ đọc thay vì gõ số 0,1,2
+    const ROLE_PATIENT = 0;
+    const ROLE_DOCTOR  = 1;
+    const ROLE_ADMIN   = 2;
+
+    // Hằng số gender
+    const GENDER_FEMALE = 0;
+    const GENDER_MALE   = 1;
+    const GENDER_OTHER  = 2;
+
     protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'role',
+        'full_name', 'email', 'password', 'role', 'gender',
+        'date_of_birth', 'avatar_url', 'status',
+        'created_by', 'updated_by',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
+    protected $hidden = ['password', 'remember_token'];
+
+    protected $casts = [
+        'date_of_birth' => 'date',
+        'password'      => 'hashed',
+        'role'          => 'integer',
+        'gender'        => 'integer',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
-    public function isAdmin()
-    {
-        return $this->role === 'admin';
-    }
-    public function isDoctor(){
-        return $this->role === 'doctor';
-    }
-    public function isPatient(){
-        return $this->role === 'patient';
-    }
-    // Trong file User.php
-    public function patient()
-    {
-        return $this->hasOne(Patient::class, 'user_id');
-    }
+    // ===== RELATIONSHIPS =====
+    public function doctor(): HasOne   { return $this->hasOne(Doctor::class); }
+    public function patient(): HasOne  { return $this->hasOne(Patient::class); }
+    public function notifications(): HasMany { return $this->hasMany(Notification::class); }
 
-    public function doctor()
-    {
-        return $this->hasOne(Doctor::class, 'user_id');
-    }
+    // ===== HELPER =====
+    public function isAdmin(): bool   { return $this->role === self::ROLE_ADMIN; }
+    public function isDoctor(): bool  { return $this->role === self::ROLE_DOCTOR; }
+    public function isPatient(): bool { return $this->role === self::ROLE_PATIENT; }
 }

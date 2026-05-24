@@ -47,7 +47,7 @@
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" style="min-width:350px;max-height:500px;overflow-y:auto">
                     <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
                         <span class="dropdown-item-title font-weight-bold">Thông báo</span>
-                        <form action="{{ route('notifications.markAllRead') }}" method="POST" style="display:inline">
+                        <form action="{{ route('patient.notifications.readAll') }}" method="POST" style="display:inline">
                             @csrf
                             <button type="submit" class="btn btn-link btn-sm p-0" style="font-size:11px">Đánh dấu đã đọc tất cả</button>
                         </form>
@@ -93,16 +93,21 @@
             <div class="user-panel mt-3 pb-3 mb-3 d-flex">
 
                 <div class="image">
-
-                    <img src="https://i.pravatar.cc/150"
-                         class="img-circle elevation-2">
-
+                    @if(auth()->user()->avatar_url)
+                        <img src="{{ asset('storage/' . auth()->user()->avatar_url) }}"
+                             class="img-circle elevation-2"
+                             style="width:33px;height:33px;object-fit:cover" alt="Avatar">
+                    @else
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->full_name) }}&background=4361ee&color=fff"
+                             class="img-circle elevation-2"
+                             style="width:33px;height:33px;object-fit:cover" alt="Avatar">
+                    @endif
                 </div>
 
                 <div class="info">
 
                     <a href="#" class="d-block">
-                        {{ auth()->user()->name }}
+                        {{ auth()->user()->full_name }}
                     </a>
 
                 </div>
@@ -111,7 +116,7 @@
 
             <!-- Menu -->
             <nav class="mt-2">
-                    @if(auth()->user()->role === 'admin')
+                    @if(auth()->user()->isAdmin())
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
 
                         <li class="nav-item">
@@ -143,6 +148,29 @@
                                class="nav-link {{ request()->routeIs('admin.patients*') ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-hospital-user"></i>
                                 <p>Bệnh nhân</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.specialties') }}"
+                               class="nav-link {{ request()->routeIs('admin.specialties*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-tooth"></i>
+                                <p>Chuyên khoa</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="{{ route('admin.cities') }}"
+                               class="nav-link {{ request()->routeIs('admin.cities*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-city"></i>
+                                <p>Thành phố</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="{{ route('admin.cancellations') }}"
+                               class="nav-link {{ request()->routeIs('admin.cancellations*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-calendar-times"></i>
+                                <p>Quản lý hủy lịch</p>
                             </a>
                         </li>
 
@@ -213,7 +241,7 @@ function loadNotifications() {
             const unreadCount = data.filter(n => !n.read_at).length;
             const badge = document.getElementById('notif-badge');
             const list = document.getElementById('notif-list');
-            
+
             if (unreadCount > 0) {
                 badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
                 badge.style.display = 'inline';
@@ -234,14 +262,20 @@ function loadNotifications() {
                 const doctorName = data.doctor_name || '';
                 const timeSlot = data.time_slot || '';
                 const workDate = data.work_date ? new Date(data.work_date).toLocaleDateString('vi-VN') : '';
-                
+
                 let message = '';
                 if (n.type === 'new_booking') {
                     message = `<strong>${patientName}</strong> đã đặt lịch khám${doctorName ? ' với BS. ' + doctorName : ''}`;
+                } else if (n.type === 'booking_cancelled') {
+                    const reason = data.cancel_reason || '';
+                    message = `<strong>${patientName}</strong> đã bị huỷ lịch${doctorName ? ' (BS. ' + doctorName + ')' : ''}`;
+                    if (reason) message += `<br><small style="color:#dc2626">Lý do: ${reason}</small>`;
+                } else if (n.type === 'booking_transferred') {
+                    message = `<strong>${patientName}</strong> đã được chuyển sang BS. <strong>${data.new_doctor_name || 'bác sĩ mới'}</strong>`;
                 }
-                
+
                 const time = new Date(n.created_at).toLocaleString('vi-VN');
-                
+
                 return `
                     <div class="dropdown-item ${bgClass}" style="white-space:normal;padding:10px 15px;border-bottom:1px solid #f0f0f0">
                         <div style="font-size:13px">${message}</div>

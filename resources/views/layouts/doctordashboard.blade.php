@@ -63,7 +63,7 @@
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" style="min-width:350px;max-height:500px;overflow-y:auto">
                     <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
                         <span class="dropdown-item-title font-weight-bold">Thông báo</span>
-                        <form action="{{ route('notifications.markAllRead') }}" method="POST" style="display:inline">
+                        <form action="{{ route('patient.notifications.readAll') }}" method="POST" style="display:inline">
                             @csrf
                             <button type="submit" class="btn btn-link btn-sm p-0" style="font-size:11px">Đánh dấu đã đọc tất cả</button>
                         </form>
@@ -109,16 +109,21 @@
             <div class="user-panel mt-3 pb-3 mb-3 d-flex">
 
                 <div class="image">
-
-                    <img src="https://i.pravatar.cc/150"
-                         class="img-circle elevation-2">
-
+                    @if(auth()->user()->avatar_url)
+                        <img src="{{ asset('storage/' . auth()->user()->avatar_url) }}"
+                             class="img-circle elevation-2"
+                             style="width:33px;height:33px;object-fit:cover" alt="Avatar">
+                    @else
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->full_name) }}&background=4361ee&color=fff"
+                             class="img-circle elevation-2"
+                             style="width:33px;height:33px;object-fit:cover" alt="Avatar">
+                    @endif
                 </div>
 
                 <div class="info">
 
-                    <a href="#" class="d-block">
-                        {{ auth()->user()->name }}
+                    <a href="{{ route('dashboard') }}" class="d-block">
+                        {{ auth()->user()->full_name }}
                     </a>
 
                 </div>
@@ -128,7 +133,7 @@
             <!-- Menu -->
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                    @if(auth()->user()->role === 'doctor')
+                    @if(auth()->user()->isDoctor())
                     <li class="nav-item">
                         <a href="{{route('doctor.bookings.index')}}" class="nav-link {{ request()->routeIs('doctor.bookings*') ? 'active' : '' }}">
                             <i class="nav-icon fas fa-calendar-check"></i>
@@ -213,7 +218,7 @@ function loadNotifications() {
             const unreadCount = data.filter(n => !n.read_at).length;
             const badge = document.getElementById('notif-badge');
             const list = document.getElementById('notif-list');
-            
+
             if (unreadCount > 0) {
                 badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
                 badge.style.display = 'inline';
@@ -234,14 +239,18 @@ function loadNotifications() {
                 const patientEmail = data.patient_email || '';
                 const timeSlot = data.time_slot || '';
                 const workDate = data.work_date ? new Date(data.work_date).toLocaleDateString('vi-VN') : '';
-                
+
                 let message = '';
                 if (n.type === 'new_booking') {
                     message = `<strong>${patientName}</strong> đã đặt lịch khám`;
+                } else if (n.type === 'booking_cancelled') {
+                    const reason = data.cancel_reason || '';
+                    message = `<strong>${patientName}</strong> đã huỷ lịch hẹn`;
+                    if (reason) message += `<br><small style="color:#dc2626">Lý do: ${reason}</small>`;
                 }
-                
+
                 const time = new Date(n.created_at).toLocaleString('vi-VN');
-                
+
                 return `
                     <div class="dropdown-item ${bgClass}" style="white-space:normal;padding:10px 15px;border-bottom:1px solid #f0f0f0">
                         <div style="font-size:13px">${message}</div>

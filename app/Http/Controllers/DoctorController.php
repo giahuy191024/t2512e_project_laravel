@@ -7,11 +7,11 @@ use Illuminate\Http\Request;
 use App\Models\Doctor;
 use App\Models\DoctorSchedule;
 use App\Models\TimeSlot;
-use App\Models\DoctorWeekSchedule;
 use App\Models\Booking;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class DoctorController extends Controller
 {
@@ -21,15 +21,28 @@ class DoctorController extends Controller
     public function dashboard()
     {
         $doctorId = Auth::user()->doctor->id;
+        $today    = Carbon::today();
 
-        // Thống kê nhanh
-        $countBookings = Booking::whereHas('timeSlot.doctorSchedule', function($q) use ($doctorId) {
-            $q->where('doctor_id', $doctorId);
-        })->count();
+        // Helper tránh lặp code
+        $baseQuery = fn() => Booking::whereHas('slot.schedule', fn($q) => $q->where('doctor_id', $doctorId));
 
-        return view('layouts.doctordashboard', compact('countBookings'));
+        $stats = [
+            'total'     => $baseQuery()->count(),
+            'pending'   => $baseQuery()->where('status', Booking::STATUS_PENDING)->count(),
+            'completed' => $baseQuery()->where('status', Booking::STATUS_COMPLETED)->count(),
+            'today'     => Booking::whereHas('slot.schedule', fn($q) =>
+            $q->where('doctor_id', $doctorId)->whereDate('work_date', $today)
+            )->count(),
+        ];
+
+        $todayBookings = Booking::with(['patient.user', 'slot.schedule'])
+            ->whereHas('slot.schedule', fn($q) =>
+            $q->where('doctor_id', $doctorId)->whereDate('work_date', $today)
+            )
+            ->get();
+
+        return view('doctor.dashboard', compact('stats', 'todayBookings'));
     }
-
     // ==========================================
     // 2. QUẢN LÝ LỊCH KHÁM (Bệnh nhân đã đặt)
     // ==========================================
@@ -37,47 +50,43 @@ class DoctorController extends Controller
     {
         $doctorId = Auth::user()->doctor->id;
 
-        $bookings = Booking::with(['patient.user', 'timeSlot.doctorSchedule'])
-            ->whereHas('timeSlot.doctorSchedule', function($q) use ($doctorId) {
+        // Đổi tên relationship cho khớp Model mới
+        $bookings = Booking::with(['patient.user', 'slot.schedule'])
+            ->whereHas('slot.schedule', function($q) use ($doctorId) {
                 $q->where('doctor_id', $doctorId);
             })
             ->orderByDesc('created_at')
             ->get();
 
-        // Stats
+        // Thống kê - dùng constants từ Booking model cho dễ đọc
         $stats = [
             'total'     => $bookings->count(),
-            'pending'   => $bookings->where('status', 0)->count(),
-            'confirmed' => $bookings->where('status', 1)->count(),
-            'done'      => $bookings->where('status', 2)->count(),
-            'cancelled' => $bookings->where('status', 3)->count(),
+            'pending'   => $bookings->where('status', Booking::STATUS_PENDING)->count(),
+            'confirmed' => $bookings->where('status', Booking::STATUS_CONFIRMED)->count(),
+            'done'      => $bookings->where('status', Booking::STATUS_COMPLETED)->count(),
+            'cancelled' => $bookings->where('status', Booking::STATUS_CANCELLED)->count(),
         ];
 
         return view('doctor.bookings', compact('bookings', 'stats'));
     }
 
+    public function showBooking($id)
+    {
+        $booking = Booking::with(['patient.user', 'slot.schedule.doctor.user'])
+            ->findOrFail($id);
+        return view('doctor.booking_detail', compact('booking'));
+    }
+
     public function updateBookingStatus(Request $request, $id)
     {
-        $request->validate(['status' => 'required|in:1,2,3']);
-        $booking = Booking::with('timeSlot')->findOrFail($id);
+        // Schema mới hỗ trợ status từ 1-5
+        $request->validate(['status' => 'required|in:1,2,3,4,5']);
+        $booking = Booking::findOrFail($id);
 
         $data = ['status' => $request->status];
 
-        // Nếu bác sĩ huỷ → giảm current_patient và đặt patient_read = 0
-        if ($request->status == 3) {
-            // Giảm số người đã đặt
-            if ($booking->timeSlot) {
-                $slot = $booking->timeSlot;
-                $slot->decrement('current_patient');
-                $slot->refresh();
-                
-                // Nếu slot vừa có chỗ trống, đổi status lại thành available
-                if ($slot->current_patient < $slot->max_patient && $slot->status == 0) {
-                    $slot->update(['status' => 1]);
-                }
-            }
-            
-            $data['patient_read'] = 0;
+        // Bỏ 'patient_read' (cột không tồn tại trong schema mới)
+        if ($request->status == Booking::STATUS_CANCELLED) {
             $data['cancel_reason'] = $request->cancel_reason ?? 'Bác sĩ đã huỷ lịch hẹn.';
         }
 
@@ -91,274 +100,183 @@ class DoctorController extends Controller
     public function indexSchedules()
     {
         $doctorId = Auth::user()->doctor->id;
-        // Tự động thêm tuần mới nếu chưa có
-        $latestWeek = DoctorWeekSchedule::where('doctor_id', $doctorId)
-            ->orderBy('week_start', 'desc')
-            ->value('week_start');
 
-        $nextMonday = \Carbon\Carbon::now()->startOfWeek(1)->addWeek();
-        if ($latestWeek === null || $latestWeek < $nextMonday->toDateString()) {
-            // Tạo tuần mới
-            $weekdays = range(1, 6); // Thứ 2 đến Thứ 7
-            $defaultSlots = \App\Models\DoctorWeekSchedule::defaultSlots();
-            foreach ($weekdays as $dow) {
-                foreach (array_keys($defaultSlots) as $slot) {
-                    \App\Models\DoctorWeekSchedule::create([
-                        'doctor_id' => $doctorId,
-                        'week_start' => $nextMonday->toDateString(),
-                        'day_of_week' => $dow,
-                        'slot_code' => $slot,
-                    ]);
-                }
-            }
-            // Xóa tất cả các tuần cũ hơn tuần mới
-            DoctorWeekSchedule::where('doctor_id', $doctorId)
-                ->where('week_start', '<', $nextMonday->toDateString())
-                ->delete();
-        }
-
-        // Sử dụng DoctorWeekSchedule: nhóm theo tuần (week_start = Monday of the week)
-        $schedules = DoctorWeekSchedule::where('doctor_id', $doctorId)
-            ->orderBy('week_start', 'desc')
+        $schedules = DoctorSchedule::with('timeSlots')
+            ->where('doctor_id', $doctorId)
+            ->orderBy('work_date', 'asc')
             ->get()
-            ->groupBy('week_start');
+            ->groupBy(function($item) {
+                // Gom các lịch tạo cùng phút + cùng khung giờ thành 1 "đợt đăng ký"
+                return $item->created_at->format('Y-m-d H:i') . '-' . $item->start_time . '-' . $item->end_time;
+            });
 
         return view('doctor.schedules', compact('schedules'));
     }
 
     public function createSchedule()
     {
-        // Prepare default next Monday as week_start
-        $nextMonday = \Carbon\Carbon::now()->startOfWeek()->addWeek();
-        return view('doctor.schedulescreate', ['defaultWeekStart' => $nextMonday->toDateString()]);
+        return view('doctor.schedulescreate');
     }
 
     public function storeSchedule(Request $request)
     {
         $request->validate([
-            'week_start' => 'required|date',
-            'week_days' => 'required|array',
-            'slots' => 'required|array',
+            'week_days'     => 'required|array',
+            'start_date'    => 'required|date',
+            'end_date'      => 'required|date|after:start_date',
+            'start_time'    => 'required',
+            'end_time'      => 'required|after:start_time',
+            'slot_duration' => 'required|integer|min:5|max:120',
         ]);
 
-        $doctorId = auth()->user()->doctor->id;
+        $doctorId = Auth::user()->doctor->id;
+        $weekDays = $request->week_days;
+        $period   = CarbonPeriod::create($request->start_date, $request->end_date);
 
-        $weekStartInput = \Carbon\Carbon::parse($request->week_start);
-        // Normalize to Monday as week_start
-        $weekStart = $weekStartInput->copy()->startOfWeek();
-
-        // Delete existing entries for this doctor and week to force re-registration each week
-        DoctorWeekSchedule::where('doctor_id', $doctorId)
-            ->where('week_start', $weekStart->toDateString())
-            ->delete();
-
-        $weekDays = $request->week_days; // values 1..7 (1=Monday)
-        $slots = $request->slots; // array of slot_codes
-
-        $toInsert = [];
-        foreach ($weekDays as $day) {
-            foreach ($slots as $slot) {
-                $toInsert[] = [
-                    'doctor_id' => $doctorId,
-                    'week_start' => $weekStart->toDateString(),
-                    'day_of_week' => (int)$day,
-                    'slot_code' => $slot,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
+        foreach ($period as $date) {
+            if (in_array($date->dayOfWeek, $weekDays)) {
+                $schedule = DoctorSchedule::create([
+                    'doctor_id'  => $doctorId,
+                    'work_date'  => $date->toDateString(),
+                    'start_time' => $request->start_time,
+                    'end_time'   => $request->end_time,
+                ]);
+                $this->generateTimeSlots($schedule, $request->slot_duration);
             }
         }
 
-        // Bulk insert (unique constraint prevents duplicates)
-        if (!empty($toInsert)) {
-            DoctorWeekSchedule::insert($toInsert);
-        }
-
-        return redirect()->route('doctor.schedules.index')->with('success', 'Đã đăng ký lịch tuần thành công!');
+        return redirect()->route('doctor.schedules.index')
+            ->with('success', 'Đã thiết lập lịch làm việc định kỳ thành công!');
     }
+
     private function generateTimeSlots($schedule, $duration)
     {
         $duration = (int)$duration;
         $start = Carbon::parse($schedule->start_time);
-        $end = Carbon::parse($schedule->end_time);
+        $end   = Carbon::parse($schedule->end_time);
 
         while ($start->copy()->addMinutes($duration) <= $end) {
             $slotEnd = $start->copy()->addMinutes($duration);
 
-            \App\Models\TimeSlot::create([
-                'schedule_id' => $schedule->id,
-                'start_time' => $start->format('H:i'),
-                'end_time' => $slotEnd->format('H:i'),
-                'max_patient' => 1,
+            TimeSlot::create([
+                'schedule_id'     => $schedule->id,
+                'start_time'      => $start->format('H:i'),
+                'end_time'        => $slotEnd->format('H:i'),
+                'max_patient'     => 1,
                 'current_patient' => 0,
-                'status' => 1
+                'status'          => TimeSlot::STATUS_AVAILABLE,
             ]);
-
             $start->addMinutes($duration);
         }
     }
 
-    //===========================================
-    // 4. THÔNG TIN CÁ NHÂN (Profile)
+    // ==========================================
+    // 4. PROFILE
     // ==========================================
     public function profile()
     {
-        $doctor = Doctor::with('user')->where('user_id', Auth::id())->firstOrFail();
+        $doctor = Doctor::with('user')
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
         return view('doctor.profile', compact('doctor'));
     }
 
     public function updateProfile(Request $request)
     {
-        $doctor = Auth::user()->doctor;
+        $user   = Auth::user();
+        $doctor = $user->doctor;
 
         $request->validate([
-            'full_name'      => 'required|string|max:255',
-            'phone_number'   => 'required|string|max:20',
-            'description'    => 'nullable|string',
-            'qualifications' => 'nullable|string|max:255',
-            'password'       => 'nullable|string|min:8|confirmed',
-            'certificates.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
-            'delete_cert'    => 'nullable|array',
+            'full_name'        => 'required|string|max:255',
+            'specialty'        => 'nullable|string|max:100',
+            'experience_years' => 'nullable|integer|min:0',
+            'bio'              => 'nullable|string',
+            'password'         => 'nullable|string|min:6|confirmed',
+            'avatar'           => 'nullable|image|mimes:jpg,jpeg,png|max:2048',     // 2MB
+            'certificate'      => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',   // 5MB
         ]);
 
-        $doctor->update($request->only(['full_name', 'phone_number', 'description', 'qualifications']));
-
-        // Xử lý xoá chứng chỉ cũ
-        $existing = $doctor->certificates ?? [];
-        if ($request->has('delete_cert')) {
-            foreach ($request->delete_cert as $path) {
-                \Storage::disk('public')->delete($path);
-                $existing = array_filter($existing, fn($p) => $p !== $path);
-            }
-        }
-
-        // Upload chứng chỉ mới
-        if ($request->hasFile('certificates')) {
-            foreach ($request->file('certificates') as $file) {
-                $path = $file->store('certificates', 'public');
-                $existing[] = $path;
-            }
-        }
-
-        $doctor->certificates = array_values($existing);
-        $doctor->save();
-
-        // Đổi mật khẩu nếu người dùng nhập
+        // 1. Cập nhật User (full_name + password + avatar)
+        $user->full_name = $request->full_name;
         if ($request->filled('password')) {
-            Auth::user()->update([
-                'password' => bcrypt($request->password),
-            ]);
+            $user->password = Hash::make($request->password);
         }
+
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar_url && \Storage::disk('public')->exists($user->avatar_url)) {
+                \Storage::disk('public')->delete($user->avatar_url);
+            }
+            $user->avatar_url = $request->file('avatar')->store('avatars', 'public');
+        }
+
+        $user->save();
+
+        // 2. Cập nhật Doctor (specialty + experience_years + bio + certificate)
+        $doctor->specialty        = $request->specialty;
+        $doctor->experience_years = $request->experience_years;
+        $doctor->bio              = $request->bio;
+
+        if ($request->hasFile('certificate')) {
+            if ($doctor->certificate_url && \Storage::disk('public')->exists($doctor->certificate_url)) {
+                \Storage::disk('public')->delete($doctor->certificate_url);
+            }
+            $doctor->certificate_url = $request->file('certificate')->store('certificates', 'public');
+        }
+
+        $doctor->save();
 
         return back()->with('success', 'Cập nhật thông tin thành công!');
     }
-    //tung slot chinh sua thong tin
-    // Cập nhật trạng thái (Khóa/Mở)
-    // Cập nhật giờ của ca khám
+    // ==========================================
+    // 5. SLOT - chỉnh sửa từng ca khám
+    // ==========================================
     public function updateSlot(Request $request)
     {
-        $slot = \App\Models\TimeSlot::findOrFail($request->slot_id);
+        $slot = TimeSlot::findOrFail($request->slot_id);
 
         if ($slot->current_patient > 0) {
-            return redirect()->back()->with('error', 'Không thể sửa ca đã có người đặt!');
+            return back()->with('error', 'Không thể sửa ca đã có người đặt!');
         }
 
         $slot->update([
             'start_time' => $request->start_time,
-            'end_time' => $request->end_time,
+            'end_time'   => $request->end_time,
         ]);
 
-        return redirect()->back()->with('success', 'Đã cập nhật giờ khám mới!');
+        return back()->with('success', 'Đã cập nhật giờ khám mới!');
     }
 
-// Xóa ca khám
     public function destroySlot($id)
     {
-        $slot = \App\Models\TimeSlot::findOrFail($id);
+        $slot = TimeSlot::findOrFail($id);
 
         if ($slot->current_patient > 0) {
             return response()->json(['message' => 'Không thể xóa ca đã có người đặt!'], 400);
         }
 
         $slot->delete();
-
-        // Trả về thành công mà không cần load lại trang
         return response()->json(['success' => true]);
     }
-    //xoa dot lich
+
     public function destroyGroup(Request $request)
     {
-        $ids = $request->input('ids'); // Nhận mảng ID từ form
+        $ids = $request->input('ids');
 
-        if (!empty($ids)) {
-            // Kiểm tra xem có ca nào trong đợt này đã có khách đặt chưa
-            $hasBooking = \App\Models\TimeSlot::whereIn('schedule_id', $ids)
-                ->where('current_patient', '>', 0)
-                ->exists();
-
-            if ($hasBooking) {
-                return redirect()->back()->with('error', 'Không thể xóa đợt này vì đã có ca khám có bệnh nhân đặt lịch!');
-            }
-
-            // Xóa các TimeSlots trước (nếu ông không dùng cascade delete trong DB)
-            \App\Models\TimeSlot::whereIn('schedule_id', $ids)->delete();
-
-            // Xóa các DoctorSchedules
-            \App\Models\DoctorSchedule::whereIn('id', $ids)->delete();
-
-            return redirect()->back()->with('success', 'Đã xóa toàn bộ đợt lịch làm việc!');
+        if (empty($ids)) {
+            return back()->with('error', 'Không tìm thấy dữ liệu để xóa.');
         }
 
-        return redirect()->back()->with('error', 'Không tìm thấy dữ liệu để xóa.');
-    }
+        $hasBooking = TimeSlot::whereIn('schedule_id', $ids)
+            ->where('current_patient', '>', 0)
+            ->exists();
 
-    // Xóa cả tuần (week_start)
-    public function destroyWeek(Request $request)
-    {
-        $doctorId = Auth::user()->doctor->id;
-        $weekStart = $request->input('week_start');
-
-        if (!$weekStart) {
-            return redirect()->back()->with('error', 'Thiếu thông tin tuần cần xóa');
+        if ($hasBooking) {
+            return back()->with('error', 'Không thể xóa đợt này vì đã có bệnh nhân đặt lịch!');
         }
 
-        DoctorWeekSchedule::where('doctor_id', $doctorId)
-            ->where('week_start', $weekStart)
-            ->delete();
+        TimeSlot::whereIn('schedule_id', $ids)->delete();
+        DoctorSchedule::whereIn('id', $ids)->delete();
 
-        return redirect()->back()->with('success', 'Đã xóa lịch tuần thành công');
-    }
-
-    // Toggle a week slot on/off for the doctor (AJAX)
-    public function toggleWeekSlot(Request $request)
-    {
-        $request->validate([
-            'week_start' => 'required|date',
-            'day_of_week' => 'required|integer|min:1|max:7',
-            'slot_code' => 'required|string',
-            'enabled' => 'required|boolean',
-        ]);
-
-        $doctorId = Auth::user()->doctor->id;
-        $weekStart = \Carbon\Carbon::parse($request->week_start)->startOfWeek()->toDateString();
-
-        if ($request->enabled) {
-            // insert if not exists
-            DoctorWeekSchedule::firstOrCreate([
-                'doctor_id' => $doctorId,
-                'week_start' => $weekStart,
-                'day_of_week' => (int)$request->day_of_week,
-                'slot_code' => $request->slot_code,
-            ]);
-            return response()->json(['success' => true, 'message' => 'Enabled']);
-        } else {
-            // delete if exists
-            DoctorWeekSchedule::where('doctor_id', $doctorId)
-                ->where('week_start', $weekStart)
-                ->where('day_of_week', (int)$request->day_of_week)
-                ->where('slot_code', $request->slot_code)
-                ->delete();
-            return response()->json(['success' => true, 'message' => 'Disabled']);
-        }
+        return back()->with('success', 'Đã xóa toàn bộ đợt lịch làm việc!');
     }
 }

@@ -2,51 +2,22 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+// Tên class trùng với Illuminate\Notifications\Notification nhưng namespace khác (App\Models)
+// nên không xung đột
 class Notification extends Model
 {
-    protected $fillable = [
-        'user_id',
-        'type',
-        'data',
-        'booking_id',
-        'read_at',
-    ];
+    use HasFactory;
 
-    protected $casts = [
-        'data' => 'array',
-        'read_at' => 'datetime',
-    ];
+    // Bảng notifications chỉ có created_at, KHÔNG có updated_at
+    public $timestamps = false;
+    protected $dates = ['created_at'];
 
-    // Relations
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+    protected $fillable = ['user_id', 'booking_id', 'type', 'message', 'created_at'];
 
-    public function booking()
-    {
-        return $this->belongsTo(Booking::class);
-    }
-
-    // Scopes
-    public function scopeUnread($query)
-    {
-        return $query->whereNull('read_at');
-    }
-
-    public function scopeRead($query)
-    {
-        return $query->whereNotNull('read_at');
-    }
-
-    // Mark as read
-    public function markAsRead()
-    {
-        if (is_null($this->read_at)) {
-            $this->read_at = now();
-            $this->save();
-        }
-    }
+    public function user(): BelongsTo { return $this->belongsTo(User::class); }
+    public function booking(): BelongsTo { return $this->belongsTo(Booking::class); }
 }
