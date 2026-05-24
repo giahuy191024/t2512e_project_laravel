@@ -10,6 +10,8 @@ use App\Models\TimeSlot;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Specialty;
+use App\Models\City;
 
 class PatientController extends Controller
 {
@@ -122,15 +124,34 @@ class PatientController extends Controller
     // ===== TÌM BÁC SĨ =====
     public function doctors(Request $request)
     {
-        $query = Doctor::with('user')->where('status', 1);
-        // Lọc theo chuyên khoa
-        if ($request->filled('specialty')) {
-            $query->where('specialty', $request->specialty);
+        $query = Doctor::with(['user', 'specialty', 'city'])->where('status', 1);
+
+        // Lọc theo chuyên khoa (FK với fallback text legacy)
+        if ($request->filled('specialty_id')) {
+            $specialty = Specialty::find($request->specialty_id);
+            $query->where(function($q) use ($request, $specialty) {
+                $q->where('specialty_id', $request->specialty_id);
+                if ($specialty) {
+                    $q->orWhere(function($qq) use ($specialty) {
+                        $qq->whereNull('specialty_id')->where('specialty', $specialty->name);
+                    });
+                }
+            });
         }
-        // Lọc theo thành phố (mới)
-        if ($request->filled('city')) {
-            $query->where('city', $request->city);
+
+        // Lọc theo thành phố
+        if ($request->filled('city_id')) {
+            $city = City::find($request->city_id);
+            $query->where(function($q) use ($request, $city) {
+                $q->where('city_id', $request->city_id);
+                if ($city) {
+                    $q->orWhere(function($qq) use ($city) {
+                        $qq->whereNull('city_id')->where('city', $city->name);
+                    });
+                }
+            });
         }
+
         // Lọc theo tên
         if ($request->filled('keyword')) {
             $keyword = $request->keyword;
@@ -138,8 +159,12 @@ class PatientController extends Controller
                 $q->where('full_name', 'like', "%{$keyword}%");
             });
         }
-        $doctors = $query->get();
-        return view('patient.doctors', compact('doctors'));
+
+        $doctors     = $query->get();
+        $specialties = Specialty::active()->orderBy('sort_order')->get();
+        $cities      = City::active()->orderBy('sort_order')->get();
+
+        return view('patient.doctors', compact('doctors', 'specialties', 'cities'));
     }
 
     public function doctorDetail($id)
@@ -155,7 +180,7 @@ class PatientController extends Controller
             return redirect()->route('patient.doctors');
         }
 
-        $doctor = Doctor::with(['user'])->findOrFail($doctor_id);
+        $doctor = Doctor::with(['user', 'specialty', 'city'])->findOrFail($doctor_id);
 
         $schedules = DoctorSchedule::with(['timeSlots' => function ($query) {
             $query->where('status', TimeSlot::STATUS_AVAILABLE)
@@ -217,5 +242,35 @@ class PatientController extends Controller
     public function news()
     {
         return view('patient.medical-news');
+    }
+    // ===== HỦY LỊCH HẸN =====
+    public function cancelBooking($id)
+    {
+        $booking = Booking::findOrFail($id);
+
+        // Check ownership
+        $patient = auth()->user()->patient;
+        if (!$patient || $booking->patient_id !== $patient->id) {
+            return back()->with('error', '❌ Bạn không có quyền hủy lịch này');
+        }
+
+        // Không cho hủy nếu đã hủy rồi
+        if ($booking->status === Booking::STATUS_CANCELLED) {
+            return back()->with('error', '⚠️ Lịch này đã được hủy trước đó');
+        }
+
+        // Cập nhật status
+        $booking->status = Booking::STATUS_CANCELLED;
+        $booking->save();
+
+        // Giảm current_patient của slot và mở lại nếu slot đang FULL
+        if ($booking->slot) {
+            $booking->slot->decrement('current_patient');
+            if ($booking->slot->status === TimeSlot::STATUS_FULL) {
+                $booking->slot->update(['status' => TimeSlot::STATUS_AVAILABLE]);
+            }
+        }
+
+        return back()->with('success', '✅ Đã hủy lịch hẹn thành công');
     }
 }

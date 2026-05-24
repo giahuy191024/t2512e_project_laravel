@@ -63,7 +63,7 @@
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" style="min-width:350px;max-height:500px;overflow-y:auto">
                     <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
                         <span class="dropdown-item-title font-weight-bold">Thông báo</span>
-                        <form action="{{ route('notifications.markAllRead') }}" method="POST" style="display:inline">
+                        <form action="{{ route('patient.notifications.readAll') }}" method="POST" style="display:inline">
                             @csrf
                             <button type="submit" class="btn btn-link btn-sm p-0" style="font-size:11px">Đánh dấu đã đọc tất cả</button>
                         </form>
@@ -218,7 +218,7 @@ function loadNotifications() {
             const unreadCount = data.filter(n => !n.read_at).length;
             const badge = document.getElementById('notif-badge');
             const list = document.getElementById('notif-list');
-            
+
             if (unreadCount > 0) {
                 badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
                 badge.style.display = 'inline';
@@ -239,7 +239,7 @@ function loadNotifications() {
                 const patientEmail = data.patient_email || '';
                 const timeSlot = data.time_slot || '';
                 const workDate = data.work_date ? new Date(data.work_date).toLocaleDateString('vi-VN') : '';
-                
+
                 let message = '';
                 if (n.type === 'new_booking') {
                     message = `<strong>${patientName}</strong> đã đặt lịch khám`;
@@ -248,9 +248,9 @@ function loadNotifications() {
                     message = `<strong>${patientName}</strong> đã huỷ lịch hẹn`;
                     if (reason) message += `<br><small style="color:#dc2626">Lý do: ${reason}</small>`;
                 }
-                
+
                 const time = new Date(n.created_at).toLocaleString('vi-VN');
-                
+
                 return `
                     <div class="dropdown-item ${bgClass}" style="white-space:normal;padding:10px 15px;border-bottom:1px solid #f0f0f0">
                         <div style="font-size:13px">${message}</div>
